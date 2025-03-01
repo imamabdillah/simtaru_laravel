@@ -1,0 +1,1 @@
+<h1>Foto Detail</h1>

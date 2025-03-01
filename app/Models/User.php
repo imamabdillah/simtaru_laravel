@@ -17,21 +17,24 @@ class User extends Authenticatable
      *
      * @var list<string>
      */
+
+    
+     protected $table = 'user_login';
+     protected $primaryKey = 'id_user';
+     public $timestamps = false;
+
     protected $fillable = [
-        'name',
-        'email',
-        'password',
+        'user_name', 'user_pass'
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
     protected $hidden = [
-        'password',
-        'remember_token',
+        'user_pass'
     ];
+
+    public function detail()
+    {
+        return $this->hasOne(UserDetail::class, 'id_user', 'id_user');
+    }
 
     /**
      * Get the attributes that should be cast.

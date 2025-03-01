@@ -1,0 +1,416 @@
+header{
+    position: absolute;
+    top: 0;
+    left: 0;
+    margin: 0 auto;
+    float: left;
+    width: 100%;
+    z-index: 999;
+}
+
+.mega-menu-cust{
+    margin: 0 auto;
+    padding: 0;
+    display: block;
+    float: none;
+    position: relative;
+    z-index: 999;
+    max-width: 1280px;
+    width: 100%;
+    font-size: 16px;
+    font-family: "Open Sans", sans-serif;
+    min-height: 50px;
+    clear: both;
+    box-sizing: border-box;
+}
+
+.menu-list-items-cust{
+    background: 0 0;
+    padding-top: 25px;
+}
+
+.menu-logo-cust{
+    margin: 0;
+    padding: 0;
+    display: block;
+    float: left;
+    position: relative;
+}
+
+.menu-logo-cust > li {
+    margin: 0;
+    padding: 0;
+    display: block;
+    float: left;
+    font-size: 1em;
+    line-height: 50px;
+}
+
+header .menu-logo-cust>li>a {
+    padding: 0;
+    font-family: nunito, sans-serif;
+}
+.menu-logo-cust > li > a {
+    margin: 0;
+    display: inline-block;
+    float: left;
+    width: 100%;
+    color: #fff;
+    font-size: 0.8125em;
+    padding: 0 20px 0 45px;
+    line-height: 50px;
+    transition: background-color 200ms ease;
+}
+
+.menu-logo-cust > li > a img {
+    width: 20px;
+    height: 20px;
+    position: absolute;
+    top: 0;
+    left: 15px;
+    bottom: 0;
+    margin: auto 0;
+}
+
+.menu-logo-cust>li>a img {
+    width: auto;
+    position: relative;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    height: 40px;
+    margin-top: 6px;
+}
+
+.mega-menu-cust .menu-search-bar-cust {
+    margin: 0;
+    padding: 0;
+    display: block;
+    float: right;
+    position: relative;
+    height: 50px;
+}
+
+.hide-mobile {
+    display: block !important;
+}
+
+.hide-pc {
+    display: none !important;
+}
+
+.bg-logo-utama{
+    background: linear-gradient(180deg, #ac6a00 0%, #e48c00 25%, #fdac2b 100%);
+    position: absolute;
+    top: -25px;
+    width: calc( 100% + 50px );
+    height: 85px;
+    left: -25px;
+    border-radius: 0 0 15px 15px;
+    box-shadow: 0px 4px 5px 0px #1f000085;
+}
+
+.mega-menu-cust i.fas {
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
+}
+
+.mega-menu-cust .menu-search-bar-cust i.facustoms {
+    position: relative !important;
+    top: 0;
+    /* right: 0; */
+    bottom: 0;
+    /* width: 50px; */
+    text-align: center;
+    /* line-height: 50px; */
+    color: #fff;
+    /* cursor: text; */
+    transition: background 200ms ease;
+    z-index: 40;
+}
+
+
+header .mega-menu-cust .menu-search-bar-cust i.facustoms {
+    cursor: pointer;
+    background: #fdac2b !important;
+    border-radius: 90px;
+    right: 30px;
+    height: 48px;
+    width: 48px;
+    line-height: 48px;
+}
+
+header .mega-menu-cust .menu-search-bar-cust i.facustoms:hover{
+    background: #000000 !important;
+}
+
+.div-layers {
+    background: white;
+    width: 300px;
+    height: 500px;
+    border-radius: 15px;
+    box-shadow: 0px 1px 20px 0px #00000030;
+    position: absolute;
+    right: 4rem;
+    top: 100px;
+    z-index: 999;
+    overflow: hidden;
+}
+
+.div-search {
+    background: white;
+    width: 300px;
+    height: 500px;
+    border-radius: 15px;
+    box-shadow: 0px 1px 20px 0px #00000030;
+    position: absolute;
+    right: 4rem;
+    top: 100px;
+    z-index: 999;
+    overflow: hidden;
+}
+
+.div-infolayers {
+    background: white;
+    width: 300px;
+    height: 500px;
+    border-radius: 15px;
+    box-shadow: 0px 1px 20px 0px #00000030;
+    position: absolute;
+    right: 4rem;
+    top: 100px;
+    z-index: 999;
+    overflow: hidden;
+}
+
+.div-basemap {
+    background: white;
+    width: 300px;
+    height: 500px;
+    border-radius: 15px;
+    box-shadow: 0px 1px 20px 0px #00000030;
+    position: absolute;
+    right: 4rem;
+    top: 100px;
+    z-index: 999;
+    overflow: hidden;
+}
+
+.show {
+    display: block !important;
+    -webkit-animation: fadein 1s;
+    /* Safari, Chrome and Opera > 12.1 */
+    -moz-animation: fadein 1s;
+    /* Firefox < 16 */
+    -ms-animation: fadein 1s;
+    /* Internet Explorer */
+    -o-animation: fadein 1s;
+    /* Opera < 12.1 */
+    animation: fadein 1s;
+}
+
+.hide {
+    display: none !important;
+}
+
+.judul-div-peta {
+    background: #fdac2b;
+    color: white;
+    text-transform: uppercase;
+    text-align: center;
+    padding: 10px 0;
+    font-weight: 600;
+}
+
+.isi-div-peta {
+    color: #2b2b2b;
+    padding: 10px 15px;
+    height: 450px;
+}
+
+.o-y-scroll{
+    overflow-y: scroll;
+}
+
+/*
+ *  Scrollbar style 3
+ */
+
+ #style-3::-webkit-scrollbar-track
+ {
+     -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+     background-color: #F5F5F5;
+ }
+ 
+ #style-3::-webkit-scrollbar
+ {
+     width: 6px;
+     background-color: #F5F5F5;
+ }
+ 
+ #style-3::-webkit-scrollbar-thumb
+ {
+     background-color: #064900;
+ }
+
+ .r-0{
+    right: 0 !important;
+ }
+
+ 
+@keyframes fadein {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+/* Firefox < 16 */
+@-moz-keyframes fadein {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+/* Safari, Chrome and Opera > 12.1 */
+@-webkit-keyframes fadein {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+/* Internet Explorer */
+@-ms-keyframes fadein {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+/* Opera < 12.1 */
+@-o-keyframes fadein {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.desc-foot{
+    font-size: 1rem;
+    line-height: 1.25rem;
+    text-align: justify;
+}
+
+.max-w-100 {
+    max-width: 100%;
+}
+
+.w-peta-custom{
+    width: 550px;
+}
+
+.cust-footer{
+    padding: 50px 0 50px;
+}
+
+.map-custom{
+    width: 100%;
+    height: 100vh;
+}
+
+.head-cust-peta{
+    background-color: #ffffff00;
+    padding: 0px 0 20px 0;
+}
+
+header .container-fluid {
+    padding: 0 150px;
+}
+
+i.fas {
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@media screen and (max-width: 600px) {
+    .hide-mobile {
+        display: none !important;
+    }
+
+    .hide-pc {
+        display: block !important;
+    }
+
+    .bg-ijo {
+        background: #fdac2b !important;
+    }
+
+    .custom-links {
+        padding: 0 !important;
+    }
+
+    .map-custom{
+        margin: 0;
+    }
+    
+    .head-cust-peta{
+        background-color: #fdac2b;
+        padding: 10px 0;
+        box-shadow: 0px 15px 35px 0px rgba(0, 0, 0, 0.1);
+    }
+}
