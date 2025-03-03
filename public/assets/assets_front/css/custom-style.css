@@ -1,0 +1,314 @@
+html,
+body {
+    font-family: "Rubik", sans-serif !important;
+    overflow-x: hidden !important;
+    font-size: 1rem;
+    color: #212529;
+    background-color: #fff;
+}
+
+p {
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 24px;
+    /* or 150% */
+
+    /* grey */
+
+    color: var(--grey);
+
+    opacity: 0.65;
+}
+
+/* COLOR MASTER */
+:root {
+    --main-color: #143588;
+    --grey: #676c79;
+    --blue-tegal: #273f7f;
+}
+
+.divider img {
+    position: absolute;
+    bottom: -0.5px;
+    left: 0;
+
+    min-width: 100%;
+}
+.blue-divider img {
+    position: absolute;
+    bottom: 0px;
+    left: 0;
+
+    min-width: 100%;
+}
+
+#topnav {
+    position: fixed;
+    padding-top: 16px;
+    margin-bottom: 10px;
+    right: 0px;
+    left: 0px;
+    top: 0px;
+    z-index: 999;
+    background-color: hsl(0deg 0% 95.3% / 35%);
+    border: 0px;
+    transition: 0s !important;
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+}
+
+#topnav .navigation-menu > li > a {
+    text-transform: capitalize;
+    letter-spacing: 0;
+    font-weight: 400;
+    color: var(--blue-tegal);
+}
+
+#topnav .navigation-menu > li > a {
+    font-weight: 400;
+    font-size: 16px;
+    color: var(--blue-tegal);
+}
+
+#topnav .navigation-menu > li > a:hover,
+#topnav .navigation-menu > li > a.active {
+    font-weight: 600;
+    padding: 0 -10px;
+}
+
+.hero .btn {
+    display: inline-grid;
+    align-items: center;
+
+    border: 2px white solid;
+
+    left: 0;
+    color: white;
+
+    padding: 14px 35px;
+
+    width: 300px;
+    height: 60px;
+
+    /* accent */
+    background: none;
+
+    /* blue shadow */
+
+    border-radius: 8px;
+}
+
+.hero .btn:hover {
+    color: var(--main-color);
+    background: #fbe627;
+}
+
+.login-btn {
+    float: right;
+    line-height: 74px;
+}
+.login-btn .btn {
+    display: grid;
+    align-items: center;
+
+    height: 48px;
+    width: 146px;
+    color: var(--main-color);
+    border: 1px solid #143588;
+    /* grey shadow */
+
+    box-shadow: 4px 4px 25px rgba(225, 225, 225, 0.25);
+    border-radius: 8px;
+}
+.login-btn .btn:hover {
+    color: white;
+    background-color: var(--main-color);
+}
+
+.tentang-kami label {
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 17px;
+    /* identical to box height */
+
+    letter-spacing: 0.2em;
+
+    /* black */
+    color: #171717;
+
+    opacity: 0.4;
+}
+
+.tentang-kami .shape-divider {
+    width: 57px;
+    height: 8.05px;
+
+    background: #143588;
+    border-radius: 8px;
+}
+
+.tentang-kami .peta {
+    width: 100%;
+    height: 100%;
+}
+
+.footer {
+    height: 100%;
+    padding-top: 48px;
+    background-color: #143588;
+    position: relative;
+
+    color: white;
+}
+
+.footer .card {
+    border-radius: 24px !important;
+    color: var(--main-color);
+    right: auto;
+    overflow: hidden;
+}
+.footer .card-text p {
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--main-color);
+    opacity: 100;
+}
+
+.footer .card .btn {
+    border-radius: 8px !important;
+    color: var(--main-color);
+    font-weight: 600;
+}
+
+.footer .footer-bar,
+.footer .footer-border {
+    border-top: 1px solid white;
+    opacity: 0.41;
+}
+
+.footer .card-title {
+    font-weight: 500;
+    font-size: 16px;
+}
+.footer .soc-med i {
+    margin-right: 8px;
+}
+
+.footer .card .btn {
+    margin: 36px 0 0 0;
+    padding: 16px;
+    background-color: #fbe627;
+    z-index: 100;
+}
+.footer .card .btn:hover {
+    box-shadow: 4px 4px 25px rgba(53, 53, 53, 0.2);
+}
+
+footer .list-group .list-group-item {
+    background-color: transparent;
+    padding: 16px 0;
+
+    border: 0;
+    opacity: 1;
+}
+
+footer .list-group .list-group-item a {
+    color: white;
+
+    font-weight: 400;
+    font-size: 14px;
+}
+footer .list-group .list-group-item a:hover {
+    font-weight: 500;
+    color: white;
+    opacity: 1;
+}
+
+.back-to-top {
+    border: 1px white solid;
+    color: var(--main-color) !important;
+    background-color: white !important;
+}
+
+.card .eclipse1 {
+    position: absolute;
+    top: -100px;
+    left: -50px;
+}
+
+.card .eclipse2 {
+    position: absolute;
+    bottom: -30px;
+    right: -50px;
+    z-index: 0;
+}
+
+.table > thead {
+    vertical-align: middle !important;
+}
+
+thead th {
+    background-color: #f8f8f8 !important;
+    border: none;
+    font-weight: 600;
+    color: black;
+    font-size: 16px;
+}
+
+/* top-left border-radius */
+table tr:first-child th:first-child {
+    border-top-left-radius: 8px !important;
+    border-bottom-left-radius: 8px !important;
+}
+
+/* top-right border-radius */
+table tr:first-child th:last-child {
+    border-top-right-radius: 8px !important;
+    border-bottom-right-radius: 8px !important;
+}
+
+th,
+td {
+    align-items: center !important;
+    font-size: 14px;
+    color: #143588;
+    padding: 18px 32px !important;
+}
+
+.accordion .accordion-item {
+    margin: 4px 0;
+    border: none !important;
+    overflow: hidden;
+    box-shadow: none;
+}
+
+.accordion-button {
+    background-color: #f8f8f8 !important;
+    color: #171717 !important;
+    font-weight: 600;
+    border-radius: 8px !important;
+    margin-bottom: 16px;
+}
+.accordion-button:not(.collapsed) {
+    color: var(--main-color) !important;
+    background-color: #f8f8f8 !important;
+    border: none !important;
+    box-shadow: inset 0 -1px 0 rgb(0 0 0 / 13%);
+    font-weight: 700;
+
+    box-shadow: none !important;
+
+    margin-bottom: 16px;
+}
+
+/* bg overlay */
+.bg-overlay {
+    background-color: rgb(32 47 65 / 66%);
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+}

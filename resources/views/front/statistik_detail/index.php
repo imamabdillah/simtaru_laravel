@@ -1,0 +1,1 @@
+<h1>Statistic Detail</h1>

@@ -1,0 +1,185 @@
+.video-cust {
+    position: absolute;
+}
+
+.w-80 {
+    width: 80%;
+}
+
+.bg-cust-tata {
+    background-size: 100% !important;
+    background-repeat: repeat-x;
+    background-position: bottom !important;
+}
+
+.main-footer {
+    padding-top: 50px;
+}
+
+.iconbox .iconbox-icon-container {
+    width: 50px;
+}
+
+.iconbox .iconbox-icon-container i {
+    font-size: 3rem;
+}
+
+.hide-mobile {
+    display: block;
+}
+
+.hide-pc {
+    display: none;
+}
+
+.social-icon.social-icon-lg li {
+    margin: 0 1rem;
+}
+
+.judul-utama {
+    font-size: 3.5rem !important;
+    line-height: 3.5rem !important;
+    font-weight: 800;
+}
+
+.judul-kedua {
+    font-size: 2.5rem !important;
+    line-height: 2.5rem !important;
+    font-weight: 800;
+}
+
+.logo-sticky-cust {
+    height: 50px;
+    width: auto;
+}
+
+.is-stuck {
+    background-color: rgb(255 255 255 / 75%);
+}
+
+.is-stuck .social-icon a,
+.is-stuck .header-module .ld-module-trigger,
+.is-stuck .main-nav>li>a {
+    color: rgb(0 0 0 / 80%) !important;
+}
+
+.is-stuck .header-module .btn {
+    color: #e6262d;
+    border-color: #e62129;
+}
+
+.header-module .btn:hover {
+    color: #000;
+    border-color: hsla(0, 0%, 0%, 0.5);
+}
+
+.is-stuck .main-nav>li>a:hover {
+    color: #000 !important;
+}
+
+.nav-dark .main-nav>li.is-active>a,
+.nav-dark .main-nav>li.current-menu-item>a,
+.nav-dark .main-nav>li:hover>a,
+.nav-dark .main-nav>li>a,
+.nav-dark .main-nav>li>a:hover {
+    color: #000
+}
+
+.overlay-dark{
+    background-color: #0000007c;
+    position: absolute;
+    width: 150vw;
+    height: 150vh;
+    top: 0;
+    left: 0;
+}
+
+.o-hidden{
+    overflow: hidden;
+}
+
+.mover {
+    -webkit-animation: mover 1s infinite alternate;
+            animation: mover 1s infinite alternate;
+  }
+  
+  @-webkit-keyframes mover {
+    0% {
+      -webkit-transform: translateY(0);
+              transform: translateY(0);
+    }
+    100% {
+      -webkit-transform: translateY(5px);
+              transform: translateY(5px);
+    }
+  }
+  
+  @keyframes mover {
+    0% {
+      -webkit-transform: translateY(0);
+              transform: translateY(0);
+    }
+    100% {
+      -webkit-transform: translateY(5px);
+              transform: translateY(5px);
+    }
+  }
+
+  .shadow-img{
+      filter: drop-shadow(3px 3px 10px rgb(0, 0, 0));
+  }
+ 
+ .table-res-cust{
+    display: table !important;     
+ }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Smartphone */
+@media screen and (max-width: 600px) {
+    .hide-mobile {
+        display: none;
+    }
+
+    .hide-pc {
+        display: block;
+    }
+
+    .main-footer {
+        padding-top: 20px;
+    }
+
+    .judul-utama {
+        font-size: 2rem !important;
+        line-height: 2rem !important;
+        font-weight: 800;
+    }
+
+    .judul-kedua {
+        font-size: 1.5rem !important;
+        line-height: 1.5rem !important;
+        font-weight: 800;
+    }
+
+    .logo-sticky-cust {
+        height: auto;
+    }
+
+    .table-res-cust{
+        display: block !important;     
+     }
+}

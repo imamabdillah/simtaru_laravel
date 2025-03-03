@@ -1,0 +1,36 @@
+.dt_body_center 
+{
+    text-align: center;
+}
+
+.intip_bg_1{
+    background-color: #ff0000 !important;
+}
+
+.intip_bg_2{
+    background-color: #b90303 !important;
+}
+
+.intip_cl_1{
+    background-color: #ffffff !important;
+}
+
+.intip_cl_2{
+    background-color: #ff0000 !important;
+}
+
+#sidebar .nav-main a:hover>i {
+    color : #ff0000 !important;
+}
+
+#sidebar .nav-main li.open>a.nav-submenu>i {
+    color : #ff0000 !important;
+}
+
+.text-primary{
+    color : #ff0000 !important;
+}
+
+a.link-effect::before{
+    background-color : #ff0000 !important;
+}
