@@ -54,7 +54,7 @@
     <div id="navi" class="topnav">
         <div class="container">
             <div class="logo">
-                <a href="index.html"><img src="{{ asset('assets_front/images/Kabupaten_Sukoharjo.png') }}" alt="" height="48" class=""> <span style="font-size: 20px;">DPUPR Sukoharjo</span></a>
+                <a href="index.html"><img src="{{ asset('assets/assets_front/images/Kabupaten_Sukoharjo.png') }}" alt="" height="48" class=""> <span style="font-size: 20px;">DPUPR Sukoharjo</span></a>
             </div>
             <div class="menu-icon cursor-pointer mr-35">
                 <ul class="navigation-menu d-none d-sm-block">
@@ -154,10 +154,10 @@
     </div>
     <!-- ==================== End Navgition ==================== -->
 
-    <div class="bg-img valign hero-1 position-relative" data-background="{{ asset('assets_front/images/dpupr.jpeg') }}" data-overlay-dark="3" style="height: 100vh;">
+    <div class="bg-img valign hero-1 position-relative" data-background="{{ asset('assets/assets_front/images/dpupr.jpeg') }}" data-overlay-dark="3" style="height: 100vh;">
         <div class="bg-overlay"></div>
 
-        <img src="{{ asset('assets_front/images/batik-pattern-1.svg') }}" alt="" class="position-absolute" style="opacity: .15; left: 0; translate: -15% 0%; scale: 1.5;">
+        <img src="{{ asset('assets/assets_front/images/batik-pattern-1.svg') }}" alt="" class="position-absolute" style="opacity: .15; left: 0; translate: -15% 0%; scale: 1.5;">
 
         <div class="container">
             <div class="row d-flex align-items-center">
@@ -176,7 +176,7 @@
         </div>
     </div>
 
-    <div class="bg-img valign hero-2" data-background="{{ asset('assets_front/images/bg-blue.jpg') }}" data-overlay-dark="3" style="height: 100vh; background-color: #E1B726;">
+    <div class="bg-img valign hero-2" data-background="{{ asset('assets/assets_front/images/bg-blue.jpg') }}" data-overlay-dark="3" style="height: 100vh; background-color: #E1B726;">
         <div class="container">
             <div class="card card-cstm d-flex flex-direction-row flex-wrap" style="background-color: #E1B726; outline: 6px solid white;">
                 <div class="row p-5">

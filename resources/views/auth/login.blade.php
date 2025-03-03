@@ -9,8 +9,9 @@
     <meta name="keywords" content="">
     <meta name="author" content="">
     <title>SIMPUTER | Kota Tegal</title>
+
     <link rel="shortcut icon" href="{{ asset('assets/front_20232/images/favicon-tegal.ico') }}">
-    <link href='https://fonts.googleapis.com/css?family=Raleway:400,300,500,700,900' rel='stylesheet' type='text/css'>
+    <link href="https://fonts.googleapis.com/css?family=Raleway:400,300,500,700,900" rel="stylesheet">
     <link href="{{ asset('assets/front/fonts/iconfont/material-icons.css') }}" rel="stylesheet">
     <link href="{{ asset('assets/front/fonts/font-awesome/css/font-awesome.min.css') }}" rel="stylesheet">
     <link href="{{ asset('assets/front/materialize/css/materialize.min.css') }}" rel="stylesheet">
@@ -67,43 +68,35 @@
                 <h5>Sistem Informasi PU Terpadu Kota Tegal</h5>
                 <h2 style="font-weight: 600; font-size: 24px; margin-bottom: 32px;">Silakan masuk menggunakan akun anda</h2>
 
-                <form class="" action="{{ url('login/auth') }}" method="POST">
-                    @if (session('msg'))
-                        <div class="alert alert-success">
-                            {{ session('msg') }}
-                        </div>
-                    @endif
-                    <div class='input-field'>
-                        <input class='validate' type='text' name='username' id='username' />
-                        <label for='username'>Username</label>
-                    </div>
+             <form action="{{ route('auth.login.auth') }}" method="POST">
+                @csrf
+                @if(session('msg'))
+                    {!! session('msg') !!}
+                @endif
 
-                    <div class='input-field'>
-                        <input class='validate' type='password' name='password' id='password' />
-                        <label for='password'>Password</label>
-                    </div>
+                <div class="input-field">
+                    <input class="validate" type="text" name="username" id="username" required>
+                    <label for="username">Username</label>
+                </div>
 
-                    <div class="form-group captcha">
-                        <p id="captcha_img"><?= $image; ?></p>
-                    </div>
+                <div class="input-field">
+                    <input class="validate" type="password" name="password" id="password" required>
+                    <label for="password">Password</label>
+                </div>
 
-                    <div class="form-group">
-                        <label for="captcha">Kode Captcha</label> <a href="#" onclick="ref();" class="float-right ref"><i class="fa fa-refresh"></i> Refresh</a>
-                        <input type="text" class="form-control" id="captcha" placeholder="Masukkan Kode Captcha" name="captcha" autocomplete="off" required>
-                    </div>
+                <div style="margin-top: 32px;">
+                    <button type="submit" class="btn" style="font-weight: 600; color: white; padding: 6px 32px; background-color: #E1B726; margin-right: 24px;">Login</button>
+                    <a href="{{ url('/') }}" style="color: #888888"><i class="fa fa-home" style="font-size:larger;"></i> Kembali</a>
+                </div>
+            </form>
 
-                    <div style="margin-top: 32px;">
-                        <button type='submit' name='btn_login' class='btn' style="font-weight: 600; color: white; padding: 6px 32px; background-color: #E1B726; margin-right: 24px;">Login</button>
-                        <a href="{{ url('/') }}" style="color: #888888"><i class="fa fa-home" style="font-size:larger;"></i> Kembali</a>
-                    </div>
-                </form>
             </div>
         </div>
 
         <div class="position-relative d-hidden d-md-block" style="overflow: hidden; padding: 16px;">
             <div style="width: 100%; height: 100%; object-fit: cover; border-radius: 16px; position: relative; z-index: 1;">
                 <div class="bg-overlay"></div>
-                <img src="{{ asset('assets_front/images/dpupr.jpeg') }}" alt="" style="width: 100%; height: 100%; object-fit: cover; border-radius: 16px;">
+                <img src="{{ asset('assets/assets_front/images/dpupr.jpeg') }}" alt="" style="width: 100%; height: 100%; object-fit: cover; border-radius: 16px;">
             </div>
         </div>
     </main>
@@ -119,19 +112,8 @@
     <script src="{{ asset('assets/front/js/imagesloaded.js') }}"></script>
     <script src="{{ asset('assets/front/js/animated-headline.js') }}"></script>
     <script src="{{ asset('assets/front/js/scriptsae52.js?v=5') }}"></script>
-    <script>
-        function ref() {
-            $.ajax({
-                type: "POST",
-                url: "{{ url('auth/login/change_captcha') }}",
-                dataType: "JSON",
-                success: function(response) {
-                    $("#captcha_img").html(response);
-                }
-            });
-            return false;
-        }
-    </script>
+
+
 </body>
 
 </html>
