@@ -22,12 +22,20 @@ class AuthController extends Controller
             'password' => 'required',
         ]);
 
-        $user = User::where('user_name', $request->username)->first();
+        $user = User::where('user_name', $request->username)->with('detail')->first();
 
-        if ($user && Hash::check($request->password, $user->user_pass)) {
+        if (!$user) {
+            return redirect()->back()->with('msg', 'User tidak ditemukan');
+        }
+
+        if (!$user->detail || !$user->detail->role) {
+            return redirect()->back()->with('msg', 'Role tidak ditemukan');
+        }
+
+        if (Hash::check($request->password, $user->user_pass)) {
             Auth::login($user);
 
-            switch ($user->role) {
+            switch ($user->detail->role) {
                 case 1: return redirect()->route('admin.dashboard');
                 case 2: return redirect()->route('opd.dashboard');
                 case 3: return redirect()->route('pemohon.dashboard');
@@ -37,6 +45,7 @@ class AuthController extends Controller
 
         return redirect()->back()->with('msg', 'Username atau password salah');
     }
+
 
     public function logout()
     {

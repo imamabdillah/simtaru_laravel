@@ -10,10 +10,13 @@ class UserSeeder extends Seeder
 {
     public function run()
     {
+
+
         // Insert ke tabel user_login
         $userId = DB::table('user_login')->insertGetId([
             'user_name' => 'admin',
             'user_pass' => Hash::make('phicosdev123?'),
+
         ]);
 
         // Insert ke tabel user_detail
@@ -23,18 +26,17 @@ class UserSeeder extends Seeder
             'role' => '1',
             'id_opd' => 1,
             'is_active' => 1,
-            'ditambahkan' => now(),
-            'diupdate' => now(),
-            'ditambahkan_oleh' => 0,
-            'diupdate_oleh' => 0,
+            'ditambahkan_oleh' => 0,  // Tambahkan nilai default
+            'diupdate_oleh' => 0,     // Jika ada kolom ini, tambahkan juga
             'is_delete' => null,
-            'dihapus_oleh' => null,
             'no_ktp' => '123123',
-            'no_hp' => '081558739861123',
+            'no_hp' => '081558739861',
             'email' => 'ramadhanwahyu@student.uns.ac.id',
             'alamat' => 'Kauman RT 03 RW 07 Ngasem Colomadu',
             'kecamatan' => '40303',
             'desa' => '040303AC',
         ]);
+
+
     }
 }

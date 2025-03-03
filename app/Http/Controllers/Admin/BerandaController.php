@@ -9,16 +9,16 @@ use Illuminate\Support\Facades\DB;
 
 class BerandaController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth'); // Pastikan user sudah login
-        $this->middleware(function ($request, $next) {
-            if (Auth::user()->role != 1) {
-                return redirect()->route('login')->with('msg', 'Akses ditolak!');
-            }
-            return $next($request);
-        });
-    }
+    // public function __construct()
+    // {
+    //     $this->middleware('auth'); // Pastikan user sudah login
+    //     $this->middleware(function ($request, $next) {
+    //         if (Auth::user()->role != 1) {
+    //             return redirect()->route('login')->with('msg', 'Akses ditolak!');
+    //         }
+    //         return $next($request);
+    //     });
+    // }
 
     public function index()
     {

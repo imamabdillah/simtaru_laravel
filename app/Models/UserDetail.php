@@ -11,9 +11,24 @@ class UserDetail extends Model
 
     protected $table = 'user_detail';
     protected $primaryKey = 'id_user_detail';
-    public $timestamps = false;
+    public $timestamps = true; // Aktifkan timestamps
 
     protected $fillable = [
-        'id_user', 'nama', 'role', 'id_opd', 'is_active'
-    ];
+    'id_user',
+    'nama',
+    'role',
+    'id_opd',
+    'is_active',
+    'no_ktp',
+    'no_hp',
+    'email',
+    'alamat',
+    'kecamatan',
+    'desa',
+    'is_delete',
+    'ditambahkan_oleh', // Tambahkan ini
+    'diupdate_oleh',    // Tambahkan ini jika diperlukan
+];
+
+
 }
