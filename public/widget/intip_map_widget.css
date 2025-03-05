@@ -1,0 +1,53 @@
+
+#intip_layers {
+    padding-top: 30px;
+    overflow: auto;
+}
+
+.intip_layer *:hover {
+    cursor: pointer;
+}
+
+.intip_checkbox {
+    width: 20px;
+    height: 20px;
+    vertical-align: middle;
+}
+
+.intip_nama_layer {
+    padding-left: 10px;
+}
+
+.intip_checkbox_loader {
+    display: none;
+}
+
+.intip_checkbox_loader svg {
+    margin-top: -15px;
+    margin-left: 5px;
+}
+
+#intip_modal_infografis_content{
+    padding-top: 50px;
+    padding-bottom: 20px;
+}
+
+#intip_modal_infografis_content .kontainer_grup {
+    /* border: 1px solid #bababa; */
+    border-radius: 8px;
+    padding: 5px 15px;
+    margin-bottom: 20px;
+}
+
+#intip_modal_infografis_content .judul_grup {
+    text-align: center;
+    color: #767676;
+    font-size: 18px;
+    font-weight: bolder;
+    margin-bottom: 7px;
+}
+
+#intip_modal_infografis_content .sub_judul_grup {
+    text-align: center;
+    color: #9a9a9a;
+}

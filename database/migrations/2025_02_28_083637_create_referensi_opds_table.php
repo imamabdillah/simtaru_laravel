@@ -13,14 +13,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('tabel_referensi_opd', function (Blueprint $table) {
-            $table->id('id_opd');
+            $table->integer('id_opd')->autoIncrement();
             $table->string('nama_opd', 255);
             $table->timestamp('edited')->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->timestamp('added')->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->timestamp('is_delete')->nullable();
-            $table->unsignedBigInteger('add_by');
-            $table->unsignedBigInteger('edit_by');
-            $table->unsignedBigInteger('delete_by')->nullable();
+            $table->integer('add_by');
+            $table->integer('edit_by');
+            $table->integer('delete_by')->nullable();
             $table->enum('is_active', ['1', '2'])->comment('1: aktif, 2: non aktif');
             
             $table->foreign('add_by')->references('id_user')->on('user_login');

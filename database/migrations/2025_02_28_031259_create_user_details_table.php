@@ -10,8 +10,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('user_detail', function (Blueprint $table) {
-            $table->id('id_user_detail');
-            $table->unsignedBigInteger('id_user');
+            $table->integer('id_user_detail')->autoIncrement();
+            $table->integer('id_user');
             $table->foreign('id_user')->references('id_user')->on('user_login')->onDelete('cascade');
             $table->string('nama')->nullable();
             $table->enum('role', ['1', '2', '3'])->default('3')->comment('1: admin, 2: opd, 3: pemohon');
