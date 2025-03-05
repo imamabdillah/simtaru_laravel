@@ -12,11 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('log_berita', function (Blueprint $table) {
-            $table->id('id_log_berita');
-            $table->unsignedBigInteger('id_berita');
+            $table->integer('id_log_berita')->autoIncrement();
+            $table->integer('id_berita');
             $table->enum('activity', ['menambahkan', 'mengubah'])->default('menambahkan');
             $table->timestamp('tgl')->useCurrent();
-            $table->unsignedBigInteger('add_by');
+            $table->integer('add_by');
 
             $table->foreign('id_berita')->references('id_berita')->on('tabel_berita')->onDelete('cascade');
             $table->foreign('add_by')->references('id_user')->on('user_login')->onDelete('cascade');

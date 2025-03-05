@@ -12,14 +12,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('tabel_album', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('id_kecamatan');
-            $table->unsignedBigInteger('id_album_kategori');
+            $table->integer('id')->autoIncrement();
+            $table->integer('id_kecamatan');
+            $table->integer('id_album_kategori');
             $table->string('nama_foto', 100);
             $table->text('file');
             $table->timestamp('added')->useCurrent();
             $table->timestamp('edited')->useCurrent()->useCurrentOnUpdate();
-            $table->unsignedBigInteger('add_by')->nullable();
+            $table->integer('add_by')->nullable();
 
             $table->foreign('id_kecamatan')->references('id_kecamatan')->on('tabel_kecamatan')->onDelete('cascade');
             $table->foreign('id_album_kategori')->references('id_album_kategori')->on('tabel_album_kategori')->onDelete('cascade');

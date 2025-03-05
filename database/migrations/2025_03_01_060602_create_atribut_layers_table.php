@@ -12,14 +12,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('tabel_atribut_layer', function (Blueprint $table) {
-            $table->id('id_atribut');
-            $table->unsignedBigInteger('id_layer');
+            $table->integer('id_atribut')->autoIncrement();
+            $table->integer('id_layer');
             $table->string('nama_atribut', 255);
             $table->string('slug', 300);
             $table->enum('tipe_data', ['Text', 'Angka', 'File'])->default('Text');
             $table->timestamp('added')->useCurrent();
             $table->timestamp('edited')->useCurrent();
-            $table->unsignedBigInteger('add_by')->nullable();
+            $table->integer('add_by')->nullable();
             $table->timestamp('is_delete')->nullable();
 
             $table->foreign('id_layer')->references('id_layer')->on('tabel_layer')->onDelete('cascade');

@@ -12,13 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('tabel_foto_collection', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('id_collection');
+            $table->integer('id')->autoIncrement();
+            $table->integer('id_collection');
             $table->string('folder', 255)->nullable();
             $table->text('file');
             $table->timestamp('added')->useCurrent();
             $table->timestamp('edited')->useCurrent();
-            $table->unsignedBigInteger('add_by')->nullable();
+            $table->integer('add_by')->nullable();
 
             $table->foreign('id_collection')->references('id_collection')->on('tabel_collection')->onDelete('cascade');
             $table->foreign('add_by')->references('id_user')->on('user_login')->onDelete('set null');

@@ -12,10 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('tabel_grup_layer', function (Blueprint $table) {
-            $table->id('id_grup_layer');
+            $table->bigInteger('id_grup_layer')->autoIncrement();
             $table->string('nama_grup_layer', 255)->nullable();
-            $table->foreignId('id_opd')->nullable()->constrained('tabel_referensi_opd', 'id_opd')->nullOnDelete();
-            $table->foreignId('id_user');
+            $table->integer('id_opd')->nullable();
+            $table->foreign('id_opd')->references('id_opd')->on('tabel_referensi_opd')->onDelete('set null');
+            $table->integer('id_user')->nullable();
+            $table->foreign('id_user')->references('id_user')->on('user_login');
             $table->timestamps();
         });
     }

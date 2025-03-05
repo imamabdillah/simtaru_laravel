@@ -25,6 +25,12 @@ return new class extends Migration
             $table->text('alamat')->nullable();
             $table->string('kecamatan')->nullable();
             $table->string('desa')->nullable();
+            $table->integer('ditambahkan_oleh')->nullable();
+            $table->foreign('ditambahkan_oleh')->references('id_user')->on('user_login')->onDelete('set null');
+            $table->integer('diupdate_oleh')->nullable();
+            $table->foreign('diupdate_oleh')->references('id_user')->on('user_login')->onDelete('set null');
+            $table->integer('dihapus_oleh')->nullable();
+            $table->foreign('dihapus_oleh')->references('id_user')->on('user_login')->onDelete('set null');
         });
     }
 

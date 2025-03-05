@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('tabel_album_kategori', function (Blueprint $table) {
-            $table->id('id_album_kategori');
+            $table->integer('id_album_kategori')->autoIncrement();
             $table->string('nama');
             $table->string('slug')->unique();
             $table->timestamps();

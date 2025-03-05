@@ -12,15 +12,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('tabel_referensi_icon', function (Blueprint $table) {
-            $table->id('id_icon');
+            $table->integer('id_icon')->autoIncrement();
             $table->string('nama_icon', 255);
-            $table->unsignedBigInteger('id_opd')->nullable();
+            $table->integer('id_opd')->nullable();
             $table->timestamp('edited')->useCurrent();
             $table->timestamp('added')->useCurrent();
             $table->timestamp('is_delete')->nullable();
-            $table->unsignedBigInteger('add_by');
-            $table->unsignedBigInteger('edit_by');
-            $table->unsignedBigInteger('delete_by')->nullable();
+            $table->integer('add_by');
+            $table->integer('edit_by');
+            $table->integer('delete_by')->nullable();
             $table->enum('is_active', ['1', '2'])->default('1');
             
             $table->foreign('id_opd')->references('id_opd')->on('tabel_referensi_opd')->onDelete('set null');

@@ -12,13 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('tabel_value_attribut', function (Blueprint $table) {
-            $table->id('id_data');
-            $table->unsignedBigInteger('id_atribut');
-            $table->unsignedBigInteger('id_collection');
+            $table->integer('id_data')->autoIncrement();
+            $table->integer('id_atribut');
+            $table->integer('id_collection');
             $table->text('data_value')->nullable();
             $table->timestamp('created')->useCurrent();
             $table->timestamp('edited')->useCurrent()->useCurrentOnUpdate();
-            $table->unsignedBigInteger('add_by');
+            $table->integer('add_by');
 
             $table->foreign('id_atribut')->references('id_atribut')->on('tabel_atribut_layer')->onDelete('cascade');
             $table->foreign('id_collection')->references('id_collection')->on('tabel_collection')->onDelete('cascade');

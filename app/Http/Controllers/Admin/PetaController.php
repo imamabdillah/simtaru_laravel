@@ -11,6 +11,8 @@ use App\Models\JenisPeta;
 use App\Models\Peta;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
 
 class PetaController extends Controller
 {
@@ -27,127 +29,173 @@ class PetaController extends Controller
     
         return view('admin.peta.index', compact('daftar_opd', 'layers', 'grup_layers', 'jenis_peta', 'petas'));
     }
-
-    public function daftar_layer_peta(Request $request)
+    public function daftarLayer(Request $request)
     {
-        if ($request->ajax()) {
-            $query = Peta::select(
-                    'petas.id_layer', 
-                    'petas.nama_layer', 
-                    'referensi_opds.nama_opd',
-                    'petas.sumber', 
-                    'petas.status', 
-                    'petas.is_perbaikan'
-                )
-                ->leftJoin('referensi_opds', 'petas.id_opd', '=', 'referensi_opds.id_opd');
-    
-            // Filter berdasarkan input user (mirip dengan `_get_datatables_query`)
-            if ($request->has('filter_nama') && !empty($request->filter_nama)) {
-                $query->where('petas.nama_layer', 'like', '%' . $request->filter_nama . '%');
-            }
-    
-            if ($request->has('filter_opd') && !empty($request->filter_opd)) {
-                $query->where('petas.id_opd', $request->filter_opd);
-            }
-    
-            if ($request->has('filter_sumber') && !empty($request->filter_sumber)) {
-                $query->where('petas.sumber', $request->filter_sumber);
-            }
-    
-            if ($request->has('filter_status') && !empty($request->filter_status)) {
-                $query->where('petas.status', $request->filter_status);
-            }
-    
-            // Jika user bukan admin (role != 1), filter berdasarkan OPD-nya
-            if (Auth::user()->role != 1) {
-                $query->where('petas.id_opd', Auth::user()->id_opd);
-            }
-    
-            return DataTables::of($query)
-                ->addIndexColumn()
-                ->editColumn('sumber', function ($row) {
-                    return match ($row->sumber) {
-                        2 => 'API',
-                        3 => 'File JSON',
-                        default => 'Database',
-                    };
-                })
-                ->editColumn('status', function ($row) {
-                    return $row->status == 2 ? 'Sembunyikan' : 'Tampilkan';
-                })
-                ->addColumn('is_perbaikan', function ($row) {
-                    $checked = $row->is_perbaikan ? 'checked' : '';
-                    return '<div class="col-6">
-                                <label class="css-control css-control-primary css-switch">
-                                    <input type="checkbox" class="css-control-input switch_perbaikan" ' . $checked . ' data="' . $row->id_layer . '">
-                                    <span class="css-control-indicator"></span>
-                                </label>
-                            </div>';
-                })
-                ->addColumn('actions', function ($row) {
-                    return '<div class="btn-group btn-group-sm" role="group" aria-label="btnGroup1">
-                                <button data="' . $row->id_layer . '" type="button" data-name="' . str_replace(['.', ' '], '_', $row->nama_layer) . '" class="btn btn-default btn_download" title="Download File GeoJSON ' . $row->nama_layer . '"><i class="fa fa-download"></i></button>
-                                <button data="' . $row->id_layer . '" type="button" class="btn btn-primary btn_data" title="Kelola Data ' . $row->nama_layer . '"><i class="fa fa-database"></i></button>
-                                <button data="' . $row->id_layer . '" type="button" class="btn btn-success btn_kelola" title="Kelola Layer ' . $row->nama_layer . '"><i class="fa fa-edit"></i></button>
-                                <button data="' . $row->id_layer . '" type="button" class="btn btn-warning btn_group" title="Grup Atribut ' . $row->nama_layer . '"><i class="fa fa-clone"></i></button>
-                            </div>
-                            <button data="' . $row->id_layer . '" type="button" class="btn btn-danger btn-sm btn_clear" title="Hapus Semua Data ' . $row->nama_layer . '"><i class="fa fa-times-rectangle"></i></button>
-                            <button data="' . $row->id_layer . '" type="button" class="btn btn-danger btn-sm btn_hapus" title="Hapus Layer ' . $row->nama_layer . '"><i class="fa fa-trash"></i></button>';
-                })
-                ->rawColumns(['is_perbaikan', 'actions'])
-                ->make(true);
+        $layers = Layer::all(); // Ambil semua data layer
+        return view('nama_view', compact('layers'));
+    }
+
+    // Grup Layer
+    public function getGrupLayer()
+    {
+        $data = GrupLayer::all();
+        return response()->json([
+            'status' => 'success',
+            'data' => $data
+        ]);
+    }
+
+    public function simpanGrupLayer(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'nama_grup_layer' => 'required|unique:grup_layers'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $validator->errors()
+            ], 422);
         }
-    
-        return view('admin.peta.index');
-    }
-    
-    
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        $grup = GrupLayer::create($request->all());
+        
+        return response()->json([
+            'status' => 'success',
+            'data' => GrupLayer::all()
+        ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function editGrupLayer(Request $request)
     {
-        //
+        $validator = Validator::make($request->all(), [
+            'id_grup_layer' => 'required|exists:grup_layers,id',
+            'nama_grup_layer' => 'required|unique:grup_layers'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $validator->errors()
+            ], 422);
+        }
+
+        $grup = GrupLayer::find($request->id_grup_layer);
+        $grup->update($request->all());
+
+        return response()->json(['status' => 'success']);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function hapusGrupLayer(Request $request)
     {
-        //
+        GrupLayer::destroy($request->id_grup_layer);
+        return response()->json(['status' => 'success']);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    // Jenis Peta
+    public function getJenisPeta()
     {
-        //
+        $data = JenisPeta::all();
+        return response()->json([
+            'status' => 'success',
+            'data' => $data
+        ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function simpanJenisPeta(Request $request)
     {
-        //
+        $validator = Validator::make($request->all(), [
+            'nama_jenis_peta' => 'required|unique:jenis_petas'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $validator->errors()
+            ], 422);
+        }
+
+        $jenis = JenisPeta::create($request->all());
+        
+        return response()->json([
+            'status' => 'success',
+            'data' => JenisPeta::all()
+        ]);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+    public function editJenisPeta(Request $request)
     {
-        //
+        $validator = Validator::make($request->all(), [
+            'id_jenis_peta' => 'required|exists:jenis_petas,id',
+            'nama_jenis_peta' => 'required|unique:jenis_petas'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $validator->errors()
+            ], 422);
+        }
+
+        $jenis = JenisPeta::find($request->id_jenis_peta);
+        $jenis->update($request->all());
+
+        return response()->json(['status' => 'success']);
+    }
+
+    public function hapusJenisPeta(Request $request)
+    {
+        JenisPeta::destroy($request->id_jenis_peta);
+        return response()->json(['status' => 'success']);
+    }
+
+    // CRUD Layer
+    public function simpanLayer(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'nama_layer' => 'required',
+            'opd_id' => 'required|exists:opds,id',
+            'file_geojson' => 'required|file|mimes:geojson,json'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        // Handle file upload
+        if ($request->hasFile('file_geojson')) {
+            $path = $request->file('file_geojson')->store('geojson');
+        }
+
+        Layer::create([
+            'nama_layer' => $request->nama_layer,
+            'opd_id' => $request->opd_id,
+            'file_path' => $path,
+            // ... tambahkan field lainnya
+        ]);
+
+        return response()->json(['status' => 'success']);
+    }
+
+    public function hapusSemuaDataLayer(Request $request)
+    {
+        $layer = Layer::findOrFail($request->id);
+        // Hapus file terkait
+        Storage::delete($layer->file_path);
+        $layer->delete();
+        
+        return response()->json(['status' => 'success']);
+    }
+
+    public function switchNotif(Request $request)
+    {
+        $layer = Layer::findOrFail($request->id);
+        $layer->update([
+            'notif_status' => $request->value
+        ]);
+        
+        return response()->json(['status' => 'success']);
     }
 }

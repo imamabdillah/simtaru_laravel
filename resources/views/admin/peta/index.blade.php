@@ -12,10 +12,10 @@
         <button id="btn_tambah_layer" type="button" class="btn btn-primary mr-5 mb-5" data-toggle="modal" data-target="#modal-popin">
             <i class="fa fa-plus mr-5"></i> Tambah Layer Peta
         </button>
-        <button id="btn_tambah_grup_layer" type="button" class="btn btn-primary mr-5 mb-5 btn-tambah">
+        <button id="btn_tambah_grup_layer" type="button" class="btn btn-primary mr-5 mb-5 btn-tambah" data-toggle="modal" data-target="#modal_grup_layer">
             <i class="fa fa-plus mr-5"></i>Tambah Grup Layer
         </button>
-        <button id="btn_tambah_jenis_peta" type="button" class="btn btn-primary mr-5 mb-5 btn-tambah">
+        <button id="btn_tambah_jenis_peta" type="button" class="btn btn-primary mr-5 mb-5 btn-tambah" data-toggle="modal" data-target="#modal_jenis_peta">
             <i class="fa fa-plus mr-5"></i>Tambah Jenis Peta
         </button>
         <button type="button" class="btn btn-secondary mr-5 mb-5 btn-filter-layer">
@@ -207,7 +207,7 @@
 <!-- END Pop In Modal -->
 
 <!-- Pop In Modal Tambah Grup Layer -->
-<div class="modal fade" id="modal_grup_layer" tabindex="-1" role="dialog" aria-labelledby="modal-popin" aria-hidden="true">
+<div class="modal fade" id="modal_grup_layer" tabindex="-1" role="dialog" aria-labelledby="modal_grup_layer" aria-hidden="true">
     <div class="modal-dialog modal-dialog-popin modal-md" role="document">
         <div class="modal-content">
             <div class="block block-themed block-transparent mb-0">
@@ -254,7 +254,7 @@
 <!-- END Pop In Modal -->
 
 <!-- Pop In Modal Tambah Jenis Peta -->
-<div class="modal fade" id="modal_jenis_peta" tabindex="-1" role="dialog" aria-labelledby="modal-popin" aria-hidden="true">
+<div class="modal fade" id="modal_jenis_peta" tabindex="-1" role="dialog" aria-labelledby="modal_jenis_peta" aria-hidden="true">
     <div class="modal-dialog modal-dialog-popin modal-md" role="document">
         <div class="modal-content">
             <div class="block block-themed block-transparent mb-0">
@@ -300,3 +300,6 @@
 </div>
 <!-- END Pop In Modal -->
 @endsection
+
+
+

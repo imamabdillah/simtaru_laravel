@@ -12,14 +12,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('tabel_grup_atribut', function (Blueprint $table) {
-            $table->id('id_grup_atribut');
-            $table->unsignedBigInteger('id_layer')->nullable();
+            $table->bigInteger('id_grup_atribut')->autoIncrement();
+            $table->integer('id_layer')->nullable();
             $table->string('judul_grup_atribut', 255)->nullable();
             $table->text('sub_judul_grup_atribut')->nullable();
             $table->string('tipe_grup_atribut', 255)->nullable();
             $table->string('ukuran_grup_atribut', 255)->nullable();
             $table->longText('pos_grup_atribut_item')->nullable();
-            $table->unsignedBigInteger('id_user')->nullable();
+            $table->integer('id_user')->nullable();
             $table->timestamps();
 
             $table->foreign('id_layer')->references('id_layer')->on('tabel_layer')->onDelete('set null');

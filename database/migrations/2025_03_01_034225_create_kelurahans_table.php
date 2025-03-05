@@ -12,14 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('tabel_kelurahan', function (Blueprint $table) {
-            $table->id('id_kelurahan');
-            $table->unsignedBigInteger('id_kecamatan')->nullable();
+            $table->integer('id_kelurahan')->autoIncrement();
             $table->string('nama', 255)->nullable();
-
-            $table->foreign('id_kecamatan')
-                  ->references('id_kecamatan')
-                  ->on('tabel_kecamatan')
-                  ->onDelete('set null');
+            $table->integer('id_kecamatan')->nullable();
+            $table->foreign('id_kecamatan')->references('id_kecamatan')->on('tabel_kecamatan')->onDelete('set null');
             $table->timestamps();
         });
     }

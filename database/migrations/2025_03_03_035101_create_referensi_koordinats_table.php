@@ -12,18 +12,18 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('tabel_referensi_koordinat', function (Blueprint $table) {
-            $table->id('id_koordinat');
+            $table->integer('id_koordinat')->autoIncrement();
             $table->string('nama_koordinat', 255);
             $table->text('ket_koordinat')->nullable();
             $table->enum('tipe_koordinat', ['Polygon', 'LineString', 'Point']);
             $table->longText('koordinat');
-            $table->unsignedBigInteger('id_opd')->nullable();
+            $table->integer('id_opd')->nullable();
             $table->timestamp('edited')->useCurrent();
             $table->timestamp('added')->useCurrent();
             $table->timestamp('is_delete')->nullable();
-            $table->unsignedBigInteger('add_by');
-            $table->unsignedBigInteger('edit_by')->nullable();
-            $table->unsignedBigInteger('delete_by')->nullable();
+            $table->integer('add_by');
+            $table->integer('edit_by')->nullable();
+            $table->integer('delete_by')->nullable();
             $table->enum('is_active', ['1', '2']);
             $table->string('tmp_file_name', 255)->nullable();
 

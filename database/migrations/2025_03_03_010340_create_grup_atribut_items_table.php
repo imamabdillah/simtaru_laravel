@@ -12,12 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('tabel_grup_atribut_item', function (Blueprint $table) {
-            $table->id('id_grup_atribut_item');
-            $table->unsignedBigInteger('id_grup_atribut')->nullable();
-            $table->unsignedBigInteger('id_atribut')->nullable();
+            $table->bigInteger('id_grup_atribut_item')->autoIncrement();
+            $table->bigInteger('id_grup_atribut')->nullable();
+            $table->integer('id_atribut')->nullable();
             $table->string('nama_atribut_layer', 255)->nullable();
             $table->string('alias_atribut_layer', 255)->nullable();
-            $table->unsignedBigInteger('user_id')->nullable();
+            $table->integer('user_id')->nullable();
             $table->timestamp('created_at')->nullable();
             $table->timestamp('updated_at')->nullable();
 

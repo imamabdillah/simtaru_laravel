@@ -12,22 +12,22 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('tabel_layer', function (Blueprint $table) {
-            $table->id('id_layer');
-            $table->unsignedBigInteger('id_grup_layer')->nullable();
-            $table->unsignedBigInteger('id_jenis_peta')->nullable();
+            $table->integer('id_layer')->autoIncrement();
+            $table->bigInteger('id_grup_layer')->nullable();
+            $table->integer('id_jenis_peta')->nullable();
             $table->string('nama_layer');
             $table->text('deskripsi_layer')->nullable();
-            $table->unsignedBigInteger('id_opd');
+            $table->integer('id_opd');
             $table->enum('sumber', ['1', '2', '3'])->default('1')->comment('1: database, 2: api, 3: file json');
             $table->text('link_api')->nullable();
             $table->enum('status', ['1', '2'])->default('1')->comment('1: tampil, 2: sembunyi');
             $table->longText('pos_grup_atribut')->nullable();
             $table->timestamp('ditambahkan')->useCurrent();
             $table->timestamp('diupdate')->useCurrent()->useCurrentOnUpdate();
-            $table->unsignedBigInteger('ditambah_oleh');
-            $table->unsignedBigInteger('diubah_oleh');
+            $table->integer('ditambah_oleh');
+            $table->integer('diubah_oleh');
             $table->timestamp('is_delete')->nullable();
-            $table->unsignedBigInteger('dihapus_oleh')->nullable();
+            $table->integer('dihapus_oleh')->nullable();
             $table->integer('order_by')->nullable();
             $table->enum('is_perbaikan', ['0', '1'])->default('0');
 

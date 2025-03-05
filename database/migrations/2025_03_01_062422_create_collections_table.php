@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('tabel_collection', function (Blueprint $table) {
-            $table->id('id_collection');
-            $table->unsignedBigInteger('id_layer')->nullable();
+            $table->integer('id_collection')->autoIncrement();
+            $table->integer('id_layer')->nullable();
             $table->enum('tipe_layer', ['Point', 'LineString', 'Polygon'])->default('Point');
             $table->string('stroke', 15)->nullable();
             $table->string('stroke_opacity', 15)->nullable();
@@ -28,7 +28,7 @@ return new class extends Migration
             $table->string('group', 255)->nullable();
             $table->timestamp('created')->useCurrent();
             $table->timestamp('edited')->useCurrent();
-            $table->unsignedBigInteger('add_by');
+            $table->integer('add_by');
 
             $table->foreign('id_layer')->references('id_layer')->on('tabel_layer')->onDelete('set null');
             $table->foreign('add_by')->references('id_user')->on('user_login')->onDelete('cascade');

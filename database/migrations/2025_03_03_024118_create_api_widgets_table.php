@@ -12,13 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('tabel_api_widget', function (Blueprint $table) {
-            $table->id('id_api_widget');
+            $table->bigInteger('id_api_widget')->autoIncrement();
             $table->string('nama_app', 255)->nullable();
             $table->string('url_app', 255)->nullable();
             $table->string('access_token', 255)->nullable();
             $table->string('api_token', 255)->nullable();
-            $table->unsignedBigInteger('id_opd')->nullable();
-            $table->unsignedBigInteger('id_user')->nullable();
+            $table->integer('id_opd')->nullable();
+            $table->integer('id_user')->nullable();
             $table->string('nama_pemohon', 255)->nullable();
             $table->string('url_map', 255)->nullable();
             $table->timestamps();

@@ -15,6 +15,7 @@ return new class extends Migration
             $table->integer('id_jenis_peta')->autoIncrement();
             $table->string('nama_jenis_peta', 255)->nullable();
             $table->integer('id_user')->nullable();
+            $table->foreign('id_user')->references('id_user')->on('user_login');
             $table->timestamps();
         });
     }
