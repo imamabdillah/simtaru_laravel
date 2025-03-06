@@ -154,31 +154,29 @@ class PetaController extends Controller
         return redirect()->route('admin.peta')->with('success', 'Jenis Peta berhasil ditambahkan!');
     }
 
-    public function editJenisPeta(Request $request)
+
+    public function updateJenisPeta(Request $request, $id)
     {
-        $validator = Validator::make($request->all(), [
-            'id_jenis_peta' => 'required|exists:tabel_jenis_peta,id',
-            'nama_jenis_peta' => 'required|unique:jenis_petas'
+        $request->validate([
+            'nama_jenis_peta' => 'required|string|max:255',
         ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => 'error',
-                'message' => $validator->errors()
-            ], 422);
-        }
-
-        $jenis = JenisPeta::find($request->id_jenis_peta);
-        $jenis->update($request->all());
-
-        return redirect()->route('admin.peta')->with('success', 'Jenis Peta berhasil ditambahkan!');
+    
+        $jenisPeta = JenisPeta::findOrFail($id);
+        $jenisPeta->update([
+            'nama_jenis_peta' => $request->nama_jenis_peta
+        ]);
+    
+        return redirect()->route('admin.peta')->with('success', 'Jenis Peta berhasil diperbarui!');
     }
-
-    public function hapusJenisPeta(Request $request)
+    
+    public function hapusJenisPeta($id)
     {
-        JenisPeta::destroy($request->id_jenis_peta);
-        return response()->json(['status' => 'success']);
+        $jenisPeta = JenisPeta::findOrFail($id);
+        $jenisPeta->delete();
+    
+        return redirect()->route('admin.peta')->with('success', 'Jenis Peta berhasil dihapus!');
     }
+    
 
     // CRUD Layer
     public function simpanLayer(Request $request)

@@ -314,7 +314,11 @@
                         <div class="row">
                             <div class="item_jenis_peta col-8" data-id="{{ $jenis->id_jenis_peta }}">{{ $jenis->nama_jenis_peta }}</div>
                             <div class="col-4" style="text-align:right">
-                                <a href="{{ route('admin.peta.edit_jenis_peta', $jenis->id_jenis_peta) }}" class="btn btn-sm btn-warning mr-5"><i class="fa fa-edit" title="Edit {{ $jenis->nama_jenis_peta }}"></i></a>
+								<button type="button" class="btn btn-sm btn-warning mr-5 btn-edit-jenis-peta" 
+									data-id="{{ $jenis->id_jenis_peta }}" 
+									data-nama="{{ $jenis->nama_jenis_peta }}">
+									<i class="fa fa-edit" title="Edit {{ $jenis->nama_jenis_peta }}"></i>
+								</button>							
                                 <form action="{{ route('admin.peta.hapus_jenis_peta', $jenis->id_jenis_peta) }}" method="POST" style="display:inline;">
                                     @csrf
                                     @method('DELETE')
@@ -335,7 +339,52 @@
         </div>
     </div>
 </div>
+
+<!-- Modal Edit Jenis Peta -->
+<div class="modal fade" id="modal_edit_jenis_peta" tabindex="-1" role="dialog" aria-labelledby="modal_edit_jenis_peta" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-popin modal-md" role="document">
+        <div class="modal-content">
+            <div class="block block-themed block-transparent mb-0">
+                <div class="block-header bg-primary-dark">
+                    <h3 class="block-title">Form Edit Jenis Peta</h3>
+                    <div class="block-options">
+                        <button type="button" class="btn-block-option" data-dismiss="modal" aria-label="Close">
+                            <i class="si si-close"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="block-content">
+					<form id="form_edit_jenis_peta" method="POST">
+						@csrf
+						@method('PUT') 
+						<input type="hidden" id="edit_id_jenis_peta" name="id_jenis_peta">
+						<label for="edit_nama_jenis_peta">Nama Jenis Peta</label>
+						<div class="input-group">
+							<input type="text" id="edit_nama_jenis_peta" name="nama_jenis_peta" class="form-control" placeholder="Masukkan nama jenis peta...">
+							<div class="input-group-append">
+								<button type="submit" class="btn btn-success">
+									<i class="fa fa-save"></i> Simpan Perubahan
+								</button>
+							</div>
+						</div>
+					</form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-alt-secondary" data-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
 @endsection
+
+
 
 
 @section('scripts')
@@ -343,6 +392,27 @@
 <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
+<script>
+	document.addEventListener("DOMContentLoaded", function () {
+		let modalEdit = new bootstrap.Modal(document.getElementById('modal_edit_jenis_peta'));
+
+		document.querySelectorAll(".btn-edit-jenis-peta").forEach(button => {
+			button.addEventListener("click", function () {
+				let id = this.getAttribute("data-id");
+				let nama = this.getAttribute("data-nama");
+
+				document.getElementById("edit_id_jenis_peta").value = id;
+				document.getElementById("edit_nama_jenis_peta").value = nama;
+
+				let form = document.getElementById("form_edit_jenis_peta");
+				form.action = `{{ route('admin.peta.update_jenis_peta', '') }}/${id}`;
+
+				modalEdit.show();
+			});
+		});
+	});
+
+</script>
 {{-- <script>
 	var table;
 	var csrfToken = '{{ csrf_token() }}';

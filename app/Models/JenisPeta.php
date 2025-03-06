@@ -15,6 +15,7 @@ class JenisPeta extends Model
 
     protected $fillable = [
         'nama_jenis_peta',
-        'id_user'
+        'id_user',
+        'updated_at'
     ];
 }
