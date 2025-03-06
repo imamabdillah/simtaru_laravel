@@ -28,6 +28,7 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     
         // Layer Management
         Route::get('/daftar_layer', [PetaController::class, 'daftarLayer'])->name('admin.peta.daftar_layer_peta');
+        Route::get('/get_layer', [PetaController::class, 'getLayers'])->name('layer_peta.getLayers');
         Route::post('/simpan_layer', [PetaController::class, 'simpanLayer'])->name('admin.peta.simpan_layer');
         Route::post('/hapus_layer', [PetaController::class, 'hapusSemuaDataLayer'])->name('admin.peta.hapus_layer');
         Route::post('/switch_notif', [PetaController::class, 'switchNotif'])->name('admin.peta.switch_notif');
@@ -41,7 +42,8 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
         // Jenis Peta Management
         Route::get('/get_jenis_peta', [PetaController::class, 'getJenisPeta'])->name('admin.peta.get_jenis_peta');
         Route::post('/simpan_jenis_peta', [PetaController::class, 'simpanJenisPeta'])->name('admin.peta.simpan_jenis_peta');
-        Route::post('/edit_jenis_peta', [PetaController::class, 'editJenisPeta'])->name('admin.peta.edit_jenis_peta');
+        Route::get('/admin/peta/edit-jenis-peta/{id}', [PetaController::class, 'formEditJenisPeta'])->name('admin.peta.edit_jenis_peta');
+        Route::put('/admin/peta/update-jenis-peta/{id}', [PetaController::class, 'updateJenisPeta'])->name('admin.peta.update_jenis_peta');
         Route::post('/hapus_jenis_peta', [PetaController::class, 'hapusJenisPeta'])->name('admin.peta.hapus_jenis_peta');
     });
 });

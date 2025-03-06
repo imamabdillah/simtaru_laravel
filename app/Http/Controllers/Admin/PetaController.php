@@ -29,6 +29,40 @@ class PetaController extends Controller
     
         return view('admin.peta.index', compact('daftar_opd', 'layers', 'grup_layers', 'jenis_peta', 'petas'));
     }
+    public function getLayers(Request $request)
+    {
+        if ($request->ajax()) {
+            $layers = Layer::select('id_layer', 'nama_layer', 'id_opd', 'sumber', 'status', 'is_perbaikan')->get();
+            
+            return DataTables::of($layers)
+                ->addIndexColumn()
+                ->editColumn('sumber', function ($layer) {
+                    return match($layer->sumber) {
+                        2 => 'API',
+                        3 => 'File JSON',
+                        default => 'Database',
+                    };
+                })
+                ->editColumn('status', function ($layer) {
+                    return $layer->status == 2 ? 'Sembunyikan' : 'Tampilkan';
+                })
+                ->addColumn('data_perbaikan', function ($layer) {
+                    return '<input type="checkbox" class="switch_perbaikan" '.($layer->is_perbaikan ? 'checked' : '').' data-id="'.$layer->id_layer.'">';
+                })
+                ->addColumn('aksi', function ($layer) {
+                    return '<div class="btn-group btn-group-sm">
+                                <button data-id="'.$layer->id_layer.'" class="btn btn-default btn_download"><i class="fa fa-download"></i></button>
+                                <button data-id="'.$layer->id_layer.'" class="btn btn-primary btn_data"><i class="fa fa-database"></i></button>
+                                <button data-id="'.$layer->id_layer.'" class="btn btn-success btn_kelola"><i class="fa fa-edit"></i></button>
+                                <button data-id="'.$layer->id_layer.'" class="btn btn-warning btn_group"><i class="fa fa-clone"></i></button>
+                            </div>
+                            <button data-id="'.$layer->id_layer.'" class="btn btn-danger btn-sm btn_clear"><i class="fa fa-times-rectangle"></i></button>
+                            <button data-id="'.$layer->id_layer.'" class="btn btn-danger btn-sm btn_hapus"><i class="fa fa-trash"></i></button>';
+                })
+                ->rawColumns(['data_perbaikan', 'aksi'])
+                ->make(true);
+        }
+    }
     public function daftarLayer(Request $request)
     {
         $layers = Layer::all(); // Ambil semua data layer
@@ -105,7 +139,7 @@ class PetaController extends Controller
     public function simpanJenisPeta(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'nama_jenis_peta' => 'required|unique:jenis_petas'
+            'nama_jenis_peta' => 'required|unique:tabel_jenis_peta'
         ]);
 
         if ($validator->fails()) {
@@ -117,16 +151,13 @@ class PetaController extends Controller
 
         $jenis = JenisPeta::create($request->all());
         
-        return response()->json([
-            'status' => 'success',
-            'data' => JenisPeta::all()
-        ]);
+        return redirect()->route('admin.peta')->with('success', 'Jenis Peta berhasil ditambahkan!');
     }
 
     public function editJenisPeta(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'id_jenis_peta' => 'required|exists:jenis_petas,id',
+            'id_jenis_peta' => 'required|exists:tabel_jenis_peta,id',
             'nama_jenis_peta' => 'required|unique:jenis_petas'
         ]);
 
@@ -140,7 +171,7 @@ class PetaController extends Controller
         $jenis = JenisPeta::find($request->id_jenis_peta);
         $jenis->update($request->all());
 
-        return response()->json(['status' => 'success']);
+        return redirect()->route('admin.peta')->with('success', 'Jenis Peta berhasil ditambahkan!');
     }
 
     public function hapusJenisPeta(Request $request)
