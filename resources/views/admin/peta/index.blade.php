@@ -9,7 +9,7 @@
 <main id="main-container">
     <div class="content">
         <!-- <h2 class="content-heading"></h2> -->
-        <button id="btn_tambah_layer" type="button" class="btn btn-primary mr-5 mb-5" data-toggle="modal" data-target="#modal-popin">
+        <button id="btn_tambah_layer" type="button" class="btn btn-primary mr-5 mb-5" data-toggle="modal" data-target="#modal_tambah_layer">
             <i class="fa fa-plus mr-5"></i> Tambah Layer Peta
         </button>
         <button id="btn_tambah_grup_layer" type="button" class="btn btn-primary mr-5 mb-5 btn-tambah" data-toggle="modal" data-target="#modal_grup_layer">
@@ -140,103 +140,82 @@
 </main>
 <!-- END Main Container -->
 
-<!-- Pop In Modal -->
-<div class="modal fade" id="modal-popin" tabindex="-1" role="dialog" aria-labelledby="modal-popin" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-popin" role="document">
+<!-- Pop In Modal Tambah Layer Peta -->
+<div class="modal fade" id="modal_tambah_layer" tabindex="-1" role="dialog" aria-labelledby="modal_tambah_layer" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-popin modal-md" role="document">
         <div class="modal-content">
-            <form id="tambah_layer">
-                <div class="block block-themed block-transparent mb-0">
-                    <div class="block-header bg-primary-dark">
-                        <h3 class="block-title">Tambah Layer Peta</h3>
-                        <div class="block-options">
-                            <button type="button" class="btn-block-option" data-dismiss="modal" aria-label="Close">
-                                <i class="si si-close"></i>
-                            </button>
-                        </div>
+            <div class="block block-themed block-transparent mb-0">
+                <div class="block-header bg-primary-dark">
+                    <h3 class="block-title">Tambah Layer Peta</h3>
+                    <div class="block-options">
+                        <button type="button" class="btn-block-option" data-dismiss="modal" aria-label="Close">
+                            <i class="si si-close"></i>
+                        </button>
                     </div>
-                    <div class="block-content">
-                        <input type="hidden" name="_token" value="{{ csrf_token() }}" style="display: none">
-                        <div class="form-group row">
-                            <label class="col-12" for="nama_layer">Nama Layer</label>
-                            <div class="col-md-12">
-                                <input required type="text" class="form-control" id="nama_layer" name="nama_layer" placeholder="Masukkan nama layer">
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <label class="col-12" for="opd">Grup Layer</label>
-                            <div class="col-md-12">
-                                <select required class="form-control" id="grup_layer" name="grup_layer" style="width: 100%;"></select>
+                </div>
+                <div class="block-content">
+                    <form id="form_tambah_layer" action="{{ route('admin.peta.simpan_layer') }}" method="POST">
+                        @csrf
+                        <input type="hidden" id="layer_id" name="layer_id" value=""> <!-- Untuk edit -->
 
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <label class="col-12" for="opd">Jenis Peta</label>
-                            <div class="col-md-12">
-                                <select required class="form-control" id="jenis_peta" name="jenis_peta" style="width: 100%;"></select>
+                        <label for="nama_layer">Nama Layer</label>
+                        <input type="text" id="nama_layer" name="nama_layer" class="form-control" placeholder="Masukkan nama layer..." required>
+                        
+                        <label for="grup_layer" class="mt-2">Grup Layer</label>
+                        <select id="grup_layer" name="grup_layer" class="form-control" required>
+							<option value="" selected disabled>-- Pilih Grup Layer --</option>
+                            @foreach ($grup_layers as $item)
+                                <option value="{{ $item->id_grup_layer }}">{{ $item->nama_grup_layer }}</option>
+                            @endforeach
+						</select>
 
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <label class="col-12" for="opd">Nama Bidang</label>
-                            <div class="col-md-12">
-                                <select required class="opd form-control" id="opd" name="opd" style="width: 100%;">
-                                    <option value="" selected disabled>-- Pilih Bidang --</option><!-- Required for data-placeholder attribute to work with Select2 plugin -->
-                                    <?php
-                                    foreach ($daftar_opd as $opd) {
-                                        echo "<option value=" . $opd->id_opd . ">" . $opd->nama_opd . "</option>";
-                                    }
-                                    ?>
-                                </select>
+                        <label for="jenis_peta" class="mt-2">Jenis Peta</label>
+                        <select id="jenis_peta" name="jenis_peta" class="form-control" required>
+							<option value="" selected disabled>-- Pilih Jenis Peta --</option>
+                            @foreach ($jenis_peta as $item)
+                                <option value="{{ $item->id_jenis_peta }}">{{ $item->nama_jenis_peta }}</option>
+                            @endforeach
+						</select>
+                        
+                        <label for="opd" class="mt-2">Nama Bidang</label>
+                        <select id="opd" name="opd" class="form-control" required>
+                            <option value="" selected disabled>-- Pilih Bidang --</option>
+                            @foreach ($daftar_opd as $opd)
+                                <option value="{{ $opd->id_opd }}">{{ $opd->nama_opd }}</option>
+                            @endforeach
+                        </select>
+                        
+                        <label for="sumber" class="mt-2">Sumber Data</label>
+                        <select id="sumber" name="sumber" class="form-control" required>
+                            <option value="" disabled>-- Pilih Sumber Data --</option>
+                            <option value="1" selected>Database</option>
+                            <option value="2">API</option>
+                        </select>
 
-                            </div>
+                        <div class="mt-2" id="link_api_box" style="display:none;">
+                            <label for="link_api">Link API</label>
+                            <input type="text" id="link_api" name="link_api" class="form-control" placeholder="Masukkan link API">
                         </div>
-                        <div class="form-group row">
-                            <label class="col-12" for="sumber">Sumber Data</label>
-                            <div class="col-md-12">
-                                <select class="sumber form-control" name="sumber" id="sumber" style="width: 100%;">
-                                    <option value="" disabled>-- Pilih Sumber Data --</option>
-                                    <option value="1" selected>Database</option>
-                                    <option value="2">API</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="form-group row" id="link_api_box" style="display:none;">
-                            <label class="col-12" for="link_api">Link API</label>
-                            <div class="col-md-12">
-                                <input type="text" class="form-control" id="link_api" name="link_api" placeholder="Masukkan link API">
-                            </div>
-                        </div>
-
-                        <div class="form-group row">
-                            <label class="col-12" for="opd">Deskripsi Layer</label>
-                            <div class="col-md-12">
-                                <textarea class="form-control" name="deskripsi_layer" id="deskripsi_layer" cols="30" rows="5"></textarea>
-
-                            </div>
-                        </div>
-                        <!-- <div class="form-group row pengembangan">
-                            <div class="col-md-12">
-                                <div class="alert alert-danger">
-                                <strong><i class="fa fa-exclamation"></i></strong> Fitur ini masih dalam pengembangan.
-                                </div>
-                            </div>
-                        </div> -->
-                    </div>
+                        
+                        <label for="deskripsi_layer" class="mt-2">Deskripsi Layer</label>
+                        <textarea id="deskripsi_layer" name="deskripsi_layer" class="form-control" rows="3" placeholder="Deskripsi layer..."></textarea>
+                    </form>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-alt-secondary" data-dismiss="modal">Tutup</button>
-                    <button type="submit" class="btn btn-alt-success btn-simpan">
+                    <button type="submit" form="form_tambah_layer" class="btn btn-alt-success">
                         <i class="fa fa-check"></i> Simpan
                     </button>
                 </div>
-            </form>
+            </div>
         </div>
     </div>
 </div>
+
 <!-- END Pop In Modal -->
 
 <!-- Pop In Modal Tambah Grup Layer -->
+<!-- Modal Tambah Grup Layer -->
 <div class="modal fade" id="modal_grup_layer" tabindex="-1" role="dialog" aria-labelledby="modal_grup_layer" aria-hidden="true">
     <div class="modal-dialog modal-dialog-popin modal-md" role="document">
         <div class="modal-content">
@@ -250,38 +229,57 @@
                     </div>
                 </div>
                 <div class="block-content">
-                    <div>
-                        <label for="nama_grup_layer">Nama Grup Layer</label>
-                        <div class="input-group">
-                            <input type="text" name="nama_grup_layer" class="form-control" placeholder="Masukkan nama grup layer...">
-                            <div class="input-group-append">
-                                <button id="btn_simpan_grup_layer" class="btn btn-success">
-                                    <i class="fa fa-plus"></i> Tambah Grup
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+					<form id="form_grup_layer" action="{{ route('admin.peta.simpan_grup_layer') }}" method="POST">
+						@csrf
+						<input type="hidden" name="_method" value="POST"> <!-- Secara default menggunakan POST -->
+						<input type="hidden" id="grup_layer_id" name="grup_layer_id" value=""> <!-- Untuk edit -->
+						
+						<label for="nama_grup_layer">Nama Grup Layer</label>
+						<div class="input-group">
+							<input type="text" id="nama_grup_layer" name="nama_grup_layer" class="form-control" placeholder="Masukkan nama grup layer...">
+							<div class="input-group-append">
+								<button type="submit" class="btn btn-success">
+									<i class="fa fa-plus"></i> Simpan Grup Layer
+								</button>
+							</div>
+						</div>
+					</form>
                     <h5 class="mt-30">List Grup Layer</h5>
                     <div id="list_grup_layer" class="mb-20">
-                        <svg id="list_grup_loader" style="margin-bottom:-5px;" width="20px" height="20px" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid" class="lds-ring">
-                            <circle cx="50" cy="50" ng-attr-r="" ng-attr-stroke="" ng-attr-stroke-width="" fill="none" r="30" stroke="#d6eff9" stroke-width="10"></circle>
-                            <circle cx="50" cy="50" ng-attr-r="" ng-attr-stroke="" ng-attr-stroke-width="" ng-attr-stroke-linecap="" fill="none" r="30" stroke="#63cff3" stroke-width="10" stroke-linecap="square" transform="rotate(323.411 50 50)">
-                                <animateTransform attributeName="transform" type="rotate" calcMode="linear" values="0 50 50;180 50 50;720 50 50" keyTimes="0;0.5;1" dur="1s" begin="0s" repeatCount="indefinite"></animateTransform>
-                                <animate attributeName="stroke-dasharray" calcMode="linear" values="18.84955592153876 169.64600329384882;94.2477796076938 94.24777960769377;18.84955592153876 169.64600329384882" keyTimes="0;0.5;1" dur="1" begin="0s" repeatCount="indefinite"></animate>
-                            </circle>
-                        </svg>
-                        <span>Sedang mengambil data grup layer...</span>
+                        @foreach ($grup_layers as $grup)
+                        <div class="row">
+                            <div class="item_grup_layer col-8" data-id="{{ $grup->id_grup_layer }}">{{ $grup->nama_grup_layer }}</div>
+                            <div class="col-4" style="text-align:right">
+                                <!-- Tombol Edit -->
+                                <button type="button" class="btn btn-sm btn-warning mr-5 btn-edit-grup-layer" 
+                                    data-id="{{ $grup->id_grup_layer }}" 
+                                    data-nama="{{ $grup->nama_grup_layer }}">
+                                    <i class="fa fa-edit" title="Edit {{ $grup->nama_grup_layer }}"></i>
+                                </button>  
+
+                                <!-- Form Hapus -->
+                                <form action="{{ route('admin.peta.hapus_grup_layer', $grup->id_grup_layer) }}" method="POST" style="display:inline;">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Yakin ingin menghapus {{ $grup->nama_grup_layer }}?')">
+                                        <i class="fa fa-remove"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        <hr>
+                        @endforeach
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-alt-secondary" data-dismiss="modal">Tutup</button>
-                <!-- <button id="simpan_grup_layer" type="button" class="btn btn-alt-success">Simpan</button> -->
             </div>
         </div>
     </div>
 </div>
-<!-- END Pop In Modal -->
+
+<!-- END Grup layer Modal -->
 
 <div class="modal fade" id="modal_jenis_peta" tabindex="-1" role="dialog" aria-labelledby="modal_jenis_peta" aria-hidden="true">
     <div class="modal-dialog modal-dialog-popin modal-md" role="document">
@@ -411,6 +409,56 @@
 			});
 		});
 	});
+
+	// script grup layer
+	$(document).ready(function() {
+		$('.btn-edit-grup-layer').on('click', function() {
+			let id = $(this).data('id');
+			let nama = $(this).data('nama');
+
+			// Set nilai input form
+			$('#grup_layer_id').val(id);
+			$('#nama_grup_layer').val(nama);
+
+			// Ubah method menjadi PUT dan URL-nya untuk update
+			$('#form_grup_layer').attr('action', '/admin/peta/update_grup_layer/' + id);
+			$('input[name="_method"]').val('PUT');
+
+			// Tampilkan modal
+			$('#modal_grup_layer').modal('show');
+		});
+
+		$('#modal_grup_layer').on('hidden.bs.modal', function() {
+			// Reset form ke mode tambah saat modal ditutup
+			$('#grup_layer_id').val('');
+			$('#nama_grup_layer').val('');
+			$('#form_grup_layer').attr('action', '{{ route("admin.peta.simpan_grup_layer") }}');
+			$('input[name="_method"]').val('POST');
+		});
+	});
+
+	// script link api
+	document.addEventListener("DOMContentLoaded", function() {
+		// Ambil elemen yang diperlukan
+		let sumberSelect = document.getElementById("sumber");
+		let linkApiBox = document.getElementById("link_api_box");
+
+		// Fungsi untuk menampilkan atau menyembunyikan input Link API
+		function toggleLinkApi() {
+			if (sumberSelect.value == "2") {
+				linkApiBox.style.display = "block"; // Tampilkan jika sumber = API
+			} else {
+				linkApiBox.style.display = "none"; // Sembunyikan jika sumber = Database
+			}
+		}
+
+		// Jalankan saat halaman dimuat untuk menangani kondisi default
+		toggleLinkApi();
+
+		// Tambahkan event listener untuk menangani perubahan dropdown
+		sumberSelect.addEventListener("change", toggleLinkApi);
+	});
+
 
 </script>
 {{-- <script>

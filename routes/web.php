@@ -36,8 +36,9 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
         // Grup Layer Management
         Route::get('/get_grup_layer', [PetaController::class, 'getGrupLayer'])->name('admin.peta.get_grup_layer');
         Route::post('/simpan_grup_layer', [PetaController::class, 'simpanGrupLayer'])->name('admin.peta.simpan_grup_layer');
-        Route::post('/edit_grup_layer', [PetaController::class, 'editGrupLayer'])->name('admin.peta.edit_grup_layer');
-        Route::post('/hapus_grup_layer', [PetaController::class, 'hapusGrupLayer'])->name('admin.peta.hapus_grup_layer');
+        Route::put('/update_grup_layer/{id}', [PetaController::class, 'updateGrupLayer'])->name('admin.peta.update_grup_layer');
+        Route::delete('/hapus_grup_layer/{id}', [PetaController::class, 'hapusGrupLayer'])->name('admin.peta.hapus_grup_layer');
+
     
         // Jenis Peta Management
         Route::get('/get_jenis_peta', [PetaController::class, 'getJenisPeta'])->name('admin.peta.get_jenis_peta');
