@@ -18,13 +18,16 @@ class User extends Authenticatable
      * @var list<string>
      */
 
-    
+     protected $rememberTokenName = null;
+     protected $keyType = 'int'; // Pastikan tipe primary key adalah integer
      protected $table = 'user_login';
      protected $primaryKey = 'id_user';
      public $timestamps = false;
 
     protected $fillable = [
-        'user_name', 'user_pass'
+        'user_name', 
+        'user_pass', 
+        'id_user',
     ];
 
     protected $hidden = [

@@ -185,7 +185,8 @@ class PetaController extends Controller
             'sumber_data' => $request->sumber,
             'link_api' => $request->sumber == 2 ? $request->link_api : null,
             'deskripsi' => $request->deskripsi_layer,
-            'ditambah_oleh' => Auth::user()->id, // Tambahkan ini
+            'ditambah_oleh' => Auth::user()->id_user, // Tambahkan ini
+            'diubah_oleh' => Auth::user()->id_user, // Tambahkan ini
         ]);
 
         return redirect()->route('admin.peta')->with('success', 'Jenis Peta berhasil ditambahkan!');

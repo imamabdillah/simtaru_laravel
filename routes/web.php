@@ -45,5 +45,8 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
         Route::post('/simpan_jenis_peta', [PetaController::class, 'simpanJenisPeta'])->name('admin.peta.simpan_jenis_peta');
         Route::put('/update-jenis-peta/{id}', [PetaController::class, 'updateJenisPeta'])->name('admin.peta.update_jenis_peta');
         Route::delete('/hapus_jenis_peta/{id}', [PetaController::class, 'hapusJenisPeta'])->name('admin.peta.hapus_jenis_peta');
+
+
+        
     });
 });

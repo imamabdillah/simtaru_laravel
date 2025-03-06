@@ -12,6 +12,10 @@ use App\Models\PasswordReset;
 use Illuminate\Support\Str;
 class LoginController extends Controller
 {
+    // cek login
+    public function cek() {
+        return dd(Auth::user());
+    }
     public function index()
     {
         return view('auth.login');
