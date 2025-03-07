@@ -53,6 +53,13 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
         Route::delete('/hapus_jenis_peta/{id}', [PetaController::class, 'hapusJenisPeta'])->name('admin.peta.hapus_jenis_peta');
 
 
+        // Atribut Data Layer Management
+        Route::post('/atribut/store', [PetaController::class, 'storeAtribut'])->name('admin.peta.atribut.store');
+        Route::get('/atribut/{id_layer}', [PetaController::class, 'getAtribut'])->name('admin.peta.atribut.get');
+        Route::post('/atribut/update', [PetaController::class, 'updateAtribut'])->name('admin.peta.atribut.update');
+        Route::post('/atribut/delete', [PetaController::class, 'deleteAtribut'])->name('admin.peta.atribut.delete');
+
+
         
     });
 });

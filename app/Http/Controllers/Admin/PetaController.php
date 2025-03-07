@@ -9,8 +9,10 @@ use App\Models\Layer;
 use App\Models\GrupLayer;
 use App\Models\JenisPeta;
 use App\Models\Peta;
+use App\Models\AtributLayer;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 
@@ -275,6 +277,65 @@ class PetaController extends Controller
         }
 
         return response()->json(['success' => false, 'message' => 'Layer tidak ditemukan!']);
+    }
+
+    public function storeAtribut(Request $request)
+    {
+        $request->validate([
+            'atribut_id_layer' => 'required|integer',
+            'atribut_nama_atribut' => 'required|array',
+            'atribut_nama_atribut.*' => 'required|string|max:255',
+            'atribut_tipe_atribut' => 'required|array',
+            'atribut_tipe_atribut.*' => 'required|in:Text,Angka,File',
+        ]);
+    
+        foreach ($request->atribut_nama_atribut as $index => $namaAtribut) {
+            AtributLayer::create([
+                'id_layer' => $request->atribut_id_layer,
+                'nama_atribut' => $namaAtribut,
+                'slug' => Str::slug($namaAtribut),
+                'tipe_data' => $request->atribut_tipe_atribut[$index],
+                'add_by' => Auth::user()->id_user,
+            ]);
+        }
+    
+        return response()->json(['success' => true, 'message' => 'Atribut berhasil ditambahkan']);
+    }
+    
+    public function getAtribut($id_layer)
+    {
+        $atributs = AtributLayer::where('id_layer', $id_layer)->whereNull('is_delete')->get();
+        return response()->json($atributs);
+    }
+    
+    public function updateAtribut(Request $request)
+    {
+        $request->validate([
+            'ubah_id_atribut' => 'required|integer|exists:tabel_atribut_layer,id_atribut',
+            'ubah_atribut_nama' => 'required|string|max:255',
+            'ubah_tipe_atribut' => 'required|in:Text,Angka,File',
+        ]);
+    
+        $atribut = AtributLayer::findOrFail($request->ubah_id_atribut);
+        $atribut->update([
+            'nama_atribut' => $request->ubah_atribut_nama,
+            'slug' => Str::slug($request->ubah_atribut_nama),
+            'tipe_data' => $request->ubah_tipe_atribut,
+        ]);
+    
+        return response()->json(['success' => true, 'message' => 'Atribut berhasil diperbarui']);
+    }
+    
+    public function deleteAtribut(Request $request)
+    {
+        $request->validate([
+            'id_atribut' => 'required|integer|exists:tabel_atribut_layer,id_atribut',
+        ]);
+    
+        $atribut = AtributLayer::findOrFail($request->id_atribut);
+        $atribut->update(['is_delete' => now()]);
+    
+        return response()->json(['success' => true, 'message' => 'Atribut berhasil dihapus']);
     }
 
 }

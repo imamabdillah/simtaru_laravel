@@ -282,6 +282,79 @@
             }
         }
     });
+    
+    $(document).ready(function () {
+    let id_layer = $("input[name=atribut_id_layer]").val();
+
+    function loadAtribut() {
+        $.get("{{ url('admin/peta/atribut') }}/" + id_layer, function (data) {
+            let rows = '';
+            $.each(data, function (index, atribut) {
+                rows += `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td>${atribut.nama_atribut}</td>
+                        <td>${atribut.tipe_data}</td>
+                        <td>
+                            <button class="btn btn-warning btn-edit" data-id="${atribut.id_atribut}" data-nama="${atribut.nama_atribut}" data-tipe="${atribut.tipe_data}">Edit</button>
+                            <button class="btn btn-danger btn-delete" data-id="${atribut.id_atribut}">Hapus</button>
+                        </td>
+                    </tr>`;
+            });
+            $("#show_data").html(rows);
+        });
+    }
+
+    loadAtribut();
+
+    $("#form_atribut").submit(function (e) {
+        e.preventDefault();
+        let formData = $(this).serialize();
+        $.post("{{ route('admin.peta.atribut.store') }}", formData, function (response) {
+            if (response.success) {
+                alert(response.message);
+                loadAtribut();
+                $("#form_atribut")[0].reset();
+            }
+        });
+    });
+
+    $(document).on("click", ".btn-delete", function () {
+        if (confirm("Hapus atribut ini?")) {
+            $.post("{{ route('admin.peta.atribut.delete') }}", { id_atribut: $(this).data("id"), _token: "{{ csrf_token() }}" }, function (response) {
+                if (response.success) {
+                    alert(response.message);
+                    loadAtribut();
+                }
+            });
+        }
+    });
+
+    $(document).on("click", ".btn-edit", function () {
+        $("#ubah_atribut_nama").val($(this).data("nama"));
+        $("select[name=ubah_tipe_atribut]").val($(this).data("tipe"));
+        $("input[name=ubah_id_atribut]").val($(this).data("id"));
+        $("#modal-edit").modal("show");
+    });
+
+    $(".btn-ubah-atribut").click(function () {
+        let formData = {
+            _token: "{{ csrf_token() }}",
+            ubah_id_atribut: $("input[name=ubah_id_atribut]").val(),
+            ubah_atribut_nama: $("#ubah_atribut_nama").val(),
+            ubah_tipe_atribut: $("select[name=ubah_tipe_atribut]").val(),
+        };
+
+        $.post("{{ route('admin.peta.atribut.update') }}", formData, function (response) {
+            if (response.success) {
+                alert(response.message);
+                $("#modal-edit").modal("hide");
+                loadAtribut();
+            }
+        });
+    });
+});
+
 </script>
 
 
