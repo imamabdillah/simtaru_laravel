@@ -182,9 +182,9 @@ class PetaController extends Controller
             'id_grup_layer' => $request->grup_layer,
             'id_jenis_peta' => $request->jenis_peta,
             'id_opd' => $request->opd,
-            'sumber_data' => $request->sumber,
+            'sumber' => $request->sumber,
             'link_api' => $request->sumber == 2 ? $request->link_api : null,
-            'deskripsi' => $request->deskripsi_layer,
+            'deskripsi_layer' => $request->deskripsi_layer,
             'ditambah_oleh' => Auth::user()->id_user, // Tambahkan ini
             'diubah_oleh' => Auth::user()->id_user, // Tambahkan ini
         ]);
@@ -194,12 +194,39 @@ class PetaController extends Controller
 
     public function editLayer($id)
     {
-        // Cari data layer berdasarkan ID
         $layer = Layer::findOrFail($id);
+        $daftar_grup_layer = GrupLayer::all();
+        $daftar_jenis_peta = JenisPeta::all();
+        $daftar_opd = ReferensiOPD::all();
     
-        // Arahkan ke halaman edit dengan data layer
-        return view('admin.peta.kelola', compact('layer'));
+        return view('admin.peta.kelola', compact('layer', 'daftar_grup_layer', 'daftar_jenis_peta', 'daftar_opd'));
+        
     }
+    
+    public function updateLayer(Request $request, $id)
+    {
+        $request->validate([
+            'nama_layer' => 'required|string|max:255',
+            'grup_layer' => 'required|exists:grup_layers,id_grup_layer',
+            'jenis_peta' => 'required|exists:jenis_petas,id_jenis_peta',
+            'nama_opd' => 'required|exists:opds,id_opd',
+            'status_layer' => 'required|integer',
+            'deskripsi_layer' => 'nullable|string',
+        ]);
+    
+        $layer = Layer::findOrFail($id);
+        $layer->update([
+            'nama_layer' => $request->nama_layer,
+            'id_grup_layer' => $request->grup_layer,
+            'id_jenis_peta' => $request->jenis_peta,
+            'id_opd' => $request->nama_opd,
+            'status_layer' => $request->status_layer,
+            'deskripsi_layer' => $request->deskripsi_layer,
+        ]);
+    
+        return redirect()->route('admin.peta')->with('success', 'Layer berhasil diperbarui.');
+    }
+    
     
     public function hapusSemuaDataLayer(Request $request)
     {

@@ -1,4 +1,5 @@
 @extends('layouts.wrapper')
+@section('contents')
 <style>
 .container-fluid{
     padding:0px 0px 10px 0px;
@@ -13,7 +14,7 @@
             <div class="block-header bg-primary-dark">
                 <h3 class="block-title">Manajemen Layer "<b class="header_layer"></b>"</h3>
                 <div class="block-options">
-                    <a class="btn btn-sm btn-danger" href="<?= base_url('admin/peta') ?>">
+                    <a class="btn btn-sm btn-danger" href="{{ url('admin/peta') }}">
                         <i class="fa fa-angle-left"></i> Kembali
                     </a>
                     <button type="button" class="btn btn-sm btn-alt-primary btn_ubah">
@@ -22,95 +23,114 @@
                 </div>
             </div>
             <div class="block-content">
-            <form id="form_layer" method="post">
-                <input type="hidden" name="id_layer" value="<?= $this->uri->segment(4); ?>">
-                <input type="hidden" name="<?php echo $this->security->get_csrf_token_name();?>" value="<?php echo $this->security->get_csrf_hash();?>">
-                <div class="form-group row">
-                    <label class="col-12" for="nama_layer">Nama Layer</label>
-                    <div class="col-md-12">
-                        <input type="text" class="form-control" id="nama_layer" name="nama_layer" placeholder="Masukkan nama layer">
+                <form id="form_layer" method="post" action="{{ route('admin.peta.update_layer', request()->segment(4)) }}">
+                    @csrf
+                    <input type="hidden" name="id_layer" value="{{ request()->segment(4) }}">
+                    
+                    <div class="form-group row">
+                        <label class="col-12" for="nama_layer">Nama Layer</label>
+                        <div class="col-md-12">
+                            <input type="text" class="form-control" id="nama_layer" name="nama_layer" placeholder="Masukkan nama layer" value="{{ old('nama_layer', $layer->nama_layer ?? '') }}">
+                        </div>
                     </div>
-                </div>
-                <div class="form-group row">
-                    <label class="col-12" for="grup_layer">Grup Layer</label>
-                    <div class="col-md-12">
-                        <select required class="form-control" id="grup_layer" name="grup_layer" style="width: 100%;">
-                            <option value=""></option><!-- Required for data-placeholder attribute to work with Select2 plugin -->
-                            <?php
-                                foreach ($daftar_grup_layer->result() as $grup_layer){
-                                    echo "<option value=".$grup_layer->id_grup_layer.">".$grup_layer->nama_grup_layer."</option>";
-                                }
-                            ?>
-                        </select>
+                
+                    <div class="form-group row">
+                        <label class="col-12" for="grup_layer">Grup Layer</label>
+                        <div class="col-md-12">
+                            <select required class="form-control" id="grup_layer" name="grup_layer" style="width: 100%;">
+                                <option value="{{ old('grup_layer', $layer->grup_layer ?? '') }}" selected>
+                                    {{ $layer->grupLayer->nama_grup_layer ?? 'Pilih Grup Layer' }}
+                                </option>
+                                @foreach ($daftar_grup_layer as $grup_layer)
+                                    <option value="{{ $grup_layer->id_grup_layer }}">{{ $grup_layer->nama_grup_layer }}</option>
+                                @endforeach
+                            </select>
+                        </div>
                     </div>
-                </div>
-                <div class="form-group row">
-                    <label class="col-12" for="jenis_peta">Jenis Peta</label>
-                    <div class="col-md-12">
-                        <select required class="form-control" id="jenis_peta" name="jenis_peta" style="width: 100%;">
-                            <option value=""></option><!-- Required for data-placeholder attribute to work with Select2 plugin -->
-                            <?php
-                                foreach ($daftar_jenis_peta->result() as $jenis_peta){
-                                    echo "<option value=".$jenis_peta->id_jenis_peta.">".$jenis_peta->nama_jenis_peta."</option>";
-                                }
-                            ?>
-                        </select>
+                
+                    <div class="form-group row">
+                        <label class="col-12" for="jenis_peta">Jenis Peta</label>
+                        <div class="col-md-12">
+                            <select required class="form-control" id="jenis_peta" name="jenis_peta" style="width: 100%;">
+                                <option value="{{ old('jenis_peta', $layer->jenis_peta ?? '') }}" selected>
+                                    {{ $layer->jenisPeta->nama_jenis_peta ?? 'Pilih Jenis Peta' }}
+                                </option>
+                                @foreach ($daftar_jenis_peta as $jenis_peta)
+                                    <option value="{{ $jenis_peta->id_jenis_peta }}">{{ $jenis_peta->nama_jenis_peta }}</option>
+                                @endforeach
+                            </select>
+                        </div>
                     </div>
-                </div>
-                <div class="form-group row">
-                    <label class="col-12" for="nama_opd">Nama OPD</label>
-                    <div class="col-md-12">
-                        <select required class="nama_opd form-control" id="nama_opd" name="nama_opd" style="width: 100%;">
-                            <option value=""></option><!-- Required for data-placeholder attribute to work with Select2 plugin -->
-                            <?php
-                                foreach ($daftar_opd->result() as $opd){
-                                    echo "<option value=".$opd->id_opd.">".$opd->nama_opd."</option>";
-                                }
-                            ?>
-                        </select>
+                
+                    <div class="form-group row">
+                        <label class="col-12" for="nama_opd">Nama OPD</label>
+                        <div class="col-md-12">
+                            <select required class="form-control" id="nama_opd" name="nama_opd" style="width: 100%;">
+                                <option value="{{ old('nama_opd', $layer->nama_opd ?? '') }}" selected>
+                                    {{ $layer->opd->nama_opd ?? 'Pilih OPD' }}
+                                </option>
+                                @foreach ($daftar_opd as $opd)
+                                    <option value="{{ $opd->id_opd }}">{{ $opd->nama_opd }}</option>
+                                @endforeach
+                            </select>
+                        </div>
                     </div>
-                </div>
-                <div class="form-group row">
-                    <label class="col-12" for="status_layer">Status Layer</label>
-                    <div class="col-md-12">
-                        <select required class="status_layer form-control" id="status_layer" name="status_layer" style="width: 100%;">
-                            <option value=""></option><!-- Required for data-placeholder attribute to work with Select2 plugin -->
-                            <option value="1">Tampilkan</option>
-                            <option value="2">Sembunyikan</option>
-                        </select>
+                
+                    <div class="form-group row">
+                        <label class="col-12" for="status">Status Layer</label>
+                        <div class="col-md-12">
+                            <select required class="form-control" id="status" name="status" style="width: 100%;">
+                                <option value="{{ old('status', $layer->status ?? '') }}" selected>
+                                    @if($layer->status == 1)
+                                        Tampilkan
+                                    @elseif($layer->status == 2)
+                                        Sembunyikan
+                                    @else
+                                        Pilih Status
+                                    @endif
+                                </option>
+                                <option value="1">Tampilkan</option>
+                                <option value="2">Sembunyikan</option>
+                            </select>
+                        </div>
                     </div>
-                </div>
-                <div class="form-group row">
-                    <label class="col-12" for="sumber_data">Sumber Data</label>
-                    <div class="col-md-12">
-                        <input disabled type="text" class="form-control" id="sumber_data" name="sumber_data">
+                
+                    <div class="form-group row">
+                        <label class="col-12" for="sumber">Sumber Data</label>
+                        <div class="col-md-12">
+                            <input disabled type="text" class="form-control" id="sumber" name="sumber" 
+                                value="{{ $layer->sumber == 1 ? 'Database' : ($layer->sumber == 2 ? 'API' : '') }}">
+                        </div>
                     </div>
-                </div>
-                <div class="form-group row" style="display: none">
-                    <label class="col-12" for="link_api">Link API</label>
-                    <div class="col-md-12">
-                        <input type="text" class="form-control" id="link_api" name="link_api">
+                    
+                    <div class="form-group row" id="link_api_container" style="display: {{ $layer->sumber == 2 ? 'block' : 'none' }};">
+                        <label class="col-12" for="link_api">Link API</label>
+                        <div class="col-md-12">
+                            <input type="text" class="form-control" id="link_api" name="link_api" 
+                                value="{{ old('link_api', $layer->link_api ?? '') }}">
+                        </div>
                     </div>
-                </div>
-                <div class="form-group row">
-                    <label class="col-12" for="opd">Deskripsi Layer</label>
-                    <div class="col-md-12">
-                    <textarea class="form-control" name="deskripsi_layer" id="deskripsi_layer" cols="30" rows="5"></textarea>
-
+                
+                    <div class="form-group row">
+                        <label class="col-12" for="deskripsi_layer">Deskripsi Layer</label>
+                        <div class="col-md-12">
+                            <textarea class="form-control" name="deskripsi_layer" id="deskripsi_layer" cols="30" rows="5">{{ old('deskripsi_layer', $layer->deskripsi_layer ?? '') }}</textarea>
+                        </div>
                     </div>
-                </div>
-
-                <div class="form-group row panel-button">
-                    <div class="col-12">
-                        <button type="button" class="btn btn-alt-default float-right btn_batal">
-                            <i class="fa fa-close mr-5"></i> Batal
-                        </button>
-                        <button type="submit" class="btn btn-alt-info float-right btn_simpan" style="margin-right:10px;">
-                            <i class="fa fa-check mr-5"></i> Simpan Layer
-                        </button>
+                
+                    <div class="form-group row panel-button">
+                        <div class="col-12">
+                            <button type="button" class="btn btn-alt-default float-right btn_batal">
+                                <i class="fa fa-close mr-5"></i> Batal
+                            </button>
+                            <button type="submit" class="btn btn-alt-info float-right btn_simpan" style="margin-right:10px;">
+                                <i class="fa fa-check mr-5"></i> Simpan Layer
+                            </button>
+                        </div>
                     </div>
-                </div>
-            </form>
+                </form>
+                
+                
             </div>
         </div>
         <!-- panel 2 start -->
@@ -120,8 +140,8 @@
             </div>
             <div class="block-content">
                 <form method="post" id="form_atribut" onsubmit="return false;">
-                    <input type="hidden" name="atribut_id_layer" value="<?= $this->uri->segment(4); ?>">
-                    <input type="hidden" name="<?php echo $this->security->get_csrf_token_name();?>" value="<?php echo $this->security->get_csrf_hash();?>">
+                    @csrf
+                    <input type="hidden" name="atribut_id_layer" value="{{ request()->segment(4) }}">
                     <div class="row atribut_form">
                         <div class="col-7">
                             <div class="form-group">
@@ -199,7 +219,7 @@
                 </div>
                 <div class="block-content">
                     <!-- content -->
-                    <input type="hidden" name="<?=$this->security->get_csrf_token_name();?>" value="<?=$this->security->get_csrf_hash();?>" style="display: none">
+                    @csrf
                     <input type="hidden" name="ubah_id_atribut">
                     <div class="form-group row">
                         <label class="col-12" for="ubah_atribut_nama">Nama Atribut</label>
@@ -232,5 +252,32 @@
     </div>
 </div>
 <!-- END Pop In Modal -->
+
+
+
+@endsection
+
+@section('scripts')
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
+<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        let sumberInput = document.getElementById("sumber");
+        let linkApiContainer = document.getElementById("link_api_container");
+
+        // Jika sumber berubah, cek apakah nilainya "API" (2)
+        if (sumberInput) {
+            let sumberValue = sumberInput.value.trim();
+            if (sumberValue === "API") {
+                linkApiContainer.style.display = "block";
+            } else {
+                linkApiContainer.style.display = "none";
+            }
+        }
+    });
+</script>
+
 
 @endsection
