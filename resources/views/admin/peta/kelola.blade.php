@@ -38,13 +38,15 @@
                         <label class="col-12" for="grup_layer">Grup Layer</label>
                         <div class="col-md-12">
                             <select required class="form-control" id="grup_layer" name="grup_layer" style="width: 100%;">
-                                <option value="{{ old('grup_layer', $layer->grup_layer ?? '') }}" selected>
-                                    {{ $layer->grupLayer->nama_grup_layer ?? 'Pilih Grup Layer' }}
-                                </option>
+                                <option value="" disabled {{ old('grup_layer', $layer->id_grup_layer ?? '') == '' ? 'selected' : '' }}>Pilih Grup Layer</option>
                                 @foreach ($daftar_grup_layer as $grup_layer)
-                                    <option value="{{ $grup_layer->id_grup_layer }}">{{ $grup_layer->nama_grup_layer }}</option>
+                                    <option value="{{ $grup_layer->id_grup_layer }}" 
+                                        {{ old('grup_layer', $layer->id_grup_layer ?? '') == $grup_layer->id_grup_layer ? 'selected' : '' }}>
+                                        {{ $grup_layer->nama_grup_layer }}
+                                    </option>
                                 @endforeach
                             </select>
+                            
                         </div>
                     </div>
                 
@@ -52,13 +54,15 @@
                         <label class="col-12" for="jenis_peta">Jenis Peta</label>
                         <div class="col-md-12">
                             <select required class="form-control" id="jenis_peta" name="jenis_peta" style="width: 100%;">
-                                <option value="{{ old('jenis_peta', $layer->jenis_peta ?? '') }}" selected>
-                                    {{ $layer->jenisPeta->nama_jenis_peta ?? 'Pilih Jenis Peta' }}
-                                </option>
+                                <option value="" disabled {{ old('jenis_peta', $layer->id_jenis_peta ?? '') == '' ? 'selected' : '' }}>Pilih Jenis Peta</option>
                                 @foreach ($daftar_jenis_peta as $jenis_peta)
-                                    <option value="{{ $jenis_peta->id_jenis_peta }}">{{ $jenis_peta->nama_jenis_peta }}</option>
+                                    <option value="{{ $jenis_peta->id_jenis_peta }}" 
+                                        {{ old('jenis_peta', $layer->id_jenis_peta ?? '') == $jenis_peta->id_jenis_peta ? 'selected' : '' }}>
+                                        {{ $jenis_peta->nama_jenis_peta }}
+                                    </option>
                                 @endforeach
                             </select>
+                            
                         </div>
                     </div>
                 
@@ -66,13 +70,14 @@
                         <label class="col-12" for="nama_opd">Nama OPD</label>
                         <div class="col-md-12">
                             <select required class="form-control" id="nama_opd" name="nama_opd" style="width: 100%;">
-                                <option value="{{ old('nama_opd', $layer->nama_opd ?? '') }}" selected>
-                                    {{ $layer->opd->nama_opd ?? 'Pilih OPD' }}
-                                </option>
+                                <option value="" disabled {{ old('nama_opd', $layer->id_opd ?? '') == '' ? 'selected' : '' }}>Pilih OPD</option>
                                 @foreach ($daftar_opd as $opd)
-                                    <option value="{{ $opd->id_opd }}">{{ $opd->nama_opd }}</option>
+                                    <option value="{{ $opd->id_opd }}" 
+                                        {{ old('nama_opd', $layer->id_opd ?? '') == $opd->id_opd ? 'selected' : '' }}>
+                                        {{ $opd->nama_opd }}
+                                    </option>
                                 @endforeach
-                            </select>
+                            </select>                            
                         </div>
                     </div>
                 
@@ -89,8 +94,8 @@
                                         Pilih Status
                                     @endif
                                 </option>
-                                <option value="1">Tampilkan</option>
-                                <option value="2">Sembunyikan</option>
+                                <option value=1>Tampilkan</option>
+                                <option value=2>Sembunyikan</option>
                             </select>
                         </div>
                     </div>

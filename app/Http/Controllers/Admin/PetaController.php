@@ -206,11 +206,11 @@ class PetaController extends Controller
     public function updateLayer(Request $request, $id)
     {
         $request->validate([
-            'nama_layer' => 'required|string|max:255',
-            'grup_layer' => 'required|exists:grup_layers,id_grup_layer',
-            'jenis_peta' => 'required|exists:jenis_petas,id_jenis_peta',
-            'nama_opd' => 'required|exists:opds,id_opd',
-            'status_layer' => 'required|integer',
+            'nama_layer' => 'nullable|string|max:255',
+            'grup_layer' => 'nullable|exists:tabel_grup_layer,id_grup_layer',
+            'jenis_peta' => 'nullable|exists:tabel_jenis_peta,id_jenis_peta',
+            'nama_opd' => 'nullable|exists:tabel_referensi_opd,id_opd',
+            'status' => 'nullable|integer',
             'deskripsi_layer' => 'nullable|string',
         ]);
     
@@ -220,9 +220,10 @@ class PetaController extends Controller
             'id_grup_layer' => $request->grup_layer,
             'id_jenis_peta' => $request->jenis_peta,
             'id_opd' => $request->nama_opd,
-            'status_layer' => $request->status_layer,
+            'status' => $request->status,
             'deskripsi_layer' => $request->deskripsi_layer,
         ]);
+
     
         return redirect()->route('admin.peta')->with('success', 'Layer berhasil diperbarui.');
     }
