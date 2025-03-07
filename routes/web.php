@@ -32,6 +32,7 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
         Route::post('/simpan_layer', [PetaController::class, 'simpanLayer'])->name('admin.peta.simpan_layer');
         Route::post('/hapus_layer', [PetaController::class, 'hapusSemuaDataLayer'])->name('admin.peta.hapus_layer');
         Route::post('/switch_notif', [PetaController::class, 'switchNotif'])->name('admin.peta.switch_notif');
+        Route::post('/update-layer-perbaikan', [PetaController::class, 'updatePerbaikan'])->name('layer.updatePerbaikan');
     
         // Grup Layer Management
         Route::get('/get_grup_layer', [PetaController::class, 'getGrupLayer'])->name('admin.peta.get_grup_layer');

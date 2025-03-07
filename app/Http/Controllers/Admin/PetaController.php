@@ -211,4 +211,19 @@ class PetaController extends Controller
         
         return response()->json(['status' => 'success']);
     }
+
+    public function updatePerbaikan(Request $request)
+    {
+        $layer = Layer::find($request->id);
+        
+        if ($layer) {
+            $layer->is_perbaikan = $request->status; // Simpan status dari request
+            $layer->save();
+
+            return response()->json(['success' => true, 'message' => 'Status diperbarui!']);
+        }
+
+        return response()->json(['success' => false, 'message' => 'Layer tidak ditemukan!']);
+    }
+    
 }
