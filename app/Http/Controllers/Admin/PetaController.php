@@ -22,7 +22,7 @@ class PetaController extends Controller
     public function index()
     {
         $daftar_opd = ReferensiOpd::select('id_opd', 'nama_opd')->groupBy('id_opd', 'nama_opd')->get();
-        $layers = Layer::all();
+        $layers = Layer::with('opd')->get(); // Ambil data dengan relasi nama_opd
         $grup_layers = GrupLayer::all();
         $jenis_peta = JenisPeta::all();
         $petas = Peta::all();
@@ -192,6 +192,15 @@ class PetaController extends Controller
         return redirect()->route('admin.peta')->with('success', 'Jenis Peta berhasil ditambahkan!');
     }
 
+    public function editLayer($id)
+    {
+        // Cari data layer berdasarkan ID
+        $layer = Layer::findOrFail($id);
+    
+        // Arahkan ke halaman edit dengan data layer
+        return view('admin.peta.kelola', compact('layer'));
+    }
+    
     public function hapusSemuaDataLayer(Request $request)
     {
         $layer = Layer::findOrFail($request->id);
@@ -201,6 +210,20 @@ class PetaController extends Controller
         
         return redirect()->route('admin.peta')->with('success', 'Jenis Peta berhasil dihapus!');
     }
+
+    public function hapusLayer($id)
+    {
+        try {
+            $layer = Layer::findOrFail($id);
+            $layer->delete();
+    
+            return response()->json(['success' => true, 'message' => 'Layer berhasil dihapus']);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Gagal menghapus layer']);
+        }
+    }
+    
+    
 
     public function switchNotif(Request $request)
     {
@@ -225,5 +248,5 @@ class PetaController extends Controller
 
         return response()->json(['success' => false, 'message' => 'Layer tidak ditemukan!']);
     }
-    
+
 }

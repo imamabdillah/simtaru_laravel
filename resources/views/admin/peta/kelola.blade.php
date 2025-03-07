@@ -1,3 +1,4 @@
+@extends('layouts.wrapper')
 <style>
 .container-fluid{
     padding:0px 0px 10px 0px;
@@ -231,3 +232,5 @@
     </div>
 </div>
 <!-- END Pop In Modal -->
+
+@endsection

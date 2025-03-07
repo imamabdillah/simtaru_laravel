@@ -38,4 +38,5 @@ class ReferensiOpd extends Model
     {
         return $this->belongsTo(User::class, 'delete_by');
     }
+
 }

@@ -109,7 +109,7 @@
 						<tr>
 							<td>{{ $index + 1 }}</td>
 							<td>{{ $layer->nama_layer }}</td>
-							<td>{{ $layer->id_opd }}</td>
+							<td>{{ $layer->opd->nama_opd ?? 'Tidak Diketahui' }}</td>
 							<td>
 								@switch($layer->sumber)
 									@case(2)
@@ -133,7 +133,9 @@
 								<div class="btn-group btn-group-sm">
 									<button data-id="{{ $layer->id_layer }}" class="btn btn-default btn_download"><i class="fa fa-download"></i></button>
 									<button data-id="{{ $layer->id_layer }}" class="btn btn-primary btn_data"><i class="fa fa-database"></i></button>
-									<button data-id="{{ $layer->id_layer }}" class="btn btn-success btn_kelola"><i class="fa fa-edit"></i></button>
+									<a href="{{ route('admin.peta.edit_layer', $layer->id_layer) }}" class="btn btn-success btn_kelola">
+										<i class="fa fa-edit"></i>
+									</a>
 									<button data-id="{{ $layer->id_layer }}" class="btn btn-warning btn_group"><i class="fa fa-clone"></i></button>
 								</div>
 								<button data-id="{{ $layer->id_layer }}" class="btn btn-danger btn-sm btn_clear"><i class="fa fa-times-rectangle"></i></button>
@@ -492,7 +494,33 @@
 			}
 		});
 	});
-	
+
+
+    $(document).on('click', '.btn_hapus', function() {
+        let layerId = $(this).data('id');
+
+        if (confirm('Apakah Anda yakin ingin menghapus layer ini?')) {
+            $.ajax({
+                url: '/admin/peta/hapus_layer/' + layerId,
+                type: 'DELETE',
+                data: { _method: 'DELETE', _token: '{{ csrf_token() }}' },
+                success: function(response) {
+                    if (response.success) {
+                        alert(response.message);
+                        location.reload(); // Refresh halaman setelah berhasil menghapus
+                    } else {
+                        alert('Gagal menghapus layer');
+                    }
+                },
+                error: function(xhr) {
+                    console.log(xhr.responseText);
+                    alert('Terjadi kesalahan. Coba lagi!');
+                }
+            });
+        }
+    });
+
+
 </script>
 
 
