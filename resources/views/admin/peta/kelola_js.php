@@ -101,7 +101,7 @@ function add_row() {
 	        '<select required class="form-control tipe_atribut" name="atribut_tipe_atribut[]" style="width: 100%;">'+
 	            '<option value=""></option>'+
 	            '<option value="1">Text</option>'+
-	            // '<option value="2">Angka</option>'+
+	            '<option value="2">Angka</option>'+
 	            // '<option value="3">File</option>'+
 	        '</select>'+
 	    '</div>'+

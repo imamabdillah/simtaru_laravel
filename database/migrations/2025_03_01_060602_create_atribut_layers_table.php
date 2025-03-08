@@ -16,7 +16,7 @@ return new class extends Migration
             $table->integer('id_layer');
             $table->string('nama_atribut', 255);
             $table->string('slug', 300);
-            $table->enum('tipe_data', ['Text', 'Angka', 'File'])->default('Text');
+            $table->enum('tipe_data', ['Text', 'Angka'])->default('Text');
             $table->timestamp('added')->useCurrent();
             $table->timestamp('edited')->useCurrent();
             $table->integer('add_by')->nullable();
