@@ -191,19 +191,42 @@
                 <h3 class="block-title"><i class="fa fa-table"></i> Daftar Atribut Data</h3>
             </div>
             <div class="block-content">
-                <table class="table table-striped" id="mydata">
+                <table class="table table-striped" id="mydata" style="width:100%">
                     <thead>
                         <tr>
-                            <th style="text-align: center; width: 10px;">No</th>
-                            <th style="text-align: center;">Nama Atribut</th>
-                            <th style="text-align: center; width:20%">Tipe Atribut</th>
-                            <th style="text-align: center; width: 15%;">Aksi</th>
+                            <th>No</th>
+                            <th>Nama Atribut</th>
+                            <th>Tipe Data</th>
+                            <th>Aksi</th>
                         </tr>
                     </thead>
-                    <tbody id="show_data">
-                        
+                    <tbody>
+                        @foreach ($atributs as $index => $atribut)
+                        <tr>
+                            <td>{{ $index + 1 }}</td>
+                            <td>{{ $atribut->nama_atribut }}</td>
+                            <td>{{ $atribut->tipe_data }}</td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <button data-id="{{ $atribut->id_atribut }}" class="btn btn-warning btn_edit">
+                                        <i class="fa fa-edit"></i> Edit
+                                    </button>
+                                    {{-- <button data-id="{{ $atribut->id_atribut }}" class="btn btn-danger btn_hapus">
+                                        <i class="fa fa-trash"></i>
+                                    </button> --}}
+                                    <form action="{{ route('admin.peta.hapus_atribut_layer', $atribut->id_atribut) }}" method="POST" style="display:inline;">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Yakin ingin menghapus {{ $atribut->nama_atribut }}?')">
+                                            <i class="fa fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        @endforeach
                     </tbody>
-                </table>
+                </table>                
             </div>
         </div>
         <!-- panel 3 end -->
@@ -239,9 +262,8 @@
                         <div class="col-md-12">
                             <select required class="form-control tipe_atribut" name="ubah_tipe_atribut" style="width: 100%;">
                                 <option value=""></option><!-- Required for data-placeholder attribute to work with Select2 plugin -->
-                                <option value="Text">Text</option>
-                                <!-- <option value="Angka">Angka</option>
-                                <option value="File">File</option> -->
+                                <option value="1">Text</option>
+                                <option value="2">Angka</option>
                             </select>
                         </div>
                     </div>
@@ -282,109 +304,10 @@
                 linkApiContainer.style.display = "none";
             }
         }
+
+
     });
     
-    $(document).ready(function () {
-        let id_layer = $("input[name=atribut_id_layer]").val();
-
-        // Load Data Atribut
-        function loadAtribut() {
-            $.get("{{ url('admin/peta/atribut') }}/" + id_layer, function (data) {
-                console.log(data); // Cek apakah data benar-benar diterima
-                let html = "";
-                data.forEach((item, index) => {
-                    html += `<tr>
-                        <td style="text-align: center;">${index + 1}</td>
-                        <td>${item.nama_atribut}</td>
-                        <td style="text-align: center;">${item.tipe_data == 1 ? "Text" : "Angka"}</td>
-                        <td style="text-align: center;">
-                            <button class="btn btn-sm btn-primary edit_atribut" data-id="${item.id_atribut}" data-nama="${item.nama_atribut}" data-tipe="${item.tipe_data}">
-                                <i class="fa fa-edit"></i>
-                            </button>
-                            <button class="btn btn-sm btn-danger delete_atribut" data-id="${item.id_atribut}">
-                                <i class="fa fa-trash"></i>
-                            </button>
-                        </td>
-                    </tr>`;
-                });
-                $("#show_data").html(html);
-            });
-        }
-        loadAtribut();
-
-        // Simpan Atribut
-        $("#form_atribut").on("submit", function (e) {
-            e.preventDefault(); // Mencegah reload halaman
-
-            let form = $(this);
-            let formData = form.serialize();
-            let actionUrl = form.attr("action"); // Ambil URL dari atribut action form
-
-            $.ajax({
-                url: actionUrl,
-                type: "POST",
-                data: formData,
-                dataType: "json", // Pastikan membaca response sebagai JSON
-                success: function (response) {
-                    if (response.redirect) {
-                        window.location.href = response.redirect; // Redirect ke halaman edit layer
-                    } else {
-                        alert(response.success);
-                    }
-                },
-                error: function (xhr) {
-                    alert("Terjadi kesalahan, coba lagi!");
-                }
-            });
-        });
-
-
-
-
-
-
-
-        // Edit Atribut (Tampilkan data ke modal)
-        $(document).on("click", ".edit_atribut", function () {
-            $("input[name=ubah_id_atribut]").val($(this).data("id"));
-            $("#ubah_atribut_nama").val($(this).data("nama"));
-            $("select[name=ubah_tipe_atribut]").val($(this).data("tipe"));
-            $("#modal-edit").modal("show");
-        });
-
-        // Update Atribut
-        $(".btn-ubah-atribut").on("click", function () {
-            let data = {
-                _token: "{{ csrf_token() }}",
-                ubah_id_atribut: $("input[name=ubah_id_atribut]").val(),
-                ubah_atribut_nama: $("#ubah_atribut_nama").val(),
-                ubah_tipe_atribut: $("select[name=ubah_tipe_atribut]").val()
-            };
-
-            $.post("{{ route('admin.peta.update_atribut') }}", data, function (response) {
-                alert(response.success);
-                $("#modal-edit").modal("hide");
-                loadAtribut();
-            }).fail(function () {
-                alert("Terjadi kesalahan, coba lagi!");
-            });
-        });
-
-        // Hapus Atribut
-        $(document).on("click", ".delete_atribut", function () {
-            if (confirm("Apakah Anda yakin ingin menghapus atribut ini?")) {
-                $.post("{{ route('admin.peta.delete_atribut') }}", {
-                    _token: "{{ csrf_token() }}",
-                    id_atribut: $(this).data("id")
-                }, function (response) {
-                    alert(response.success);
-                    loadAtribut();
-                }).fail(function () {
-                    alert("Terjadi kesalahan, coba lagi!");
-                });
-            }
-        });
-    });
 
     function add_row() { 
         let rowno = $(".atribut_form").length + 1;
@@ -438,6 +361,56 @@
 
 </script>
 
+{{-- edit dan hapus atribut --}}
+<script>
+
+    // hapus atribut
+    $(document).ready(function () {
+        // Event listener tombol tambah atribut
+        $(document).on("click", "#btn_tambah_atribut", function () {
+            add_row();
+            console.log("Button tambah atribut diklik!");
+        });
+
+        // Event listener tombol hapus atribut (dari form tambah)
+        $(document).on("click", ".delete-row", function () {
+            let rowId = $(this).data("row");
+            delete_row(rowId);
+        });
+
+        // Event listener tombol hapus atribut (dari database)
+        $(document).on("click", ".btn_hapus", function () {
+            let atributId = $(this).data("id");
+            let row = $(this).closest("tr");
+
+            if (confirm("Apakah Anda yakin ingin menghapus atribut ini?")) {
+                $.ajax({
+                    url: `/admin/peta/atribut/delete/${atributId}`,
+                    type: "POST", // Laravel butuh POST untuk menghapus dengan _method=DELETE
+                    data: {
+                        _method: "DELETE", // Simulasikan DELETE
+                        _token: $('meta[name="csrf-token"]').attr("content")
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            alert(response.message);
+                            row.remove();
+                        } else {
+                            alert("Gagal menghapus atribut.");
+                        }
+                    },
+                    error: function () {
+                        alert("Terjadi kesalahan saat menghapus atribut.");
+                    }
+                });
+            }
+        });
+    });
+
+
+
+
+</script>
 
 
 

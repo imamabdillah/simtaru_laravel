@@ -200,8 +200,9 @@ class PetaController extends Controller
         $daftar_grup_layer = GrupLayer::all();
         $daftar_jenis_peta = JenisPeta::all();
         $daftar_opd = ReferensiOPD::all();
+        $atributs = AtributLayer::where('id_layer', $id)->whereNull('is_delete')->get();
     
-        return view('admin.peta.kelola', compact('layer', 'daftar_grup_layer', 'daftar_jenis_peta', 'daftar_opd'));
+        return view('admin.peta.kelola', compact('layer', 'daftar_grup_layer', 'daftar_jenis_peta', 'daftar_opd', 'atributs'));
         
     }
     
@@ -324,38 +325,57 @@ class PetaController extends Controller
 
     }
     
-    public function getAtribut()
+    public function getAtribut($id)
     {
-        $atribut = AtributLayer::all();
-        return response()->json($atribut);
+        $atributs = AtributLayer::where('id_layer', $id)->get();
+        return response()->json($atributs);
     }
+    
     
     public function updateAtribut(Request $request)
     {
-        $validated = $request->validate([
-            'ubah_id_atribut' => 'required|integer',
-            'ubah_atribut_nama' => 'required|string',
-            'ubah_tipe_atribut' => 'required|integer',
-        ]);
-    
-        $atribut = AtributLayer::findOrFail($request->ubah_id_atribut);
-        $atribut->update([
-            'nama_atribut' => $request->ubah_atribut_nama,
-            'slug' => strtolower(str_replace(' ', '_', $request->ubah_atribut_nama)),
-            'tipe_data' => $request->ubah_tipe_atribut,
-            'edited' => now()
-        ]);
-    
-        return response()->json(['success' => 'Atribut berhasil diperbarui!']);
+        $atribut = AtributLayer::find($request->id);
+        if ($atribut) {
+            $atribut->update([
+                'nama_atribut' => $request->nama_atribut,
+                'tipe_data' => $request->tipe_data,
+            ]);
+            return response()->json(['success' => true, 'message' => 'Atribut berhasil diperbarui']);
+        }
+        return response()->json(['success' => false, 'message' => 'Atribut tidak ditemukan']);
     }
     
-    public function deleteAtribut(Request $request)
+    
+    // public function deleteAtribut(Request $request)
+    // {
+    //     $atribut = AtributLayer::find($request->id);
+    //     if ($atribut) {
+    //         $atribut->delete(); // Bisa juga update 'is_delete' jika tidak ingin menghapus permanen
+    //         return response()->json(['success' => true, 'message' => 'Atribut berhasil dihapus']);
+    //     }
+    //     return response()->json(['success' => false, 'message' => 'Atribut tidak ditemukan']);
+    // }
+
+    public function deleteAtribut($id)
     {
-        $atribut = AtributLayer::findOrFail($request->id_atribut);
-        $atribut->update(['is_delete' => 1]);
+        try {
+            $atribut = AtributLayer::findOrFail($id);
+            $atribut->delete();
     
-        return response()->json(['success' => 'Atribut berhasil dihapus!']);
+            return response()->json(['success' => true, 'message' => 'Layer berhasil dihapus']);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Gagal menghapus layer']);
+        }
     }
+
+    public function hapusAtribut($id)
+    {
+        $atribut = AtributLayer::findOrFail($id);
+        $atribut->delete();
+    
+        return redirect()->back()->with('success', 'Atribut berhasil dihapus!');
+    }
+    
     
 
 }
