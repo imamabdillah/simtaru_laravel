@@ -66,7 +66,7 @@
                             </select>
                         </div>
                         <div class="col-2">
-                            <label for="rfilter_status">Status</label>
+                            <label for="filter_status">Status</label>
                             <select class="filter_status form-control" id="filter_status" name="filter_status" style="width: 100%;">
                                 <option value=""></option><!-- Required for data-placeholder attribute to work with Select2 plugin -->
                                 <option value="1">Ditampilkan</option>
@@ -225,7 +225,6 @@
 
 <!-- END Pop In Modal -->
 
-<!-- Pop In Modal Tambah Grup Layer -->
 <!-- Modal Tambah Grup Layer -->
 <div class="modal fade" id="modal_grup_layer" tabindex="-1" role="dialog" aria-labelledby="modal_grup_layer" aria-hidden="true">
     <div class="modal-dialog modal-dialog-popin modal-md" role="document">
@@ -259,15 +258,22 @@
                     <div id="list_grup_layer" class="mb-20">
                         @foreach ($grup_layers as $grup)
                         <div class="row">
-                            <div class="item_grup_layer col-8" data-id="{{ $grup->id_grup_layer }}">{{ $grup->nama_grup_layer }}</div>
+                            <div class="item_grup_layer col-8" data-id="{{ $grup->id_grup_layer }}">
+                                {{ $grup->nama_grup_layer }}
+                            </div>
                             <div class="col-4" style="text-align:right">
                                 <!-- Tombol Edit -->
-                                <button type="button" class="btn btn-sm btn-warning mr-5 btn-edit-grup-layer" 
+                                <button type="button" class="btn btn-sm btn-warning mr-5 btn-edit-grup-layer"
                                     data-id="{{ $grup->id_grup_layer }}" 
                                     data-nama="{{ $grup->nama_grup_layer }}">
                                     <i class="fa fa-edit" title="Edit {{ $grup->nama_grup_layer }}"></i>
                                 </button>  
-
+                        
+                                <!-- Tombol Simpan (hidden by default) -->
+                                <button type="button" class="btn btn-sm btn-success btn-save-grup-layer" style="display: none;">
+                                    <i class="fa fa-check"></i>
+                                </button>
+                        
                                 <!-- Form Hapus -->
                                 <form action="{{ route('admin.peta.hapus_grup_layer', $grup->id_grup_layer) }}" method="POST" style="display:inline;">
                                     @csrf
@@ -279,6 +285,7 @@
                             </div>
                         </div>
                         <hr>
+                        
                         @endforeach
                     </div>
                 </div>
@@ -309,7 +316,7 @@
                         @csrf
                         <label for="nama_jenis_peta">Nama Jenis Peta</label>
                         <div class="input-group">
-                            <input type="text" name="nama_jenis_peta" class="form-control" placeholder="Masukkan nama jenis peta...">
+                            <input type="text" id="nama_jenis_peta" name="nama_jenis_peta" class="form-control" placeholder="Masukkan nama jenis peta...">
                             <div class="input-group-append">
                                 <button type="submit" class="btn btn-success">
                                     <i class="fa fa-plus"></i> Tambah Jenis Peta
@@ -327,7 +334,11 @@
 									data-id="{{ $jenis->id_jenis_peta }}" 
 									data-nama="{{ $jenis->nama_jenis_peta }}">
 									<i class="fa fa-edit" title="Edit {{ $jenis->nama_jenis_peta }}"></i>
-								</button>							
+								</button>		
+                                <!-- Tombol Simpan (hidden by default) -->
+                                <button type="button" class="btn btn-sm btn-success btn-save-jenis-peta" style="display: none;">
+                                    <i class="fa fa-check"></i>
+                                </button>					
                                 <form action="{{ route('admin.peta.hapus_jenis_peta', $jenis->id_jenis_peta) }}" method="POST" style="display:inline;">
                                     @csrf
                                     @method('DELETE')
@@ -349,42 +360,6 @@
     </div>
 </div>
 
-<!-- Modal Edit Jenis Peta -->
-<div class="modal fade" id="modal_edit_jenis_peta" tabindex="-1" role="dialog" aria-labelledby="modal_edit_jenis_peta" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-popin modal-md" role="document">
-        <div class="modal-content">
-            <div class="block block-themed block-transparent mb-0">
-                <div class="block-header bg-primary-dark">
-                    <h3 class="block-title">Form Edit Jenis Peta</h3>
-                    <div class="block-options">
-                        <button type="button" class="btn-block-option" data-dismiss="modal" aria-label="Close">
-                            <i class="si si-close"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="block-content">
-					<form id="form_edit_jenis_peta" method="POST">
-						@csrf
-						@method('PUT') 
-						<input type="hidden" id="edit_id_jenis_peta" name="id_jenis_peta">
-						<label for="edit_nama_jenis_peta">Nama Jenis Peta</label>
-						<div class="input-group">
-							<input type="text" id="edit_nama_jenis_peta" name="nama_jenis_peta" class="form-control" placeholder="Masukkan nama jenis peta...">
-							<div class="input-group-append">
-								<button type="submit" class="btn btn-success">
-									<i class="fa fa-save"></i> Simpan Perubahan
-								</button>
-							</div>
-						</div>
-					</form>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-alt-secondary" data-dismiss="modal">Tutup</button>
-            </div>
-        </div>
-    </div>
-</div>
 
 
 
@@ -396,7 +371,6 @@
 
 
 
-@section('scripts')
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
@@ -419,52 +393,110 @@
     });
 
 
-    // script edit modal jenis peta
-	document.addEventListener("DOMContentLoaded", function () {
-		let modalEdit = new bootstrap.Modal(document.getElementById('modal_edit_jenis_peta'));
+    // script edit jenis peta baru
+    $(document).ready(function(){
+        // event tombol edit diklik
+        $(document).on('click', '.btn-edit-jenis-peta', function () {
+            let id = $(this).data('id');
+            let nama = $(this).data('nama');
 
-		document.querySelectorAll(".btn-edit-jenis-peta").forEach(button => {
-			button.addEventListener("click", function () {
-				let id = this.getAttribute("data-id");
-				let nama = this.getAttribute("data-nama");
+            let itemDiv = $(this).closest('.row').find('.item_jenis_peta');
+            let editButton = $(this);
+            let saveButton = editButton.siblings('.btn-save-jenis-peta');
 
-				document.getElementById("edit_id_jenis_peta").value = id;
-				document.getElementById("edit_nama_jenis_peta").value = nama;
+            let inputField = `<input type="text" class="form-control form-control-sm input-edit-jenis-peta" value="${nama}" data-id="${id}">`;
+            itemDiv.html(inputField);
 
-				let form = document.getElementById("form_edit_jenis_peta");
-				form.action = `{{ route('admin.peta.update_jenis_peta', '') }}/${id}`;
+            editButton.hide();
+            saveButton.show();
+        });
 
-				modalEdit.show();
-			});
-		});
-	});
+        // event tombol save diklik
+        $(document).on('click', '.btn-save-jenis-peta', function(){
+            let saveButton = $(this);
+            let editButton = saveButton.siblings('.btn-edit-jenis-peta');
+            let itemDiv = saveButton.closest('.row').find('.item_jenis_peta');
+            let inputField = itemDiv.find('.input-edit-jenis-peta');
+            let id = inputField.data('id');
+            let namaBaru = inputField.val();
 
-	// script grup layer
-	$(document).ready(function() {
-		$('.btn-edit-grup-layer').on('click', function() {
-			let id = $(this).data('id');
-			let nama = $(this).data('nama');
+            $.ajax({
+                url: '/admin/peta/update-jenis-peta/' + id,
+                type: 'POST',
+                data: {
+                    _token: $('meta[name="csrf-token"]').attr('content'),
+                    _method: 'PUT',
+                    nama_jenis_peta: namaBaru
+                },
+                success: function (response) {
+                    itemDiv.html(namaBaru);
 
-			// Set nilai input form
-			$('#grup_layer_id').val(id);
-			$('#nama_grup_layer').val(nama);
+                    saveButton.hide();
+                    editButton.show();
+                },
+                error: function (xhr) {
+                    alert('Terjadi kesalahan saat memperbartui jenis peta');
+                    console.log(xhr.responseText);
+                }
+            });
+        });
+    });
 
-			// Ubah method menjadi PUT dan URL-nya untuk update
-			$('#form_grup_layer').attr('action', '/admin/peta/update_grup_layer/' + id);
-			$('input[name="_method"]').val('PUT');
+    // script grup layer baru 
+    $(document).ready(function () {
+        // Event klik tombol edit
+        $(document).on("click", ".btn-edit-grup-layer", function () {
+            let id = $(this).data("id");
+            let nama = $(this).data("nama");
 
-			// Tampilkan modal
-			$('#modal_grup_layer').modal('show');
-		});
+            // Ambil elemen yang sesuai
+            let itemDiv = $(this).closest(".row").find(".item_grup_layer");
+            let editButton = $(this);
+            let saveButton = editButton.siblings(".btn-save-grup-layer");
 
-		$('#modal_grup_layer').on('hidden.bs.modal', function() {
-			// Reset form ke mode tambah saat modal ditutup
-			$('#grup_layer_id').val('');
-			$('#nama_grup_layer').val('');
-			$('#form_grup_layer').attr('action', '{{ route("admin.peta.simpan_grup_layer") }}');
-			$('input[name="_method"]').val('POST');
-		});
-	});
+            // Ubah div menjadi input field
+            let inputField = `<input type="text" class="form-control form-control-sm input-edit-grup" value="${nama}" data-id="${id}">`;
+            itemDiv.html(inputField);
+
+            // Sembunyikan tombol edit, tampilkan tombol simpan
+            editButton.hide();
+            saveButton.show();
+        });
+
+        // Event klik tombol simpan
+        $(document).on("click", ".btn-save-grup-layer", function () {
+            let saveButton = $(this);
+            let editButton = saveButton.siblings(".btn-edit-grup-layer");
+            let itemDiv = saveButton.closest(".row").find(".item_grup_layer");
+            let inputField = itemDiv.find(".input-edit-grup");
+            let id = inputField.data("id");
+            let namaBaru = inputField.val();
+
+            // Kirim data dengan AJAX ke backend
+            $.ajax({
+                url: "/admin/peta/update_grup_layer/" + id,
+                type: "POST", // Laravel butuh POST untuk menerima _method PUT
+                data: {
+                    _token: $('meta[name="csrf-token"]').attr("content"),
+                    _method: "PUT", // Laravel membaca ini sebagai PUT request
+                    nama_grup_layer: namaBaru
+                },
+                success: function (response) {
+                    // Ubah kembali input menjadi teks biasa
+                    itemDiv.html(namaBaru);
+
+                    // Sembunyikan tombol simpan, tampilkan tombol edit kembali
+                    saveButton.hide();
+                    editButton.show();
+                },
+                error: function (xhr) {
+                    alert("Terjadi kesalahan saat memperbarui grup layer.");
+                    console.log(xhr.responseText); // Untuk debug, lihat error di console
+                }
+            });
+        });
+    });
+
 
 	// script link api
 	document.addEventListener("DOMContentLoaded", function() {
