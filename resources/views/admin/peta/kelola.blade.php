@@ -258,6 +258,7 @@
                     <form id="form_edit_atribut" method="POST" data-update-url="{{ route('admin.peta.update_atribut_layer', ':id') }}">
                         @csrf
                         @method('PUT')
+                        <input type="hidden" id="previous_url" name="previous_url" value="{{ url()->current() }}">
                         <input type="hidden" id="ubah_id_atribut" name="ubah_id_atribut">
                         <div class="form-group row">
                             <label for="ubah_atribut_nama" class="col-12">Nama Atribut</label>
@@ -333,21 +334,6 @@
     //         console.log("Tombol Edit diklik!");
     //     });
     // });
-
-
-    $(document).ready(function () {
-        $(document).on("click", ".btn-edit-atribut", function () {
-            console.log("Tombol Edit diklik!");
-
-            let id = $(this).data("id");
-            let nama = $(this).data("nama");
-            let tipe = $(this).data("tipe");
-
-            console.log("ID:", id);
-            console.log("Nama:", nama);
-            console.log("Tipe:", tipe);
-        });
-    });
 
 
     $(document).ready(function () {

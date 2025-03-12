@@ -423,6 +423,6 @@ class PetaController extends Controller
             'tipe_data' => $request->ubah_tipe_atribut,
         ]);
     
-        return redirect()->route('admin.peta')->with('success', 'Atribut layer berhasil diperbarui!');
+        return redirect()->to($request->previous_url)->with('success', 'Atribut layer berhasil diperbarui!');
     }
 }

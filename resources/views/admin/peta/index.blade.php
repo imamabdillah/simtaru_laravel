@@ -401,6 +401,25 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
 <script>
+
+    // script section filter
+    $(document).ready(function () {
+        // Sembunyikan filter saat halaman pertama dimuat
+        $(".div-filter").hide();
+
+        // Tampilkan atau sembunyikan filter saat tombol filter ditekan
+        $(".btn-filter-layer").click(function () {
+            $(".div-filter").slideToggle(); // Efek animasi slide
+        });
+
+        // Sembunyikan filter jika tombol close ditekan
+        $(".block-cancel").click(function () {
+            $(".div-filter").slideUp(); // Animasi slide ke atas
+        });
+    });
+
+
+    // script edit modal jenis peta
 	document.addEventListener("DOMContentLoaded", function () {
 		let modalEdit = new bootstrap.Modal(document.getElementById('modal_edit_jenis_peta'));
 
