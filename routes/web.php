@@ -55,11 +55,15 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
 
         // Atribut Data Layer Management
     Route::post('/atribut/tambah', [PetaController::class, 'storeAtribut'])->name('admin.peta.store_atribut');
-    Route::post('/atribut/update', [PetaController::class, 'updateAtribut'])->name('admin.peta.update_atribut');
+    // Route::put('/update-attribut/{id}', [PetaController::class, 'updateAtributLayer'])
+    // ->name('admin.peta.update_atribut_layer');
+    Route::put('/update-attribut/{id}', [PetaController::class, 'updateAtributLayer'])->name('admin.peta.update_atribut_layer');
+
     // Route::delete('/atribut/delete/{id}', [PetaController::class, 'deleteAtribut'])->name('admin.peta.delete_atribut');    
     Route::delete('/atribut/hapus_atribut_layer/{id}', [PetaController::class, 'hapusAtribut'])->name('admin.peta.hapus_atribut_layer');
-    Route::get('/edit_layer/{id}/atribut', [PetaController::class, 'getAtribut'])
-    ->name('admin.peta.get_atribut');
+    Route::get('/atribut/edit/{id}', [PetaController::class, 'getAtribut'])->name('admin.peta.get_atribut');
+
+
 
 
         

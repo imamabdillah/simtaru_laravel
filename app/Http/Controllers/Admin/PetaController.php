@@ -327,23 +327,12 @@ class PetaController extends Controller
     
     public function getAtribut($id)
     {
-        $atributs = AtributLayer::where('id_layer', $id)->get();
-        return response()->json($atributs);
+        $atribut = AtributLayer::findOrFail($id);
+        return view('admin.peta.edit_atribut', compact('atribut'));
     }
     
     
-    public function updateAtribut(Request $request)
-    {
-        $atribut = AtributLayer::find($request->id);
-        if ($atribut) {
-            $atribut->update([
-                'nama_atribut' => $request->nama_atribut,
-                'tipe_data' => $request->tipe_data,
-            ]);
-            return response()->json(['success' => true, 'message' => 'Atribut berhasil diperbarui']);
-        }
-        return response()->json(['success' => false, 'message' => 'Atribut tidak ditemukan']);
-    }
+    
     
     
     // public function deleteAtribut(Request $request)
@@ -375,7 +364,65 @@ class PetaController extends Controller
     
         return redirect()->back()->with('success', 'Atribut berhasil dihapus!');
     }
-    
-    
 
+    // public function updateAtributLayer(Request $request, $id)
+    // {
+    //     try {
+    //         $validator = Validator::make($request->all(), [
+    //             'ubah_atribut_nama' => 'required|string',
+    //             'ubah_tipe_atribut' => 'required|integer',
+    //         ]);
+    
+    //         if ($validator->fails()) {
+    //             return response()->json([
+    //                 'errors' => $validator->errors()
+    //             ], 422);
+    //         }
+    
+    //         // Cari atribut berdasarkan ID
+    //         $atribut = AtributLayer::find($id);
+    //         if (!$atribut) {
+    //             return response()->json([
+    //                 'error' => 'Atribut tidak ditemukan!'
+    //             ], 404);
+    //         }
+    
+    //         // Update atribut
+    //         $atribut->update([
+    //             'nama_atribut' => $request->ubah_atribut_nama,
+    //             'slug' => strtolower(str_replace(' ', '_', $request->atribut_nama_atribut)),
+    //             'tipe_data' => $request->ubah_tipe_atribut,
+    //             'edited' => now(),
+    //         ]);
+    
+    //         if ($request->ajax()) {
+    //             return response()->json([
+    //                 'success' => 'Atribut berhasil diperbarui!',
+    //                 'redirect' => url('admin/peta/layer/edit/' . $atribut->id_layer)
+    //             ]);
+    //         } else {
+    //             return redirect()->back()->with('success', 'Atribut berhasil diperbarui!');
+    //         }
+            
+    //     } catch (\Throwable $th) {
+    //         throw $th;
+    //     }
+    // }
+    
+    
+    public function updateAtributLayer(Request $request, $id)
+    {
+        $request->validate([
+            'ubah_atribut_nama' => 'required|string|max:255',
+            'ubah_tipe_atribut' => 'required',
+        ]);
+    
+        $atributLayer = AtributLayer::findOrFail($id);
+        $atributLayer->update([
+            'nama_atribut' => $request->ubah_atribut_nama,
+            'tipe_data' => $request->ubah_tipe_atribut,
+        ]);
+    
+        return redirect()->route('admin.peta')->with('success', 'Atribut layer berhasil diperbarui!');
+    }
 }

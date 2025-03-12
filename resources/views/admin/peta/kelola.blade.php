@@ -1,11 +1,11 @@
 @extends('layouts.wrapper')
-@section('contents')
 <style>
 .container-fluid{
     padding:0px 0px 10px 0px;
 }
 </style>
 
+@section('contents')
 <!-- Main Container -->
 <main id="main-container">
     <div class="content">
@@ -151,13 +151,13 @@
                         <div class="col-7">
                             <div class="form-group">
                                 <label for="atribut_nama_atribut">Nama Atribut</label>
-                                <input type="text" class="form-control atribut_nama_atribut" name="atribut_nama_atribut[]" placeholder="Masukkan nama atribut">
+                                <input type="text" class="form-control atribut_nama_atribut" id="atribut_nama_atribut" name="atribut_nama_atribut[]" placeholder="Masukkan nama atribut">
                             </div>
                         </div>
                         <div class="col-3">
                             <div class="form-group">
                                 <label for="atribut_tipe_atribut">Tipe Atribut</label>
-                                <select required class="form-control tipe_atribut" name="atribut_tipe_atribut[]" style="width: 100%;">
+                                <select required class="form-control tipe_atribut" id="atribut_tipe_atribut" name="atribut_tipe_atribut[]" style="width: 100%;">
                                     <option value=""></option>
                                     <option value="1">Text</option>
                                     <option value="2">Angka</option>
@@ -166,7 +166,7 @@
                         </div>
                         <div class="col-2">
                             <div class="form-group">
-                                <label>&nbsp;</label>
+                                {{-- <label>&nbsp;</label> --}}
                                 <button type="button" class="btn btn-success" id="btn_tambah_atribut">
                                     <i class="fa fa-plus"></i> Tambah Atribut
                                 </button>
@@ -208,12 +208,19 @@
                             <td>{{ $atribut->tipe_data }}</td>
                             <td>
                                 <div class="btn-group btn-group-sm">
-                                    <button data-id="{{ $atribut->id_atribut }}" class="btn btn-warning btn_edit">
+                                    <button type="button"
+                                        data-id="{{ $atribut->id_atribut }}"  
+                                        data-nama="{{ $atribut->nama_atribut }}" 
+                                        data-tipe="{{ $atribut->tipe_data }}"
+                                        class="btn btn-warning btn-edit-atribut"
+                                        {{-- data-toggle="modal" data-target="#modal-edit" --}}
+                                        >
                                         <i class="fa fa-edit"></i> Edit
                                     </button>
-                                    {{-- <button data-id="{{ $atribut->id_atribut }}" class="btn btn-danger btn_hapus">
-                                        <i class="fa fa-trash"></i>
-                                    </button> --}}
+
+                                    {{-- <a href="{{ route('admin.peta.get_atribut', $atribut->id_atribut) }}" class="btn btn-warning">
+                                        <i class="fa fa-edit"></i> Edit
+                                    </a> --}}
                                     <form action="{{ route('admin.peta.hapus_atribut_layer', $atribut->id_atribut) }}" method="POST" style="display:inline;">
                                         @csrf
                                         @method('DELETE')
@@ -234,8 +241,8 @@
 </main>
 <!-- END Main Container -->
 <!-- Pop In Modal -->
-<div class="modal fade" id="modal-edit" tabindex="-1" role="dialog" aria-labelledby="modal-popin" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-popin" role="document">
+<div class="modal fade" id="modal-edit" tabindex="-1" role="dialog" aria-labelledby="modal-edit" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-popin modal-md" role="document">
         <div class="modal-content">
             <div class="block block-themed block-transparent mb-0">
                 <div class="block-header bg-primary-dark">
@@ -247,68 +254,226 @@
                     </div>
                 </div>
                 <div class="block-content">
-                    <!-- content -->
-                    @csrf
-                    <input type="hidden" name="ubah_id_atribut">
-                    <div class="form-group row">
-                        <label class="col-12" for="ubah_atribut_nama">Nama Atribut</label>
-                        <div class="col-md-12">
-                            <input required type="text" class="form-control" id="ubah_atribut_nama" name="ubah_atribut_nama" placeholder="Masukkan nama atribut">
+                    <!-- FORM -->
+                    <form id="form_edit_atribut" method="POST" data-update-url="{{ route('admin.peta.update_atribut_layer', ':id') }}">
+                        @csrf
+                        @method('PUT')
+                        <input type="hidden" id="ubah_id_atribut" name="ubah_id_atribut">
+                        <div class="form-group row">
+                            <label for="ubah_atribut_nama" class="col-12">Nama Atribut</label>
+                            <div class="col-md-12">
+                                <input required type="text" class="form-control" id="ubah_atribut_nama" name="ubah_atribut_nama" placeholder="Masukkan nama atribut">
+                            </div>
                         </div>
-                    </div>
                     
-                    <div class="form-group row">
-                        <label class="col-12" for="ubah_tipe_atribut">Tipe Atribut</label>
-                        <div class="col-md-12">
-                            <select required class="form-control tipe_atribut" name="ubah_tipe_atribut" style="width: 100%;">
-                                <option value=""></option><!-- Required for data-placeholder attribute to work with Select2 plugin -->
-                                <option value="1">Text</option>
-                                <option value="2">Angka</option>
-                            </select>
+                        <div class="form-group row">
+                            <label for="ubah_tipe_atribut" class="col-12">Tipe Atribut</label>
+                            <div class="col-md-12">
+                                <select required class="form-control" id="ubah_tipe_atribut" name="ubah_tipe_atribut">
+                                    <option value="Text">Text</option>
+                                    <option value="Angka">Angka</option>
+                                </select>
+                            </div>
                         </div>
-                    </div>
-                    <!-- end content -->
+                    
+                        <!-- Pindahkan tombol submit ke dalam form -->
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-alt-secondary" data-bs-dismiss="modal">Tutup</button>
+                            <button type="submit" class="btn btn-alt-success btn-success">
+                                <i class="fa fa-check"></i> Ubah Atribut
+                            </button>
+                        </div>
+                    </form>                    
+                    <!-- END FORM -->
                 </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-alt-secondary" data-dismiss="modal">Tutup</button>
-                <button type="submit" class="btn btn-alt-success btn-ubah-atribut">
-                    <i class="fa fa-check"></i> Ubah Atribut
-                </button>
             </div>
         </div>
     </div>
 </div>
-<!-- END Pop In Modal -->
+
+
 
 
 
 @endsection
 
-@section('scripts')
+<!-- jQuery harus di-load lebih awal -->
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        let sumberInput = document.getElementById("sumber");
-        let linkApiContainer = document.getElementById("link_api_container");
 
-        // Jika sumber berubah, cek apakah nilainya "API" (2)
-        if (sumberInput) {
-            let sumberValue = sumberInput.value.trim();
-            if (sumberValue === "API") {
-                linkApiContainer.style.display = "block";
-            } else {
-                linkApiContainer.style.display = "none";
-            }
-        }
+// document.addEventListener("DOMContentLoaded", function () {
+//     let modalEdit = new bootstrap.Modal(document.getElementById("modal-edit"));
+
+//     document.querySelectorAll(".btn-edit-atribut").forEach(button => {
+//         button.addEventListener("click", function () {
+//             let id = this.getAttribute("data-id");
+//             let nama = this.getAttribute("data-nama");
+//             let tipe = this.getAttribute("data-tipe");
+
+//             // Isi input form dalam modal
+//             document.getElementById("ubah_id_atribut").value = id;
+//             document.getElementById("ubah_atribut_nama").value = nama;
+//             document.getElementById("ubah_tipe_atribut").value = tipe;
+
+//             // Perbaikan URL action form
+//             let form = document.getElementById("form_edit_atribut");
+//             let updateUrl = form.getAttribute("data-update-url").replace(":id", id);
+//             form.setAttribute("action", updateUrl);
+
+//             // Tampilkan modal edit
+//             modalEdit.show();
+//         });
+//     });
+// });
+    // $(document).ready(function () {
+    //     $(document).on("click", ".btn-edit-atribut-tes", function () {
+    //         console.log("Tombol Edit diklik!");
+    //     });
+    // });
 
 
+    $(document).ready(function () {
+        $(document).on("click", ".btn-edit-atribut", function () {
+            console.log("Tombol Edit diklik!");
+
+            let id = $(this).data("id");
+            let nama = $(this).data("nama");
+            let tipe = $(this).data("tipe");
+
+            console.log("ID:", id);
+            console.log("Nama:", nama);
+            console.log("Tipe:", tipe);
+        });
     });
-    
 
+
+    $(document).ready(function () {
+        let modalEdit = new bootstrap.Modal($("#modal-edit")[0]);
+
+        $(document).on("click", ".btn-edit-atribut", function () {
+            let id = $(this).data("id");
+            let nama = $(this).data("nama");
+            let tipe = $(this).data("tipe");
+
+            // Isi input form dalam modal
+            $("#ubah_id_atribut").val(id);
+            $("#ubah_atribut_nama").val(nama);
+            $("#ubah_tipe_atribut").val(tipe);
+
+            // Perbaikan URL action form
+            let form = $("#form_edit_atribut");
+            let updateUrl = form.data("update-url").replace(":id", id);
+            form.attr("action", updateUrl);
+
+            // Tampilkan modal edit
+            modalEdit.show();
+        });
+    });
+
+
+// $(document).ready(function () {
+//     let modalEdit = new bootstrap.Modal($("#modal-edit")[0]); // Inisialisasi modal Bootstrap
+
+//     $(document).on("click", ".btn-edit-atribut", function () {
+//         let id = $(this).data("id");
+//         let nama = $(this).data("nama");
+//         let tipe = $(this).data("tipe");
+
+//         $("#ubah_id_atribut").val(id);
+//         $("#ubah_tipe_atribut").val(tipe);
+//         $("#ubah_atribut_nama").val(nama);
+
+//         $("#form_edit_atribut").attr("action", `/admin/peta/atribut/update/${id}`);
+
+//         modalEdit.show();
+//     });
+// });
+
+// $(document).ready(function() {
+//     $('.btn-edit-atribut-layer').on('click', function() {
+//         let id = $(this).data('id');
+//         let nama = $(this).data('nama');
+//         let tipe = $(this).data('tipe');
+
+//         // Set nilai input form
+//         $('#atribut_id').val(id);
+//         $('#nama_atribut').val(nama);
+//         $('#tipe_atribut').val(tipe);
+
+//         // Ubah method menjadi PUT dan URL-nya untuk update
+//         $('#form_atribut_layer').attr('action', '/admin/peta/update_atribut_layer/' + id);
+//         $('input[name="_method"]').val('PUT');
+
+//         // Tampilkan modal
+//         $('#modal-atribut').modal('show');
+//     });
+
+//     $('#modal-atribut').on('hidden.bs.modal', function() {
+//         // Reset form ke mode tambah saat modal ditutup
+//         $('#atribut_id').val('');
+//         $('#nama_atribut').val('');
+//         $('#tipe_atribut').val('');
+//         $('#form_atribut_layer').attr('action', '{{ route("admin.peta.store_atribut") }}');
+//         $('input[name="_method"]').val('POST');
+//     });
+// });
+
+
+$(document).ready(function () {
+
+    // Inisialisasi modal Bootstrap
+    // let modalEdit = new bootstrap.Modal(document.getElementById("modal-edit"));
+
+    // Event listener untuk tombol edit atribut
+    // $(document).on("click", ".btn-edit-atribut", function () {
+    //     let id = $(this).data("id");
+    //     let nama = $(this).data("nama");
+    //     let tipe = $(this).data("tipe");
+
+    //     // Set nilai ke dalam input modal edit
+    //     $("#ubah_id_atribut").val(id);
+    //     $("#ubah_atribut_nama").val(nama);
+    //     $("#ubah_tipe_atribut").val(tipe);
+
+    //     // Perbaikan: Ubah form action dengan jQuery
+    //     $("#form_edit_atribut").attr("action", `/admin/peta/atribut/update/${id}`);
+
+    //     // Tampilkan modal
+    //     modalEdit.show();
+    // });
+
+        // Event listener untuk tombol edit atribut dari database
+        $(document).on("click", ".btn_hapus", function () {
+            let atributId = $(this).data("id");
+            let row = $(this).closest("tr");
+
+            if (confirm("Apakah Anda yakin ingin menghapus atribut ini?")) {
+                $.ajax({
+                    url: `/admin/peta/atribut/delete/${atributId}`,
+                    type: "POST",
+                    data: {
+                        _method: "DELETE",
+                        _token: $('meta[name="csrf-token"]').attr("content")
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            alert(response.message);
+                            row.remove();
+                        } else {
+                            alert("Gagal menghapus atribut.");
+                        }
+                    },
+                    error: function () {
+                        alert("Terjadi kesalahan saat menghapus atribut.");
+                    }
+                });
+            }
+        });
+
+    // Fungsi tambah atribut baru
     function add_row() { 
         let rowno = $(".atribut_form").length + 1;
         let newRow = `
@@ -329,7 +494,7 @@
             </div>
             <div class="col-2">
                 <div class="form-group">
-                    <button type="button" class="btn btn-block btn-danger mr-5 mb-5 delete-row" data-row="row_${rowno}">
+                    <button type="button" class="btn btn-block btn-danger delete-row" data-row="row_${rowno}">
                         <i class="fa fa-trash"></i> Hapus Atribut
                     </button>
                 </div>
@@ -339,80 +504,22 @@
         $(".atribut_form:last").after(newRow);
     }
 
-    function delete_row(rowno) {
-        $("#" + rowno).remove();
-    }
-
-    $(document).ready(function () {
-        // Event listener tombol tambah atribut
-        $(document).on("click", "#btn_tambah_atribut", function () {
-            add_row();
-            console.log("Button diklik!");
-            $(".atribut_form:last").after(html);
-        });
-
-        // Event listener tombol hapus atribut
-        $(document).on("click", ".delete-row", function () {
-            let rowId = $(this).data("row");
-            delete_row(rowId);
-        });
+    // Event listener tombol tambah atribut
+    $(document).on("click", "#btn_tambah_atribut", function () {
+        add_row();
+        console.log("Button tambah atribut diklik!");
     });
 
-
-</script>
-
-{{-- edit dan hapus atribut --}}
-<script>
-
-    // hapus atribut
-    $(document).ready(function () {
-        // Event listener tombol tambah atribut
-        $(document).on("click", "#btn_tambah_atribut", function () {
-            add_row();
-            console.log("Button tambah atribut diklik!");
-        });
-
-        // Event listener tombol hapus atribut (dari form tambah)
-        $(document).on("click", ".delete-row", function () {
-            let rowId = $(this).data("row");
-            delete_row(rowId);
-        });
-
-        // Event listener tombol hapus atribut (dari database)
-        $(document).on("click", ".btn_hapus", function () {
-            let atributId = $(this).data("id");
-            let row = $(this).closest("tr");
-
-            if (confirm("Apakah Anda yakin ingin menghapus atribut ini?")) {
-                $.ajax({
-                    url: `/admin/peta/atribut/delete/${atributId}`,
-                    type: "POST", // Laravel butuh POST untuk menghapus dengan _method=DELETE
-                    data: {
-                        _method: "DELETE", // Simulasikan DELETE
-                        _token: $('meta[name="csrf-token"]').attr("content")
-                    },
-                    success: function (response) {
-                        if (response.success) {
-                            alert(response.message);
-                            row.remove();
-                        } else {
-                            alert("Gagal menghapus atribut.");
-                        }
-                    },
-                    error: function () {
-                        alert("Terjadi kesalahan saat menghapus atribut.");
-                    }
-                });
-            }
-        });
+    // Event listener tombol hapus atribut dari form tambah
+    $(document).on("click", ".delete-row", function () {
+        let rowId = $(this).data("row");
+        $("#" + rowId).remove();
     });
 
-
-
+    // Perbaikan: Hapus focus dari modal agar tidak error
+    $("#modal-edit").on("hidden.bs.modal", function () {
+        document.activeElement.blur();
+    });
+});
 
 </script>
-
-
-
-
-@endsection
