@@ -384,5 +384,62 @@ class PetaController extends Controller
     
         return view('admin.peta.kelola_data_layer', compact('layer', 'atribut', 'data_peta'));
     }
+
+    public function addDataLayer(Request $request)
+    {
+        $request->validate([
+            'id_layer'   => 'required|exists:tabel_layer,id_layer', 
+            'tipe_layer' => 'required|in:point,line,polygon', // Pastikan tipe layer valid
+        ]);
+
+        $tipe_layer = $request->tipe_layer;
+        $id = $request->id_layer;
+    
+        if ($tipe_layer == 'point') {
+            return redirect()->route('admin.peta.add_data_layer_point', $id);
+        } elseif ($tipe_layer == 'line') {
+            return redirect()->route('admin.peta.add_data_layer_line', $id);
+        } elseif ($tipe_layer == 'polygon') {
+            return redirect()->route('admin.peta.add_data_layer_polygon', $id);
+        }
+    
+        return back()->with('error', 'Tipe layer tidak valid.');
+    }
+    
+
+    public function addDataLayerPoint(Request $request, $id)
+    {
+        $id_layer = $request->segment(4); 
+        $tipe_layer = ucfirst($request->segment(5)); 
+        // $layer = Layer::findOrFail($id);
+        $layer = Layer::with('opd')->findOrFail($id);
+        // kyknya nanti butuh collection dari tabel collection
+        // dd($layer);
+        return view('admin.peta.tambah_data_point', compact('layer', 'tipe_layer', 'id_layer'));
+    }
+
+    public function addDataLayerLine(Request $request, $id)
+    {
+        $id_layer = $request->segment(4); 
+        $tipe_layer = ucfirst($request->segment(5)); 
+        $layer = Layer::findOrFail($id);
+        $layer = Layer::findOrFail($id_layer);
+        // kyknya nanti butuh collection dari tabel collection
+
+        return view('admin.peta.tambah_data_line', compact('layer', 'tipe_layer', 'id_layer'));
+    }
+
+    public function addDataLayerPolygon(Request $request, $id)
+    {
+        $id_layer = $request->segment(4); 
+        $tipe_layer = ucfirst($request->segment(5)); 
+        $layer = Layer::findOrFail($id);
+        $layer = Layer::findOrFail($id_layer);
+        $atribut = AtributLayer::where('id_layer', $id)->get();
+        // kemungkinan nanti butuh data dari tabel collection
+    
+        return view('admin.peta.tambah_data_polygon', compact('layer', 'tipe_layer', 'id_layer'));
+    }
+    
     
 }

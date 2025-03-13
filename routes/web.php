@@ -37,7 +37,6 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
         Route::post('/update_layer/{id}', [PetaController::class, 'updateLayer'])->name('admin.peta.update_layer');
         
         // kelola data layer
-        Route::get('/kelola/{id_layer}', [PetaController::class, 'kelolaDataLayer'])->name('admin.peta.kelola_data_layer');
 
     
         // Grup Layer Management
@@ -55,12 +54,17 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
 
 
         // Atribut Data Layer Management
-    Route::post('/atribut/tambah', [PetaController::class, 'storeAtribut'])->name('admin.peta.store_atribut');
-    Route::put('/update-attribut/{id}', [PetaController::class, 'updateAtributLayer'])->name('admin.peta.update_atribut_layer');
+        Route::post('/atribut/tambah', [PetaController::class, 'storeAtribut'])->name('admin.peta.store_atribut');
+        Route::put('/update-attribut/{id}', [PetaController::class, 'updateAtributLayer'])->name('admin.peta.update_atribut_layer');
+        Route::delete('/atribut/hapus_atribut_layer/{id}', [PetaController::class, 'hapusAtribut'])->name('admin.peta.hapus_atribut_layer');
+        Route::get('/atribut/edit/{id}', [PetaController::class, 'getAtribut'])->name('admin.peta.get_atribut');
 
-    // Route::delete('/atribut/delete/{id}', [PetaController::class, 'deleteAtribut'])->name('admin.peta.delete_atribut');    
-    Route::delete('/atribut/hapus_atribut_layer/{id}', [PetaController::class, 'hapusAtribut'])->name('admin.peta.hapus_atribut_layer');
-    Route::get('/atribut/edit/{id}', [PetaController::class, 'getAtribut'])->name('admin.peta.get_atribut');
+        // Data Layer Management
+        Route::post('/data_peta/tambah', [PetaController::class, 'addDataLayer'])->name('admin.peta.add_data_layer');
+        Route::get('/tambah_data_peta/{id}/point', [PetaController::class, 'addDataLayerPoint'])->name('admin.peta.add_data_layer_point');
+        Route::get('/tambah_data_peta/{id}/line', [PetaController::class, 'addDataLayerLine'])->name('admin.peta.add_data_layer_line');
+        Route::get('/tambah_data_peta/{id}/polygon', [PetaController::class, 'addDataLayerPolygon'])->name('admin.peta.add_data_layer_polygon');
+        Route::get('/kelola/{id_layer}', [PetaController::class, 'kelolaDataLayer'])->name('admin.peta.kelola_data_layer');
 
 
 

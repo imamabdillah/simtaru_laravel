@@ -12,14 +12,14 @@
     <div class="content">
         @if($atribut->isNotEmpty()) {{-- Pastikan atribut ada --}}
         
-            <button type="button" class="btn btn-square btn-secondary mr-5 mb-5 btn-tambah-data" data-toggle="modal" data-target="#modal-popin">
+            <button type="button" class="btn btn-square btn-secondary mr-5 mb-5 btn-tambah-data" >
                 <i class="fa fa-plus mr-5"></i> Tambah Data <span>{{ $layer->nama_layer }}</span>
             </button>
-            <button type="button" class="btn btn-square btn-secondary mr-5 mb-5 btn-tambah-data" data-toggle="modal" data-target="#modal-import">
+            <button type="button" class="btn btn-square btn-secondary mr-5 mb-5 btn-import-data" data-toggle="modal" data-target="#modal-import">
                 <i class="fa fa-upload mr-5"></i> Import Data <span>{{ $layer->nama_layer }}</span>
             </button>
 
-        <button id="btn_import_template" type="button" class="btn btn-square btn-secondary mr-5 mb-5 btn-tambah-data" data-toggle="modal" data-target="#modal-template">
+        <button id="btn_import_template" type="button" class="btn btn-square btn-secondary mr-5 mb-5 btn-export-data" data-toggle="modal" data-target="#modal-template">
             <i class="fa fa-file mr-5"></i> Template Geojson <span>{{ $layer->nama_layer }}</span>
         </button>
 
@@ -60,7 +60,7 @@
                 <h4 class="alert-heading">Mohon maaf</h4>
                 <p>Layer peta belum memiliki atribut</p>
                 <hr>
-                <button type="button" class="btn btn-square btn-danger" onclick="window.location.href='{{ url('admin/peta/edit_layer/'.$layer->id) }}'">
+                <button type="button" class="btn btn-square btn-danger tambah-atribut" onclick="window.location.href='{{ url('admin/peta/edit_layer/'.$layer->id_layer) }}'">
                     <i class="fa fa-plus"></i> Buat atribut
                 </button>
             </div>
@@ -74,36 +74,39 @@
     <div class="modal fade" id="modal-popin" tabindex="-1" role="dialog" aria-labelledby="modal-popin" aria-hidden="true">
         <div class="modal-dialog modal-dialog-popin" role="document">
             <div class="modal-content">
-                <div class="block block-themed block-transparent mb-0">
-                    <div class="block-header bg-primary-dark">
-                        <h3 class="block-title">Buat Data {{ $item->nama_layer }}</h3>
-                        <div class="block-options">
-                            <button type="button" class="btn-block-option" data-dismiss="modal" aria-label="Close">
-                                <i class="si si-close"></i>
-                            </button>
+                <form action="{{ route('admin.peta.add_data_layer') }}" method="post" id="form-data">
+                    @csrf
+                    <div class="block block-themed block-transparent mb-0">
+                        <div class="block-header bg-primary-dark">
+                            <h3 class="block-title">Buat Data {{ $item->nama_layer }}</h3>
+                            <div class="block-options">
+                                <button type="button" class="btn-block-option" data-dismiss="modal" aria-label="Close">
+                                    <i class="si si-close"></i>
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                    <div class="block-content">
-                        <div class="form-group row">
-                            <label class="col-12" for="tipe">Tipe Layer</label>
-                            <div class="col-md-12">
-                            <select required class="tipe form-control" id="tipe" name="tipe" style="width: 100%;">
-                                <option value=""></option>
-                                <option value="point">Point</option>
-                                <option value="line">Line</option>
-                                <option value="polygon">Polygon</option>
-                            </select>
-
+                        <div class="block-content">
+                            <div class="form-group row">
+                                <input type="hidden" name="id_layer" value="{{ $layer->id_layer ?? '' }}">
+                                    <label class="col-12" for="tipe">Tipe Layer</label>
+                                    <div class="col-md-12">
+                                        <select required class="tipe form-control" id="tipe" name="tipe_layer" style="width: 100%;">
+                                            <option value=""></option>
+                                            <option value="point">Point</option>
+                                            <option value="line">Line</option>
+                                            <option value="polygon">Polygon</option>
+                                        </select>
+                                    </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-alt-secondary" data-dismiss="modal">Tutup</button>
-                    <button type="button" class="btn btn-alt-success btn-simpan">
-                        <i class="fa fa-check"></i> Buat Data Baru
-                    </button>
-                </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-alt-secondary" data-dismiss="modal">Tutup</button>
+                        <button type="submit" class="btn btn-alt-success btn-simpan">
+                            <i class="fa fa-check"></i> Buat Data Baru
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -222,6 +225,9 @@
 
 <script>
     $(document).ready(function () {
-        $(document).on('click', '')
+        $(document).on('click', '.btn-tambah-data', function () {
+
+            $('#modal-popin').modal('show');
+        });
     });
 </script>
