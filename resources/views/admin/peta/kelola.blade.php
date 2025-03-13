@@ -258,7 +258,6 @@
                     <form id="form_edit_atribut" method="POST" data-update-url="{{ route('admin.peta.update_atribut_layer', ':id') }}">
                         @csrf
                         @method('PUT')
-                        <input type="hidden" id="previous_url" name="previous_url" value="{{ url()->current() }}">
                         <input type="hidden" id="ubah_id_atribut" name="ubah_id_atribut">
                         <div class="form-group row">
                             <label for="ubah_atribut_nama" class="col-12">Nama Atribut</label>
@@ -271,8 +270,8 @@
                             <label for="ubah_tipe_atribut" class="col-12">Tipe Atribut</label>
                             <div class="col-md-12">
                                 <select required class="form-control" id="ubah_tipe_atribut" name="ubah_tipe_atribut">
-                                    <option value="Text">Text</option>
-                                    <option value="Angka">Angka</option>
+                                    <option value="1">Text</option>
+                                    <option value="2">Angka</option>
                                 </select>
                             </div>
                         </div>
@@ -305,35 +304,20 @@
 
 <script>
 
-// document.addEventListener("DOMContentLoaded", function () {
-//     let modalEdit = new bootstrap.Modal(document.getElementById("modal-edit"));
 
-//     document.querySelectorAll(".btn-edit-atribut").forEach(button => {
-//         button.addEventListener("click", function () {
-//             let id = this.getAttribute("data-id");
-//             let nama = this.getAttribute("data-nama");
-//             let tipe = this.getAttribute("data-tipe");
+    $(document).ready(function () {
+        $(document).on("click", ".btn-edit-atribut", function () {
+            console.log("Tombol Edit diklik!");
 
-//             // Isi input form dalam modal
-//             document.getElementById("ubah_id_atribut").value = id;
-//             document.getElementById("ubah_atribut_nama").value = nama;
-//             document.getElementById("ubah_tipe_atribut").value = tipe;
+            let id = $(this).data("id");
+            let nama = $(this).data("nama");
+            let tipe = $(this).data("tipe");
 
-//             // Perbaikan URL action form
-//             let form = document.getElementById("form_edit_atribut");
-//             let updateUrl = form.getAttribute("data-update-url").replace(":id", id);
-//             form.setAttribute("action", updateUrl);
-
-//             // Tampilkan modal edit
-//             modalEdit.show();
-//         });
-//     });
-// });
-    // $(document).ready(function () {
-    //     $(document).on("click", ".btn-edit-atribut-tes", function () {
-    //         console.log("Tombol Edit diklik!");
-    //     });
-    // });
+            console.log("ID:", id);
+            console.log("Nama:", nama);
+            console.log("Tipe:", tipe);
+        });
+    });
 
 
     $(document).ready(function () {
@@ -429,6 +413,36 @@ $(document).ready(function () {
 
     //     // Tampilkan modal
     //     modalEdit.show();
+    // });
+
+
+
+    // Event listener untuk tombol hapus atribut dari database
+    // $(document).on("click", ".btn-edit-atribut", function () {
+    //     let atributId = $(this).data("id");
+    //     let row = $(this).closest("tr");
+
+    //     if (confirm("Apakah Anda yakin ingin menghapus atribut ini?")) {
+    //         $.ajax({
+    //             url: `/admin/peta/atribut/delete/${atributId}`,
+    //             type: "POST",
+    //             data: {
+    //                 _method: "DELETE",
+    //                 _token: $('meta[name="csrf-token"]').attr("content")
+    //             },
+    //             success: function (response) {
+    //                 if (response.success) {
+    //                     alert(response.message);
+    //                     row.remove();
+    //                 } else {
+    //                     alert("Gagal menghapus atribut.");
+    //                 }
+    //             },
+    //             error: function () {
+    //                 alert("Terjadi kesalahan saat menghapus atribut.");
+    //             }
+    //         });
+    //     }
     // });
 
         // Event listener untuk tombol edit atribut dari database

@@ -36,7 +36,8 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
         Route::get('/edit_layer/{id}', [PetaController::class, 'editLayer'])->name('admin.peta.edit_layer');
         Route::post('/update_layer/{id}', [PetaController::class, 'updateLayer'])->name('admin.peta.update_layer');
         
-
+        // kelola data layer
+        Route::get('/kelola/{id_layer}', [PetaController::class, 'kelolaDataLayer'])->name('admin.peta.kelola_data_layer');
 
     
         // Grup Layer Management
@@ -55,8 +56,6 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
 
         // Atribut Data Layer Management
     Route::post('/atribut/tambah', [PetaController::class, 'storeAtribut'])->name('admin.peta.store_atribut');
-    // Route::put('/update-attribut/{id}', [PetaController::class, 'updateAtributLayer'])
-    // ->name('admin.peta.update_atribut_layer');
     Route::put('/update-attribut/{id}', [PetaController::class, 'updateAtributLayer'])->name('admin.peta.update_atribut_layer');
 
     // Route::delete('/atribut/delete/{id}', [PetaController::class, 'deleteAtribut'])->name('admin.peta.delete_atribut');    

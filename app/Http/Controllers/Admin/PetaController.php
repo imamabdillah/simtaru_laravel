@@ -10,11 +10,13 @@ use App\Models\GrupLayer;
 use App\Models\JenisPeta;
 use App\Models\Peta;
 use App\Models\AtributLayer;
+use App\Models\ValueAttribut;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
+
 
 class PetaController extends Controller
 {
@@ -330,20 +332,7 @@ class PetaController extends Controller
         $atribut = AtributLayer::findOrFail($id);
         return view('admin.peta.edit_atribut', compact('atribut'));
     }
-    
-    
-    
-    
-    
-    // public function deleteAtribut(Request $request)
-    // {
-    //     $atribut = AtributLayer::find($request->id);
-    //     if ($atribut) {
-    //         $atribut->delete(); // Bisa juga update 'is_delete' jika tidak ingin menghapus permanen
-    //         return response()->json(['success' => true, 'message' => 'Atribut berhasil dihapus']);
-    //     }
-    //     return response()->json(['success' => false, 'message' => 'Atribut tidak ditemukan']);
-    // }
+
 
     public function deleteAtribut($id)
     {
@@ -365,50 +354,6 @@ class PetaController extends Controller
         return redirect()->back()->with('success', 'Atribut berhasil dihapus!');
     }
 
-    // public function updateAtributLayer(Request $request, $id)
-    // {
-    //     try {
-    //         $validator = Validator::make($request->all(), [
-    //             'ubah_atribut_nama' => 'required|string',
-    //             'ubah_tipe_atribut' => 'required|integer',
-    //         ]);
-    
-    //         if ($validator->fails()) {
-    //             return response()->json([
-    //                 'errors' => $validator->errors()
-    //             ], 422);
-    //         }
-    
-    //         // Cari atribut berdasarkan ID
-    //         $atribut = AtributLayer::find($id);
-    //         if (!$atribut) {
-    //             return response()->json([
-    //                 'error' => 'Atribut tidak ditemukan!'
-    //             ], 404);
-    //         }
-    
-    //         // Update atribut
-    //         $atribut->update([
-    //             'nama_atribut' => $request->ubah_atribut_nama,
-    //             'slug' => strtolower(str_replace(' ', '_', $request->atribut_nama_atribut)),
-    //             'tipe_data' => $request->ubah_tipe_atribut,
-    //             'edited' => now(),
-    //         ]);
-    
-    //         if ($request->ajax()) {
-    //             return response()->json([
-    //                 'success' => 'Atribut berhasil diperbarui!',
-    //                 'redirect' => url('admin/peta/layer/edit/' . $atribut->id_layer)
-    //             ]);
-    //         } else {
-    //             return redirect()->back()->with('success', 'Atribut berhasil diperbarui!');
-    //         }
-            
-    //     } catch (\Throwable $th) {
-    //         throw $th;
-    //     }
-    // }
-    
     
     public function updateAtributLayer(Request $request, $id)
     {
@@ -425,4 +370,19 @@ class PetaController extends Controller
     
         return redirect()->to($request->previous_url)->with('success', 'Atribut layer berhasil diperbarui!');
     }
+
+    public function kelolaDataLayer($id_layer)
+    {
+        $layer = Layer::with('opd')->findOrFail($id_layer);
+        $atribut = AtributLayer::where('id_layer', $id_layer)->get();
+    
+        // Mengambil data nilai atribut dengan join berdasarkan id_atribut
+        $data_peta = ValueAttribut::select('tabel_value_attribut.*')
+            ->join('tabel_atribut_layer', 'tabel_atribut_layer.id_atribut', '=', 'tabel_value_attribut.id_atribut')
+            ->where('tabel_atribut_layer.id_layer', $id_layer)
+            ->get();
+    
+        return view('admin.peta.kelola_data_layer', compact('layer', 'atribut', 'data_peta'));
+    }
+    
 }

@@ -131,15 +131,17 @@
 							</td>
 							<td>
 								<div class="btn-group btn-group-sm">
-									<button data-id="{{ $layer->id_layer }}" class="btn btn-default btn_download"><i class="fa fa-download"></i></button>
-									<button data-id="{{ $layer->id_layer }}" class="btn btn-primary btn_data"><i class="fa fa-database"></i></button>
-									<a href="{{ route('admin.peta.edit_layer', $layer->id_layer) }}" class="btn btn-success btn_kelola">
+									<button data-id="{{ $layer->id_layer }}" class="btn btn-default btn_download" title="Download File GeoJSON {{ $layer->nama_layer }}"><i class="fa fa-download"></i></button>
+                                    <a href="{{ route('admin.peta.kelola_data_layer', $layer->id_layer) }}" class="btn btn-primary btn_data" data-id="{{ $layer->id_layer }}" title="Kelola Data Layer {{ $layer->nama_layer }}">
+                                        <i class="fa fa-database"></i>
+                                    </a>
+									<a href="{{ route('admin.peta.edit_layer', $layer->id_layer) }}" class="btn btn-success btn_kelola" title="Kelola Layer {{ $layer->nama_layer }}">
 										<i class="fa fa-edit"></i>
 									</a>
-									<button data-id="{{ $layer->id_layer }}" class="btn btn-warning btn_group"><i class="fa fa-clone"></i></button>
+									<button data-id="{{ $layer->id_layer }}" class="btn btn-warning btn_group" title="Grup Atribut {{ $layer->nama_layer }}"><i class="fa fa-clone"></i></button>
 								</div>
-								<button data-id="{{ $layer->id_layer }}" class="btn btn-danger btn-sm btn_clear"><i class="fa fa-times-rectangle"></i></button>
-								<button data-id="{{ $layer->id_layer }}" class="btn btn-danger btn-sm btn_hapus"><i class="fa fa-trash"></i></button>
+								<button data-id="{{ $layer->id_layer }}" class="btn btn-danger btn-sm btn_clear" title="Hapus Semua Data {{ $layer->nama_layer }}"><i class="fa fa-times-rectangle"></i></button>
+								<button data-id="{{ $layer->id_layer }}" class="btn btn-danger btn-sm btn_hapus" title="Hapus Layer {{ $layer->nama_layer }}"><i class="fa fa-trash"></i></button>
 							</td>
 						</tr>
 						@endforeach
@@ -569,6 +571,13 @@
             });
         }
     });
+
+    // script kelola data layer peta
+    $(document).on("click", ".btn_data", function () {
+        var id = $(this).data("id");
+        window.location.href = "/admin/peta/data_peta/" + id;
+    });
+
 
 
 </script>
