@@ -332,12 +332,12 @@ function init_map()
         // $('#pilih_koordinat').select2();
         $('#pilih_koordinat').select2({
             ajax: {
-                url: 'admin/peta/ref_koordinat',
+                url: '{{ route("admin.peta.ref_koordinat") }}',
                 dataType: 'JSON',
                 data: function(d){
                     let q = {
                         search: d.term,
-                        type: `$request->segment(4)`
+                        type: '{{ request()->segment(5) }}'
                     }
                     return q;
                 },
@@ -345,9 +345,8 @@ function init_map()
             }
         });
     })
-    
+
     function formatState (state) {
-        // console.log(state);
         var icon;
         if(state.text != 'Searching…')
         {
@@ -356,20 +355,51 @@ function init_map()
         
         if (!state.id) { return state.text; }
         var $state = $(
-            '<span ><img class="select2_img" sytle="display: inline-block;" src="assets/uploads/marker_icon/'+icon+'.png" /> ' + state.text + '</span>'
+            '<span ><img class="select2_img" style="display: inline-block;" src="{{ asset("assets/uploads/marker_icon/") }}'+icon+'.png" /> ' + state.text + '</span>'
         );
         return $state;
-     }
-    $('.angka-saja').keyup(function(e)
-                                    {
-      if (/\D/g.test(this.value))
-      {
-        // Filter non-digits from input value.
-        this.value = this.value.replace(/\D/g, '');
-      }
+    }
+    $('.angka-saja').keyup(function(e) {
+        if (/\D/g.test(this.value))
+        {
+            this.value = this.value.replace(/\D/g, '');
+        }
     });
-    
-    
-    
 
-    </script>
+    $('#tambah_data_peta').submit(function(e){
+        e.preventDefault();
+        if(typeof coords === 'undefined' || coords == '')
+        {
+            Swal.fire({
+                title : 'Gagal!',
+                text : 'Koordinat lokasi tidak terdeteksi',
+                icon: 'error'
+            });
+        }
+        else
+        {
+            var coord = coords;
+            var form_data = new FormData(this);
+            form_data.append('coordinates', coord);
+            $.ajax({
+                url: '{{ route("admin.peta.simpan_data_peta_point") }}',
+                type: "post",
+                data: form_data,
+                processData: false,
+                contentType: false,
+                cache: false,
+                success: function(response){
+                    Swal.fire({
+                        title : 'Sukses!',
+                        text : 'Data berhasil disimpan!',
+                        icon: 'success',
+                        timer: 1500
+                    });
+                    window.location.replace("{{ url('admin/peta/kelola/'.request()->segment(4)) }}");
+                }
+            });
+            return false;
+        }
+    });
+
+</script>

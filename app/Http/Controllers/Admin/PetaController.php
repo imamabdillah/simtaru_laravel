@@ -13,6 +13,7 @@ use App\Models\AtributLayer;
 use App\Models\ValueAttribut;
 use App\Models\ReferensiKoordinat;
 use App\Models\ReferensiIcon;
+use App\Models\Collection;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -444,6 +445,80 @@ class PetaController extends Controller
     
         return view('admin.peta.tambah_data_polygon', compact('layer', 'koordinat', 'atribut', 'tipe_layer', 'id_layer'));
     }
+
+    public function getKoordinat(Request $request)
+    {
+        $query = ReferensiKoordinat::query();
     
+        // Jika ada parameter pencarian (search), lakukan filter berdasarkan nama atau atribut lain
+        if ($request->has('search')) {
+            $query->where('nama_koordinat', 'like', '%' . $request->search . '%');
+        }
+    
+        // Filter berdasarkan tipe jika dikirimkan
+        if ($request->has('type')) {
+            $query->where('tipe_koordinat', $request->type);
+        }
+    
+        // Ambil data
+        $data = $query->limit(10)->get();
+    
+        // Format data sesuai kebutuhan Select2
+        $formatted_data = $data->map(function ($item) {
+            return [
+                'id' => $item->id_koordinat,
+                'text' => $item->nama_koordinat,
+                'data' => [
+                    'tipe_koordinat' => $item->tipe_koordinat,
+                    'koordinat' => $item->koordinat
+                ]
+            ];
+        });
+    
+        return response()->json($formatted_data);
+    }
+    
+    public function storePetaPoint(Request $request)
+    {
+        // Validasi input
+        $request->validate([
+            'id_layer' => 'required|integer',
+            'tipe_layer' => 'required|in:Point,LineString,Polygon',
+            'name' => 'required|string|max:255',
+            'coordinates' => 'required|string',
+            'stroke' => 'nullable|string|max:15',
+            'stroke_opacity' => 'nullable|numeric|min:0|max:1',
+            'stroke_width' => 'nullable|integer|min:0',
+            'stroke_dash' => 'nullable|string|max:255',
+            'fill' => 'nullable|string|max:15',
+            'fill_opacity' => 'nullable|numeric|min:0|max:1',
+            'icon_name' => 'nullable|string|max:255',
+            'page_detail' => 'nullable|boolean',
+        ]);
+    
+        // Simpan data ke database
+        $data = Collection::create([
+            'id_layer' => $request->id_layer,
+            'tipe_layer' => $request->tipe_layer,
+            'stroke' => $request->stroke,
+            'stroke_opacity' => $request->stroke_opacity,
+            'stroke_width' => $request->stroke_width,
+            'stroke_dash' => $request->stroke_dash,
+            'fill' => $request->fill,
+            'fill_opacity' => $request->fill_opacity,
+            'icon_name' => $request->icon_name,
+            'page_detail' => $request->page_detail ? 1 : 0,
+            'koordinat' => $request->coordinates,
+            'name' => $request->name,
+            'group' => $request->group,
+            'add_by' => Auth::id(),
+        ]);
+    
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Data berhasil disimpan!',
+            'data' => $data
+        ]);
+    }  
     
 }
