@@ -48,25 +48,8 @@
                                 
                             
     
-                            {{-- <form method="post" id="tambah_data_peta">
-                                <!-- <div class="form-group row">
-                                    <label class="col-lg-4 col-form-label" for="pilih_koordinat">Pilih Koordinat</label>
-                                    <div class="col-lg-8">
-                                        <select name="pilih_koordinat" id="pilih_koordinat" class="" style="width:100%;">
-                                        <?php if(count($data_koordinat) > 0):?>
-                                            <option value="">-- Pilih Koordinat --</option>
-                                            <?php foreach($data_koordinat as $koord):?>
-                                                <option value="<?=$koord['id_koordinat']?>"><?=$koord['nama_koordinat']?></option>
-                                            <?php endforeach?>
-                                        <?php else: ?>
-                                            <option value="">-- Koordinat Tidak Tersedia--</option>
-                                        <?php endif ?>                
-                                        </select>
-                                        <div style="font-size: smaller">
-                                            * Koordinat yang tersimpan dari menu referensi koordinat
-                                        </div>
-                                    </div>
-                                </div> -->
+                            <form method="post" id="tambah_data_peta">
+                                @csrf
                                 <div class="form-group row">
                                     <label class="col-lg-4 col-form-label" for="pilih_koordinat">Pilih Koordinat</label>
                                     <div class="col-lg-8">
@@ -77,16 +60,15 @@
                                     </div>
                                 </div>
                                 <hr>
-                                <input type="hidden" name="<?=$this->security->get_csrf_token_name();?>" value="<?=$this->security->get_csrf_hash();?>" style="display: none">
                                 <input type="hidden" name="id_layer" value="{{ $id_layer }}">
                                 <input type="hidden" name="tipe_layer" value="{{ $tipe_layer }}">
-                                <?php foreach ($data_atribut as $atribut) { ?>
+                                <?php foreach ($atribut as $item) { ?>
                                 <div class="form-group row">
-                                    <label class="col-lg-4 col-form-label" for="<?= $atribut->slug; ?>"><?= $atribut->nama_atribut; ?> <span class="text-danger">*</span></label>
+                                    <label class="col-lg-4 col-form-label" for="<?= $item->slug; ?>"><?= $item->nama_atribut; ?> <span class="text-danger">*</span></label>
                                     <div class="col-lg-8">
-                                        <input type="hidden" name="id_atribut_<?= $atribut->slug; ?>" value="<?= $atribut->id_atribut; ?>">
-                                        <?php if($atribut->tipe_data != "File"){ ?>
-                                            <input required type="text" class="form-control <?php if($atribut->tipe_data == "Angka"){echo "angka-saja";} ?>" id="<?= $atribut->slug; ?>" name="<?= $atribut->slug; ?>" placeholder="Masukkan <?= $atribut->nama_atribut; ?>">
+                                        <input type="hidden" name="id_atribut_<?= $item->slug; ?>" value="<?= $item->id_atribut; ?>">
+                                        <?php if($item->tipe_data != "File"){ ?>
+                                            <input required type="text" class="form-control <?php if($item->tipe_data == "Angka"){echo "angka-saja";} ?>" id="<?= $item->slug; ?>" name="<?= $item->slug; ?>" placeholder="Masukkan <?= $item->nama_atribut; ?>">
                                         <?php }else{ ?>
                                             <input required type="file" id="<?= $atribut->slug; ?>" name="<?= $atribut->slug; ?>">
                                         <?php }?>
@@ -231,7 +213,7 @@
                                         <button type="submit" class="btn btn-alt-primary">Simpan Data <?= $layer->nama_layer; ?></button>
                                     </div>
                                 </div>
-                            </form> --}}
+                            </form>
                         </div>
                     </div>
     
@@ -243,4 +225,151 @@
     
 
 @endsection
+
+<!-- jQuery harus di-load lebih awal -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+<script src="{{ asset('assets_front/js/leaflet.js') }}"></script>
+<script src="{{ asset('assets_front/js/leaflet-esri.js') }}"></script>
+<script src="{{ asset('assets_front/js/leaflet.draw.js') }}"></script>
+
+<script>
+var map;
+var active_basemap = 'osm';
+var basemap = {};
+var coords = '';
+$(document).ready(function(){
+    init_map();
+})
+function init_map()
+{
+    map = L.map('map',{
+        attributionControl: false,
+        zoomControl: false
+    }).setView([-6.868354, 109.131658], 13);
+    basemap = {
+        osm: L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+        }).addTo(map),
+        google_roadmap: L.tileLayer('https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',{
+            maxZoom: 20,
+            subdomains:['mt0','mt1','mt2','mt3']
+        }),
+        google_satellite: L.tileLayer('https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',{
+            maxZoom: 20,
+            subdomains:['mt0','mt1','mt2','mt3']
+        }),
+        google_hybrid: L.tileLayer('https://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}',{
+            maxZoom: 20,
+            subdomains:['mt0','mt1','mt2','mt3']
+        })
+    };
+
+    L.control.layers(basemap).addTo(map);
+    let el = L.featureGroup();
+    map.addLayer(el);
+
+    let draw_options = {
+        position: 'topleft',
+        draw: {
+            rectangle: false,
+            circle: false,
+            circlemarker: false,
+            polyline: false,
+            marker: true,
+            polygon: false
+        },
+        edit: { featureGroup: el }
+    };
+
+    let draw_control = new L.Control.Draw(draw_options);
+    map.addControl(draw_control);
+
+    map.on('draw:created', (e) => {
+        let l = e.layer;
+        l.addTo(el);
+        to_geojson_coordinates(l);
+    });
+
+    function to_geojson_coordinates(l){
+        let geojson = l.toGeoJSON();
+        coords = JSON.stringify(geojson.geometry.coordinates);
+    }
+
+    $('#pilih_koordinat').change(function(){
+        let val = $(this).val();
+        if(val) {
+            $.ajax({
+                url: '{{ url('admin/peta/get_koordinat') }}',
+                type: 'GET',
+                dataType: 'JSON',
+                data: {id: val, type: 'Point'}
+            })
+            .then(res => {
+                let x = [{
+                    "type": res.data.tipe_koordinat,
+                    "coordinates": JSON.parse(res.data.koordinat)
+                }];
+                let koordinat = L.geoJSON(x);
+                let koord = koordinat.getLayers()[0];
+                koord.addTo(el);
+                map.flyToBounds(koord.getBounds());
+                coords = res.data.koordinat;
+            });
+        }
+    });
+}
+</script>
+<script>
+
+    $(document).ready(function(){
         
+        $('#icon_name').select2({
+            templateResult: formatState,
+            templateSelection: formatState
+        });
+        // $('#pilih_koordinat').select2();
+        $('#pilih_koordinat').select2({
+            ajax: {
+                url: 'admin/peta/ref_koordinat',
+                dataType: 'JSON',
+                data: function(d){
+                    let q = {
+                        search: d.term,
+                        type: `$request->segment(4)`
+                    }
+                    return q;
+                },
+                delay: 500
+            }
+        });
+    })
+    
+    function formatState (state) {
+        // console.log(state);
+        var icon;
+        if(state.text != 'Searching…')
+        {
+            icon = state.element.attributes['data-img'].value;
+        }
+        
+        if (!state.id) { return state.text; }
+        var $state = $(
+            '<span ><img class="select2_img" sytle="display: inline-block;" src="assets/uploads/marker_icon/'+icon+'.png" /> ' + state.text + '</span>'
+        );
+        return $state;
+     }
+    $('.angka-saja').keyup(function(e)
+                                    {
+      if (/\D/g.test(this.value))
+      {
+        // Filter non-digits from input value.
+        this.value = this.value.replace(/\D/g, '');
+      }
+    });
+    
+    
+    
+
+    </script>

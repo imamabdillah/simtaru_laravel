@@ -11,6 +11,8 @@ use App\Models\JenisPeta;
 use App\Models\Peta;
 use App\Models\AtributLayer;
 use App\Models\ValueAttribut;
+use App\Models\ReferensiKoordinat;
+use App\Models\ReferensiIcon;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -411,11 +413,12 @@ class PetaController extends Controller
     {
         $id_layer = $request->segment(4); 
         $tipe_layer = ucfirst($request->segment(5)); 
-        // $layer = Layer::findOrFail($id);
-        $layer = Layer::with('opd')->findOrFail($id);
+        $layer = Layer::findOrFail($id);
+        $atribut = AtributLayer::where('id_layer', $id)->get();
+        $koordinat = ReferensiKoordinat::all();
+        $data_icon = ReferensiIcon::all();
         // kyknya nanti butuh collection dari tabel collection
-        // dd($layer);
-        return view('admin.peta.tambah_data_point', compact('layer', 'tipe_layer', 'id_layer'));
+        return view('admin.peta.tambah_data_point', compact('layer', 'data_icon', 'koordinat', 'atribut', 'tipe_layer', 'id_layer'));
     }
 
     public function addDataLayerLine(Request $request, $id)
@@ -423,10 +426,11 @@ class PetaController extends Controller
         $id_layer = $request->segment(4); 
         $tipe_layer = ucfirst($request->segment(5)); 
         $layer = Layer::findOrFail($id);
-        $layer = Layer::findOrFail($id_layer);
+        $atribut = AtributLayer::where('id_layer', $id)->get();
+        $koordinat = ReferensiKoordinat::all();
         // kyknya nanti butuh collection dari tabel collection
 
-        return view('admin.peta.tambah_data_line', compact('layer', 'tipe_layer', 'id_layer'));
+        return view('admin.peta.tambah_data_line', compact('layer', 'koordinat', 'tipe_layer', 'atribut', 'id_layer'));
     }
 
     public function addDataLayerPolygon(Request $request, $id)
@@ -434,11 +438,11 @@ class PetaController extends Controller
         $id_layer = $request->segment(4); 
         $tipe_layer = ucfirst($request->segment(5)); 
         $layer = Layer::findOrFail($id);
-        $layer = Layer::findOrFail($id_layer);
         $atribut = AtributLayer::where('id_layer', $id)->get();
+        $koordinat = ReferensiKoordinat::all();
         // kemungkinan nanti butuh data dari tabel collection
     
-        return view('admin.peta.tambah_data_polygon', compact('layer', 'tipe_layer', 'id_layer'));
+        return view('admin.peta.tambah_data_polygon', compact('layer', 'koordinat', 'atribut', 'tipe_layer', 'id_layer'));
     }
     
     
