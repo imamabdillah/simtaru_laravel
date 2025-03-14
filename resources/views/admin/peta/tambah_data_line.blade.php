@@ -29,7 +29,7 @@
     <link rel="stylesheet" href="{{ asset('assets_front/css/leaflet.draw.css') }}"/>
 
     <!-- Main Container -->
-    @section('contents')
+@section('contents')
     <main id="main-container">
         <div class="content">
             <div class="block block-themed" style="background: transparent;">
@@ -61,7 +61,7 @@
                                 </div>
                                 <hr>
                                 <input type="hidden" name="id_layer" value="{{ $id_layer }}">
-                                <input type="hidden" name="tipe_layer" value="{{ $tipe_layer }}">
+                                <input type="hidden" name="tipe_layer" value="LineString">
                                 <?php foreach ($atribut as $item) { ?>
                                 <div class="form-group row">
                                     <label class="col-lg-4 col-form-label" for="<?= $item->slug; ?>"><?= $item->nama_atribut; ?> <span class="text-danger">*</span></label>
@@ -149,7 +149,7 @@
                                 </div>
     
                                 <!-- Input Map Feature Styles | Line / LineString -->
-                                @elseif(request()->segment(5) == 'line')
+                                @elseif(request()->segment(5) == 'linestring')
                                 <div class="form-group row">
                                     <label class="col-lg-4 col-form-label" for="stroke">Stroke <span class="text-danger">*</span></label>
                                     <div class="col-lg-8">
@@ -244,6 +244,16 @@
     $(document).ready(function(){
         init_map();
     })
+    function changeBasemap(newBasemap) {
+        if (basemap[newBasemap]) {
+            map.removeLayer(basemap[active_basemap]); // Hapus basemap aktif
+            active_basemap = newBasemap;
+            basemap[active_basemap].addTo(map);
+        } else {
+            console.error("Basemap tidak ditemukan:", newBasemap);
+        }
+    }
+
     function init_map()
     {
         map = L.map('map',{
@@ -353,76 +363,92 @@
             to_geojson_coordinates(l);
         })
     
-        map.on('draw:deleted',(e)=>{
-            if(el.getLayers().length == 0)
-            {
+        map.on('draw:deleted', (e) => {
+            if (el.getLayers().length === 0) {
                 draw_control_edit.remove(map);
                 draw_control.addTo(map);
                 $('#pilih_koordinat').val('').trigger('change');
+                coords = ''; // Reset koordinat saat tidak ada layer
             }
-        })
+        });
+
     
         var pilih_koordinat = '';
         $('#pilih_koordinat').change(function(){
-            let val = $(this).val();
-            if(val > 0)
-            {
-                $.ajax({
-                    url: '{{ route("admin.peta.get_koordinat") }}',
-                    type: 'GET',
-                    dataType: 'JSON',
-                    data: {id: val, type: 'LineString'}
-                })
-                .then(res=>{
-                    let x = [{
-                        "type": res.data.tipe_koordinat,
-                        "coordinates": JSON.parse(res.data.koordinat)
-                    }];
-                    pilih_koordinat = x;
-                    if(pilih_koordinat != '')
+        let val = $(this).val();
+        if(val > 0)
+        {
+            $.ajax({
+                url: '{{ url('admin/peta/get_koordinat') }}',
+                type: 'GET',
+                dataType: 'JSON',
+                data: {id: val, type: 'LineString'}
+            })
+            .then(res=>{
+                if (!res.data || !res.data.koordinat) {
+                    console.error("Data koordinat tidak ditemukan");
+                    return;
+                }
+
+                let x = [{
+                    "type": res.data.tipe_koordinat,
+                    "coordinates": JSON.parse(res.data.koordinat)
+                }];
+                pilih_koordinat = x;
+
+                if(pilih_koordinat.length > 0)
+                {
+                    let el_first = Object.keys(el._layers).length > 0 ? el._layers[Object.keys(el._layers)[0]] : undefined;
+
+                    if(el_first)
                     {
-                        let el_first = el._layers[Object.keys(el._layers)[0]];
-    
-                        if(typeof el_first != 'undefined')
-                        {
-                            el_first.remove(map);
-                            el.removeLayer(el_first);
-                        }
-                        
-                        let koordinat = L.geoJSON(pilih_koordinat);
-                        let koord = koordinat._layers[[Object.keys(koordinat._layers)[0]]];
+                        el_first.remove(map);
+                        el.removeLayer(el_first);
+                    }
+                    
+                    let koordinat = L.geoJSON(pilih_koordinat);
+                    let koord = Object.keys(koordinat._layers).length > 0 ? koordinat._layers[Object.keys(koordinat._layers)[0]] : undefined;
+
+                    if(koord){
                         koord.addTo(el);
                         map.flyToBounds(koord.getBounds());
                         draw_control.remove(map);
                         draw_control_edit.addTo(map);
                         coords = res.data.koordinat;
                     }
-                    else
-                    {
-                        coords = '';
-                    }
-                })
-            }
-            else
-            {
-                let el_first = el._layers[Object.keys(el._layers)[0]];
-    
-                if(typeof el_first != 'undefined')
-                {
-                    el_first.remove(map);
-                    el.removeLayer(el_first);
-                    draw_control_edit.remove(map);
-                    draw_control.addTo(map);
                 }
-            }
-        })
-    
-        function to_geojson_coordinates(l){
-            let geojson = l.toGeoJSON();
-            let coordinates = JSON.stringify(geojson.geometry.coordinates);
-            let type = geojson.geometry.type;
-            coords = coordinates;
+                else
+                {
+                    coords = '';
+                }
+            }).fail(function(err){
+                console.error("Error fetching coordinates:", err);
+            });
         }
+        else
+        {
+            let el_first = Object.keys(el._layers).length > 0 ? el._layers[Object.keys(el._layers)[0]] : undefined;
+            if(el_first)
+            {
+                el_first.remove(map);
+                el.removeLayer(el_first);
+                draw_control_edit.remove(map);
+                draw_control.addTo(map);
+            }
+        }
+    });
+
+    
+    function to_geojson_coordinates(l){
+        let geojson = l.toGeoJSON();
+        if (geojson.geometry && geojson.geometry.coordinates) {
+            coords = JSON.stringify(geojson.geometry.coordinates);
+        } else {
+            console.warn("Geometri tidak valid:", geojson);
+            coords = '';
+        }
+    }
+
     }
     </script>
 {{-- script tambah data --}}
@@ -450,40 +476,61 @@
             }
         });
 
-        $('#tambah_data_peta').on('submit', function(e){
+        $('#tambah_data_peta').on('submit', function(e) {
             e.preventDefault();
-            console.log('tombol submit ditekan');
-            if(typeof coords === 'undefined' || coords == '')
-            {
-                Swal.fire({
-                    title : 'Gagal!',
-                    text : 'Koordinat lokasi tidak terdeteksi',
-                    icon: 'error'
-                });
-            }
-            else
-            {
-                var coord = coords;
+            console.log('Tombol submit ditekan');
+
+            try {
+                if (typeof coords === 'undefined' || coords === '') {
+                    Swal.fire({
+                        title: 'Gagal!',
+                        text: 'Koordinat lokasi tidak terdeteksi',
+                        icon: 'error'
+                    });
+                    return;
+                }
+
                 var form_data = new FormData(this);
-                form_data.append('coordinates', coord);
+                form_data.append('coordinates', coords);
+
                 $.ajax({
-                    url: '{{ route("admin.peta.simpan_data_peta_point") }}',
-                    type: "post",
+                    url: '{{ route("admin.peta.simpan_data_peta_line") }}',
+                    type: "POST",
                     data: form_data,
                     processData: false,
                     contentType: false,
                     cache: false,
-                    success: function(response){
+                    success: function(response) {
                         Swal.fire({
-                            title : 'Sukses!',
-                            text : 'Data berhasil disimpan!',
+                            title: 'Sukses!',
+                            text: 'Data berhasil disimpan!',
                             icon: 'success',
                             timer: 1500
+                        }).then(() => {
+                            window.location.replace("{{ url('admin/peta/kelola/'.request()->segment(4)) }}");
                         });
-                        window.location.replace("{{ url('admin/peta/kelola/'.request()->segment(4)) }}");
+                    },
+                    error: function(xhr) {
+                        console.log(xhr.responseJSON);
+                        let errorMessage = xhr.responseJSON?.message || 'Terjadi kesalahan.';
+                        Swal.fire({
+                            title: 'Gagal!',
+                            text: errorMessage,
+                            icon: 'error'
+                        });
+                    },
+                    complete: function() {
+                        console.log('Request selesai.');
                     }
                 });
-                return false;
+
+            } catch (error) {
+                console.error('Kesalahan terdeteksi:', error);
+                Swal.fire({
+                    title: 'Gagal!',
+                    text: 'Terjadi kesalahan pada sistem.',
+                    icon: 'error'
+                });
             }
         });
 

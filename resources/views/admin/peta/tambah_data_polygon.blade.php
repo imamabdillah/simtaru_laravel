@@ -27,20 +27,19 @@
     </style>
     <link rel="stylesheet" href="{{ asset('assets_front/css/leaflet.css') }}"/>
     <link rel="stylesheet" href="{{ asset('assets_front/css/leaflet.draw.css') }}"/>
-    <?php foreach ($data_peta as $peta) { ?>
     <!-- Main Container -->
 @section('contents')
     <main id="main-container">
         <div class="content">
             <div class="block block-themed" style="background: transparent;">
                 <div class="block-header bg-primary-dark">
-                    {{ ucfirst(request()->segment(5)) }} Layer {{ $peta->nama_layer }}
+                    {{ ucfirst(request()->segment(5)) }} Layer {{ $layer->nama_layer }}
                 </div>
                 <div class="block-content" id="map"></div>
             </div>
             <div class="block block-themed">
                 <div class="block-header bg-primary-dark">
-                    <h3 class="block-title">Tambah Data Layer <span><?= $peta->nama_layer; ?></span></h3>
+                    <h3 class="block-title">Tambah Data Layer <span>{{ $layer->nama_layer }}</span></h3>
                 </div>
                 <div class="block-content">
                     <div class="row justify-content-center py-20">
@@ -49,24 +48,7 @@
                             
     
                             <form method="post" id="tambah_data_peta">
-                                <!-- <div class="form-group row">
-                                    <label class="col-lg-4 col-form-label" for="pilih_koordinat">Pilih Koordinat</label>
-                                    <div class="col-lg-8">
-                                        <select name="pilih_koordinat" id="pilih_koordinat" class="" style="width:100%;">
-                                        <?php if(count($data_koordinat) > 0):?>
-                                            <option value="">-- Pilih Koordinat --</option>
-                                            <?php foreach($data_koordinat as $koord):?>
-                                                <option value="<?=$koord['id_koordinat']?>"><?=$koord['nama_koordinat']?></option>
-                                            <?php endforeach?>
-                                        <?php else: ?>
-                                            <option value="">-- Koordinat Tidak Tersedia--</option>
-                                        <?php endif ?>                
-                                        </select>
-                                        <div style="font-size: smaller">
-                                            * Koordinat yang tersimpan dari menu referensi koordinat
-                                        </div>
-                                    </div>
-                                </div> -->
+                                @csrf
                                 <div class="form-group row">
                                     <label class="col-lg-4 col-form-label" for="pilih_koordinat">Pilih Koordinat</label>
                                     <div class="col-lg-8">
@@ -77,16 +59,15 @@
                                     </div>
                                 </div>
                                 <hr>
-                                <input type="hidden" name="<?=$this->security->get_csrf_token_name();?>" value="<?=$this->security->get_csrf_hash();?>" style="display: none">
                                 <input type="hidden" name="id_layer" value="{{ $id_layer }}">
-                                <input type="hidden" name="tipe_layer" value="{{ $tipe_layer }}">
-                                <?php foreach ($data_atribut as $atribut) { ?>
+                                <input type="hidden" name="tipe_layer" value="LineString">
+                                <?php foreach ($atribut as $item) { ?>
                                 <div class="form-group row">
-                                    <label class="col-lg-4 col-form-label" for="<?= $atribut->slug; ?>"><?= $atribut->nama_atribut; ?> <span class="text-danger">*</span></label>
+                                    <label class="col-lg-4 col-form-label" for="<?= $item->slug; ?>"><?= $item->nama_atribut; ?> <span class="text-danger">*</span></label>
                                     <div class="col-lg-8">
-                                        <input type="hidden" name="id_atribut_<?= $atribut->slug; ?>" value="<?= $atribut->id_atribut; ?>">
-                                        <?php if($atribut->tipe_data != "File"){ ?>
-                                            <input required type="text" class="form-control <?php if($atribut->tipe_data == "Angka"){echo "angka-saja";} ?>" id="<?= $atribut->slug; ?>" name="<?= $atribut->slug; ?>" placeholder="Masukkan <?= $atribut->nama_atribut; ?>">
+                                        <input type="hidden" name="id_atribut_<?= $item->slug; ?>" value="<?= $item->id_atribut; ?>">
+                                        <?php if($item->tipe_data != "File"){ ?>
+                                            <input required type="text" class="form-control <?php if($item->tipe_data == "Angka"){echo "angka-saja";} ?>" id="<?= $item->slug; ?>" name="<?= $item->slug; ?>" placeholder="Masukkan <?= $item->nama_atribut; ?>">
                                         <?php }else{ ?>
                                             <input required type="file" id="<?= $atribut->slug; ?>" name="<?= $atribut->slug; ?>">
                                         <?php }?>
@@ -167,7 +148,7 @@
                                 </div>
     
                                 <!-- Input Map Feature Styles | Line / LineString -->
-                                @elseif(request()->segment(5) == 'line')
+                                @elseif(request()->segment(5) == 'linestring')
                                 <div class="form-group row">
                                     <label class="col-lg-4 col-form-label" for="stroke">Stroke <span class="text-danger">*</span></label>
                                     <div class="col-lg-8">
@@ -207,9 +188,9 @@
                                     <div class="col-lg-8">
                                         <select  id="icon_name" name="icon_name" class="form-control" style="width: 100%;">
                                             <option data-img="default" value="default">default</option>
-                                            <?php foreach($data_icon as $icon): ?>
-                                                <option data-img="<?=$icon['nama_icon']?>" value="<?=$icon['nama_icon']?>"><?=$icon['nama_icon']?></option>
-                                            <?php endforeach;?>
+                                            @foreach ($data_icon as $icon)
+                                                <option data-img="{{ $icon->nama_icon }}" value="{{ $icon->nama_icon }}">{{ $icon->nama_icon }}</option>
+                                            @endforeach
                                         </select>
                                     </div>
                                 </div>
@@ -228,7 +209,7 @@
                                
                                 <div class="form-group row">
                                     <div class="col-lg-8 ml-auto">
-                                        <button type="submit" class="btn btn-alt-primary">Simpan Data <?= $peta->nama_layer; ?></button>
+                                        <button type="submit" class="btn btn-alt-primary">Simpan Data <?= $layer->nama_layer; ?></button>
                                     </div>
                                 </div>
                             </form>
@@ -240,6 +221,14 @@
         </div>
     </main>
     <!-- END Main Container -->
-    <?php } ?>
+    
 
 @endsection
+<!-- jQuery harus di-load lebih awal -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+<script src="{{ asset('assets_front/js/leaflet.js') }}"></script>
+<script src="{{ asset('assets_front/js/leaflet-esri.js') }}"></script>
+<script src="{{ asset('assets_front/js/leaflet.draw.js') }}"></script>
+

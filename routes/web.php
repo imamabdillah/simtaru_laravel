@@ -64,10 +64,11 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
         // Data Layer Management
         Route::post('/data_peta/tambah', [PetaController::class, 'addDataLayer'])->name('admin.peta.add_data_layer');
         Route::get('/tambah_data_peta/{id}/point', [PetaController::class, 'addDataLayerPoint'])->name('admin.peta.add_data_layer_point');
-        Route::get('/tambah_data_peta/{id}/line', [PetaController::class, 'addDataLayerLine'])->name('admin.peta.add_data_layer_line');
+        Route::get('/tambah_data_peta/{id}/linestring', [PetaController::class, 'addDataLayerLine'])->name('admin.peta.add_data_layer_line');
         Route::get('/tambah_data_peta/{id}/polygon', [PetaController::class, 'addDataLayerPolygon'])->name('admin.peta.add_data_layer_polygon');
         Route::get('/kelola/{id_layer}', [PetaController::class, 'kelolaDataLayer'])->name('admin.peta.kelola_data_layer');
         Route::post('/tambah_data_peta', [PetaController::class, 'storePetaPoint'])->name('admin.peta.simpan_data_peta_point');
+        Route::post('/tambah_data_peta', [PetaController::class, 'storePetaLine'])->name('admin.peta.simpan_data_peta_line');
 
 
         // Koordinat Management
