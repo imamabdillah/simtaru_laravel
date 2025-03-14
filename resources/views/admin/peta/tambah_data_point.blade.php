@@ -344,6 +344,44 @@ function init_map()
                 delay: 500
             }
         });
+
+        $('#tambah_data_peta').on('submit', function(e){
+            e.preventDefault();
+            console.log('tombol submit ditekan');
+            if(typeof coords === 'undefined' || coords == '')
+            {
+                Swal.fire({
+                    title : 'Gagal!',
+                    text : 'Koordinat lokasi tidak terdeteksi',
+                    icon: 'error'
+                });
+            }
+            else
+            {
+                var coord = coords;
+                var form_data = new FormData(this);
+                form_data.append('coordinates', coord);
+                $.ajax({
+                    url: '{{ route("admin.peta.simpan_data_peta_point") }}',
+                    type: "post",
+                    data: form_data,
+                    processData: false,
+                    contentType: false,
+                    cache: false,
+                    success: function(response){
+                        Swal.fire({
+                            title : 'Sukses!',
+                            text : 'Data berhasil disimpan!',
+                            icon: 'success',
+                            timer: 1500
+                        });
+                        window.location.replace("{{ url('admin/peta/kelola/'.request()->segment(4)) }}");
+                    }
+                });
+                return false;
+            }
+        });
+
     })
 
     function formatState (state) {
@@ -366,40 +404,5 @@ function init_map()
         }
     });
 
-    $('#tambah_data_peta').submit(function(e){
-        e.preventDefault();
-        if(typeof coords === 'undefined' || coords == '')
-        {
-            Swal.fire({
-                title : 'Gagal!',
-                text : 'Koordinat lokasi tidak terdeteksi',
-                icon: 'error'
-            });
-        }
-        else
-        {
-            var coord = coords;
-            var form_data = new FormData(this);
-            form_data.append('coordinates', coord);
-            $.ajax({
-                url: '{{ route("admin.peta.simpan_data_peta_point") }}',
-                type: "post",
-                data: form_data,
-                processData: false,
-                contentType: false,
-                cache: false,
-                success: function(response){
-                    Swal.fire({
-                        title : 'Sukses!',
-                        text : 'Data berhasil disimpan!',
-                        icon: 'success',
-                        timer: 1500
-                    });
-                    window.location.replace("{{ url('admin/peta/kelola/'.request()->segment(4)) }}");
-                }
-            });
-            return false;
-        }
-    });
 
 </script>
