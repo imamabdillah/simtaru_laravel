@@ -25,27 +25,28 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     // route manajemen peta
     Route::prefix('/peta')->group(function() {
         Route::get('/', [PetaController::class, 'index'])->name('admin.peta');
-    
+
         // Layer Management
         Route::get('/daftar_layer', [PetaController::class, 'daftarLayer'])->name('admin.peta.daftar_layer_peta');
         Route::get('/get_layer', [PetaController::class, 'getLayers'])->name('layer_peta.getLayers');
         Route::post('/simpan_layer', [PetaController::class, 'simpanLayer'])->name('admin.peta.simpan_layer');
         Route::post('/switch_notif', [PetaController::class, 'switchNotif'])->name('admin.peta.switch_notif');
         Route::post('/update-layer-perbaikan', [PetaController::class, 'updatePerbaikan'])->name('layer.updatePerbaikan');
+        Route::delete('/hapus_semua_data_layer/{id}', [PetaController::class, 'hapusSemuaDataLayer'])->name('admin.peta.hapus_semua_data_layer');
         Route::delete('/hapus_layer/{id}', [PetaController::class, 'hapusLayer'])->name('admin.peta.hapus_layer');
         Route::get('/edit_layer/{id}', [PetaController::class, 'editLayer'])->name('admin.peta.edit_layer');
         Route::post('/update_layer/{id}', [PetaController::class, 'updateLayer'])->name('admin.peta.update_layer');
-        
+
         // kelola data layer
 
-    
+
         // Grup Layer Management
         Route::get('/get_grup_layer', [PetaController::class, 'getGrupLayer'])->name('admin.peta.get_grup_layer');
         Route::post('/simpan_grup_layer', [PetaController::class, 'simpanGrupLayer'])->name('admin.peta.simpan_grup_layer');
         Route::put('/update_grup_layer/{id}', [PetaController::class, 'updateGrupLayer'])->name('admin.peta.update_grup_layer');
         Route::delete('/hapus_grup_layer/{id}', [PetaController::class, 'hapusGrupLayer'])->name('admin.peta.hapus_grup_layer');
 
-    
+
         // Jenis Peta Management
         Route::get('/get_jenis_peta', [PetaController::class, 'getJenisPeta'])->name('admin.peta.get_jenis_peta');
         Route::post('/simpan_jenis_peta', [PetaController::class, 'simpanJenisPeta'])->name('admin.peta.simpan_jenis_peta');
@@ -75,6 +76,6 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
 
 
 
-        
+
     });
 });
