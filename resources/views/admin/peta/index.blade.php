@@ -140,7 +140,10 @@
 									</a>
 									<button data-id="{{ $layer->id_layer }}" class="btn btn-warning btn_group" title="Grup Atribut {{ $layer->nama_layer }}"><i class="fa fa-clone"></i></button>
 								</div>
-								<button data-id="{{ $layer->id_layer }}" class="btn btn-danger btn-sm btn_clear" title="Hapus Semua Data {{ $layer->nama_layer }}"><i class="fa fa-times-rectangle"></i></button>
+                                <button data-id="{{ $layer->id_layer }}" class="btn btn-danger btn-sm btn_clear"
+                                        title="Hapus Semua Data {{ $layer->nama_layer }}">
+                                    <i class="fa fa-times-rectangle"></i>
+                                </button>
 								<button data-id="{{ $layer->id_layer }}" class="btn btn-danger btn-sm btn_hapus" title="Hapus Layer {{ $layer->nama_layer }}"><i class="fa fa-trash"></i></button>
 							</td>
 						</tr>
@@ -173,7 +176,7 @@
 
                         <label for="nama_layer">Nama Layer</label>
                         <input type="text" id="nama_layer" name="nama_layer" class="form-control" placeholder="Masukkan nama layer..." required>
-                        
+
                         <label for="grup_layer" class="mt-2">Grup Layer</label>
                         <select id="grup_layer" name="grup_layer" class="form-control" required>
 							<option value="" selected disabled>-- Pilih Grup Layer --</option>
@@ -189,7 +192,7 @@
                                 <option value="{{ $item->id_jenis_peta }}">{{ $item->nama_jenis_peta }}</option>
                             @endforeach
 						</select>
-                        
+
                         <label for="opd" class="mt-2">Nama Bidang</label>
                         <select id="opd" name="opd" class="form-control" required>
                             <option value="" selected disabled>-- Pilih Bidang --</option>
@@ -197,7 +200,7 @@
                                 <option value="{{ $opd->id_opd }}">{{ $opd->nama_opd }}</option>
                             @endforeach
                         </select>
-                        
+
                         <label for="sumber" class="mt-2">Sumber Data</label>
                         <select id="sumber" name="sumber" class="form-control" required>
                             <option value="" disabled>-- Pilih Sumber Data --</option>
@@ -209,7 +212,7 @@
                             <label for="link_api">Link API</label>
                             <input type="text" id="link_api" name="link_api" class="form-control" placeholder="Masukkan link API">
                         </div>
-                        
+
                         <label for="deskripsi_layer" class="mt-2">Deskripsi Layer</label>
                         <textarea id="deskripsi_layer" name="deskripsi_layer" class="form-control" rows="3" placeholder="Deskripsi layer..."></textarea>
                     </form>
@@ -245,7 +248,7 @@
 						@csrf
 						<input type="hidden" name="_method" value="POST"> <!-- Secara default menggunakan POST -->
 						<input type="hidden" id="grup_layer_id" name="grup_layer_id" value=""> <!-- Untuk edit -->
-						
+
 						<label for="nama_grup_layer">Nama Grup Layer</label>
 						<div class="input-group">
 							<input type="text" id="nama_grup_layer" name="nama_grup_layer" class="form-control" placeholder="Masukkan nama grup layer...">
@@ -266,16 +269,16 @@
                             <div class="col-4" style="text-align:right">
                                 <!-- Tombol Edit -->
                                 <button type="button" class="btn btn-sm btn-warning mr-5 btn-edit-grup-layer"
-                                    data-id="{{ $grup->id_grup_layer }}" 
+                                    data-id="{{ $grup->id_grup_layer }}"
                                     data-nama="{{ $grup->nama_grup_layer }}">
                                     <i class="fa fa-edit" title="Edit {{ $grup->nama_grup_layer }}"></i>
-                                </button>  
-                        
+                                </button>
+
                                 <!-- Tombol Simpan (hidden by default) -->
                                 <button type="button" class="btn btn-sm btn-success btn-save-grup-layer" style="display: none;">
                                     <i class="fa fa-check"></i>
                                 </button>
-                        
+
                                 <!-- Form Hapus -->
                                 <form action="{{ route('admin.peta.hapus_grup_layer', $grup->id_grup_layer) }}" method="POST" style="display:inline;">
                                     @csrf
@@ -287,7 +290,7 @@
                             </div>
                         </div>
                         <hr>
-                        
+
                         @endforeach
                     </div>
                 </div>
@@ -332,15 +335,15 @@
                         <div class="row">
                             <div class="item_jenis_peta col-8" data-id="{{ $jenis->id_jenis_peta }}">{{ $jenis->nama_jenis_peta }}</div>
                             <div class="col-4" style="text-align:right">
-								<button type="button" class="btn btn-sm btn-warning mr-5 btn-edit-jenis-peta" 
-									data-id="{{ $jenis->id_jenis_peta }}" 
+								<button type="button" class="btn btn-sm btn-warning mr-5 btn-edit-jenis-peta"
+									data-id="{{ $jenis->id_jenis_peta }}"
 									data-nama="{{ $jenis->nama_jenis_peta }}">
 									<i class="fa fa-edit" title="Edit {{ $jenis->nama_jenis_peta }}"></i>
-								</button>		
+								</button>
                                 <!-- Tombol Simpan (hidden by default) -->
                                 <button type="button" class="btn btn-sm btn-success btn-save-jenis-peta" style="display: none;">
                                     <i class="fa fa-check"></i>
-                                </button>					
+                                </button>
                                 <form action="{{ route('admin.peta.hapus_jenis_peta', $jenis->id_jenis_peta) }}" method="POST" style="display:inline;">
                                     @csrf
                                     @method('DELETE')
@@ -444,7 +447,7 @@
         });
     });
 
-    // script grup layer baru 
+    // script grup layer baru
     $(document).ready(function () {
         // Event klik tombol edit
         $(document).on("click", ".btn-edit-grup-layer", function () {
@@ -547,22 +550,40 @@
 		});
 	});
 
+$(document).ready(function() {
+    $(document).on('click', '.btn_clear', function() {
+        let id = $(this).data('id'); // Ambil ID layer
+        let url = "{{ route('admin.peta.hapus_semua_data_layer', ':id') }}".replace(':id', id);
 
-    $(document).on('click', '.btn_hapus', function() {
-        let layerId = $(this).data('id');
-
-        if (confirm('Apakah Anda yakin ingin menghapus layer ini?')) {
+        if (confirm('Apakah Anda yakin ingin menghapus semua data layer ini?')) {
             $.ajax({
-                url: '/admin/peta/hapus_layer/' + layerId,
+                url: url,
                 type: 'DELETE',
                 data: { _method: 'DELETE', _token: '{{ csrf_token() }}' },
                 success: function(response) {
-                    if (response.success) {
-                        alert(response.message);
-                        location.reload(); // Refresh halaman setelah berhasil menghapus
-                    } else {
-                        alert('Gagal menghapus layer');
-                    }
+                    alert('Semua data telah dihapus.');
+                    location.reload(); // Refresh halaman setelah berhasil menghapus
+                },
+                error: function(xhr) {
+                    console.log(xhr.responseText);
+                    alert('Terjadi kesalahan saat menghapus data.');
+                }
+            });
+        }
+    });
+
+    $(document).on('click', '.btn_hapus', function() {
+        let layerId = $(this).data('id');
+        let url = "/admin/peta/hapus_layer/" + layerId;
+
+        if (confirm('Apakah Anda yakin ingin menghapus layer ini?')) {
+            $.ajax({
+                url: url,
+                type: 'DELETE',
+                data: { _method: 'DELETE', _token: '{{ csrf_token() }}' },
+                success: function(response) {
+                    alert('Layer berhasil dihapus.');
+                    location.reload(); // Refresh halaman setelah berhasil menghapus
                 },
                 error: function(xhr) {
                     console.log(xhr.responseText);
@@ -571,6 +592,8 @@
             });
         }
     });
+});
+
 
     // script kelola data layer peta
     $(document).on("click", ".btn_data", function () {

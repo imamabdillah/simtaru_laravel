@@ -2,24 +2,25 @@
 
 namespace App\Http\Controllers\admin;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\ReferensiOpd;
+use App\Models\Peta;
 use App\Models\Layer;
 use App\Models\GrupLayer;
 use App\Models\JenisPeta;
-use App\Models\Peta;
+use App\Models\Collection;
+use Illuminate\Support\Str;
 use App\Models\AtributLayer;
+use App\Models\ReferensiOpd;
+use Illuminate\Http\Request;
+use App\Models\ReferensiIcon;
 use App\Models\ValueAttribut;
 use App\Models\ReferensiKoordinat;
-use App\Models\ReferensiIcon;
-use App\Models\Collection;
-use Yajra\DataTables\Facades\DataTables;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Support\Facades\Validator;
 
 
 class PetaController extends Controller
@@ -34,7 +35,7 @@ class PetaController extends Controller
         $grup_layers = GrupLayer::all();
         $jenis_peta = JenisPeta::all();
         $petas = Peta::all();
-    
+
         return view('admin.peta.index', compact('daftar_opd', 'layers', 'grup_layers', 'jenis_peta', 'petas'));
     }
 
@@ -68,7 +69,7 @@ class PetaController extends Controller
         }
 
         $grup = GrupLayer::create($request->all());
-        
+
 
         return redirect()->back()->with('success', 'Grup Layer berhasil diperbarui.');
     }
@@ -98,19 +99,19 @@ class PetaController extends Controller
         $grup_layer->update([
             'nama_grup_layer' => $request->nama_grup_layer
         ]);
-    
+
         return redirect()->back()->with('success', 'Grup Layer berhasil diperbarui.');
     }
-    
+
 
     public function hapusGrupLayer($id)
     {
         $grup_layer = GrupLayer::findOrFail($id);
         $grup_layer->delete();
-    
+
         return redirect()->back()->with('success', 'Grup Layer berhasil dihapus.');
     }
-    
+
 
     // Jenis Peta
     public function getJenisPeta()
@@ -136,7 +137,7 @@ class PetaController extends Controller
         }
 
         $jenis = JenisPeta::create($request->all());
-        
+
         return redirect()->route('admin.peta')->with('success', 'Jenis Peta berhasil ditambahkan!');
     }
 
@@ -146,23 +147,23 @@ class PetaController extends Controller
         $request->validate([
             'nama_jenis_peta' => 'required|string|max:255',
         ]);
-    
+
         $jenisPeta = JenisPeta::findOrFail($id);
         $jenisPeta->update([
             'nama_jenis_peta' => $request->nama_jenis_peta
         ]);
-    
+
         return redirect()->route('admin.peta')->with('success', 'Jenis Peta berhasil diperbarui!');
     }
-    
+
     public function hapusJenisPeta($id)
     {
         $jenisPeta = JenisPeta::findOrFail($id);
         $jenisPeta->delete();
-    
+
         return redirect()->route('admin.peta')->with('success', 'Jenis Peta berhasil dihapus!');
     }
-    
+
 
     // CRUD Layer
     public function simpanLayer(Request $request)
@@ -207,11 +208,11 @@ class PetaController extends Controller
         $daftar_jenis_peta = JenisPeta::all();
         $daftar_opd = ReferensiOPD::all();
         $atributs = AtributLayer::where('id_layer', $id)->whereNull('is_delete')->get();
-    
+
         return view('admin.peta.kelola', compact('layer', 'daftar_grup_layer', 'daftar_jenis_peta', 'daftar_opd', 'atributs'));
-        
+
     }
-    
+
     public function updateLayer(Request $request, $id)
     {
         $request->validate([
@@ -222,7 +223,7 @@ class PetaController extends Controller
             'status' => 'nullable|integer',
             'deskripsi_layer' => 'nullable|string',
         ]);
-    
+
         $layer = Layer::findOrFail($id);
         $layer->update([
             'nama_layer' => $request->nama_layer,
@@ -233,34 +234,58 @@ class PetaController extends Controller
             'deskripsi_layer' => $request->deskripsi_layer,
         ]);
 
-    
+
         return redirect()->route('admin.peta')->with('success', 'Layer berhasil diperbarui.');
     }
-    
-    
-    public function hapusSemuaDataLayer(Request $request)
+
+
+    public function hapusSemuaDataLayer($id)
     {
-        $layer = Layer::findOrFail($request->id);
-        // Hapus file terkait
-        Storage::delete($layer->file_path);
-        $layer->delete();
-        
-        return redirect()->route('admin.peta')->with('success', 'Jenis Peta berhasil dihapus!');
+        try {
+            Log::info("Memulai penghapusan data terkait Layer ID: " . $id);
+
+            if (!is_numeric($id)) {
+                Log::error("ID Layer tidak valid: " . $id);
+                return response()->json(['error' => 'ID Layer tidak valid'], 400);
+            }
+
+            DB::transaction(function () use ($id) {
+                // Hapus dari tabel_collection berdasarkan id_layer
+                $deletedCollection = DB::table('tabel_collection')->where('id_layer', $id)->delete();
+                Log::info("Jumlah data di tabel_collection yang dihapus: " . $deletedCollection);
+
+                // Hapus dari tabel_value_attribut berdasarkan id_atribut yang ada di tabel_atribut_layer
+                $deletedAttributes = DB::table('tabel_value_attribut')
+                    ->whereIn('id_atribut', function ($query) use ($id) {
+                        $query->select('id_atribut')
+                            ->from('tabel_atribut_layer')
+                            ->where('id_layer', $id);
+                    })->delete();
+                Log::info("Jumlah data di tabel_value_attribut yang dihapus: " . $deletedAttributes);
+            });
+
+            Log::info("Berhasil menghapus data terkait Layer ID: " . $id);
+            return response()->json(['success' => true, 'message' => 'Data terkait berhasil dihapus'], 200);
+        } catch (\Exception $e) {
+            Log::error("Gagal menghapus data terkait Layer ID: $id. Error: " . $e->getMessage());
+            return response()->json(['error' => 'Terjadi kesalahan saat menghapus data'], 500);
+        }
     }
+
 
     public function hapusLayer($id)
     {
         try {
             $layer = Layer::findOrFail($id);
             $layer->delete();
-    
+
             return response()->json(['success' => true, 'message' => 'Layer berhasil dihapus']);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'Gagal menghapus layer']);
         }
     }
-    
-    
+
+
 
     public function switchNotif(Request $request)
     {
@@ -268,14 +293,14 @@ class PetaController extends Controller
         $layer->update([
             'notif_status' => $request->value
         ]);
-        
+
         return response()->json(['status' => 'success']);
     }
 
     public function updatePerbaikan(Request $request)
     {
         $layer = Layer::find($request->id);
-        
+
         if ($layer) {
             $layer->is_perbaikan = $request->status; // Simpan status dari request
             $layer->save();
@@ -296,13 +321,13 @@ class PetaController extends Controller
                 'atribut_tipe_atribut' => 'required|array', // Pastikan ini array
                 'atribut_tipe_atribut.*' => 'required|integer', // Setiap elemen array harus integer
             ]);
-    
+
             if ($validator->fails()) {
                 return response()->json([
                     'errors' => $validator->errors()
                 ], 422);
             }
-    
+
             // Simpan data layer
             foreach ($request->atribut_nama_atribut as $key => $nama_atribut) {
                 AtributLayer::create([
@@ -315,7 +340,7 @@ class PetaController extends Controller
                     'add_by' => Auth::user()->id_user, // Tambahkan ini
                 ]);
             }
-        
+
             if ($request->ajax()) {
                 return response()->json([
                     'success' => 'Atribut berhasil ditambahkan!',
@@ -324,13 +349,13 @@ class PetaController extends Controller
             } else {
                 return redirect()->back()->with('success', 'Atribut berhasil ditambahkan!');
             }
-            
+
         } catch (\Throwable $th) {
             throw $th;
         }
 
     }
-    
+
     public function getAtribut($id)
     {
         $atribut = AtributLayer::findOrFail($id);
@@ -343,7 +368,7 @@ class PetaController extends Controller
         try {
             $atribut = AtributLayer::findOrFail($id);
             $atribut->delete();
-    
+
             return response()->json(['success' => true, 'message' => 'Layer berhasil dihapus']);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'Gagal menghapus layer']);
@@ -354,24 +379,24 @@ class PetaController extends Controller
     {
         $atribut = AtributLayer::findOrFail($id);
         $atribut->delete();
-    
+
         return redirect()->back()->with('success', 'Atribut berhasil dihapus!');
     }
 
-    
+
     public function updateAtributLayer(Request $request, $id)
     {
         $request->validate([
             'ubah_atribut_nama' => 'required|string|max:255',
             'ubah_tipe_atribut' => 'required',
         ]);
-    
+
         $atributLayer = AtributLayer::findOrFail($id);
         $atributLayer->update([
             'nama_atribut' => $request->ubah_atribut_nama,
             'tipe_data' => $request->ubah_tipe_atribut,
         ]);
-    
+
         return redirect()->to($request->previous_url)->with('success', 'Atribut layer berhasil diperbarui!');
     }
 
@@ -379,7 +404,7 @@ class PetaController extends Controller
     {
         $layer = Layer::with('opd')->findOrFail($id_layer);
         $atribut = AtributLayer::where('id_layer', $id_layer)->get();
-    
+
         // Mengambil data nilai atribut dengan join berdasarkan id_atribut
         $data_peta = ValueAttribut::whereHas('collection', function ($query) use ($id_layer) {
             $query->where('id_layer', $id_layer);
@@ -387,7 +412,7 @@ class PetaController extends Controller
         ->with(['atribut', 'collection'])
         ->get()
         ->groupBy('id_collection');
-    
+
         return view('admin.peta.kelola_data_layer', compact('layer', 'atribut', 'data_peta'));
         // dd($data_peta);
     }
@@ -395,13 +420,13 @@ class PetaController extends Controller
     public function addDataLayer(Request $request)
     {
         $request->validate([
-            'id_layer'   => 'required|exists:tabel_layer,id_layer', 
+            'id_layer'   => 'required|exists:tabel_layer,id_layer',
             'tipe_layer' => 'required|in:point,line,polygon', // Pastikan tipe layer valid
         ]);
 
         $tipe_layer = $request->tipe_layer;
         $id = $request->id_layer;
-    
+
         if ($tipe_layer == 'point') {
             return redirect()->route('admin.peta.add_data_layer_point', $id);
         } elseif ($tipe_layer == 'line') {
@@ -409,15 +434,15 @@ class PetaController extends Controller
         } elseif ($tipe_layer == 'polygon') {
             return redirect()->route('admin.peta.add_data_layer_polygon', $id);
         }
-    
+
         return back()->with('error', 'Tipe layer tidak valid.');
     }
-    
+
 
     public function addDataLayerPoint(Request $request, $id)
     {
-        $id_layer = $request->segment(4); 
-        $tipe_layer = ucfirst($request->segment(5)); 
+        $id_layer = $request->segment(4);
+        $tipe_layer = ucfirst($request->segment(5));
         $layer = Layer::findOrFail($id);
         $atribut = AtributLayer::where('id_layer', $id)->get();
         $koordinat = ReferensiKoordinat::all();
@@ -428,8 +453,8 @@ class PetaController extends Controller
 
     public function addDataLayerLine(Request $request, $id)
     {
-        $id_layer = $request->segment(4); 
-        $tipe_layer = ucfirst($request->segment(5)); 
+        $id_layer = $request->segment(4);
+        $tipe_layer = ucfirst($request->segment(5));
         $layer = Layer::findOrFail($id);
         $atribut = AtributLayer::where('id_layer', $id)->get();
         $koordinat = ReferensiKoordinat::all();
@@ -440,33 +465,33 @@ class PetaController extends Controller
 
     public function addDataLayerPolygon(Request $request, $id)
     {
-        $id_layer = $request->segment(4); 
-        $tipe_layer = ucfirst($request->segment(5)); 
+        $id_layer = $request->segment(4);
+        $tipe_layer = ucfirst($request->segment(5));
         $layer = Layer::findOrFail($id);
         $atribut = AtributLayer::where('id_layer', $id)->get();
         $koordinat = ReferensiKoordinat::all();
         // kemungkinan nanti butuh data dari tabel collection
-    
+
         return view('admin.peta.tambah_data_polygon', compact('layer', 'koordinat', 'atribut', 'tipe_layer', 'id_layer'));
     }
 
     public function getKoordinat(Request $request)
     {
         $query = ReferensiKoordinat::query();
-    
+
         // Jika ada parameter pencarian (search), lakukan filter berdasarkan nama atau atribut lain
         if ($request->has('search')) {
             $query->where('nama_koordinat', 'like', '%' . $request->search . '%');
         }
-    
+
         // Filter berdasarkan tipe jika dikirimkan
         if ($request->has('type')) {
             $query->where('tipe_koordinat', $request->type);
         }
-    
+
         // Ambil data
         $data = $query->limit(10)->get();
-    
+
         // Format data sesuai kebutuhan Select2
         $formatted_data = $data->map(function ($item) {
             return [
@@ -478,10 +503,10 @@ class PetaController extends Controller
                 ]
             ];
         });
-    
+
         return response()->json($formatted_data);
     }
-    
+
     public function storePetaPoint(Request $request)
     {
         // Validasi input
@@ -499,7 +524,7 @@ class PetaController extends Controller
             'icon_name' => 'nullable|string|max:255',
             'page_detail' => 'nullable|boolean',
         ]);
-    
+
         // Simpan data ke database
         $data = Collection::create([
             'id_layer' => $request->id_layer,
@@ -535,6 +560,6 @@ class PetaController extends Controller
             'message' => 'Data berhasil disimpan!',
             'data' => $data
         ]);
-    }  
-    
+    }
+
 }

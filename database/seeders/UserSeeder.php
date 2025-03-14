@@ -10,24 +10,21 @@ class UserSeeder extends Seeder
 {
     public function run()
     {
-
-
         // Insert ke tabel user_login
         $userId = DB::table('user_login')->insertGetId([
             'user_name' => 'admin',
             'user_pass' => Hash::make('phicosdev123?'),
-
         ]);
 
         // Insert ke tabel user_detail
         DB::table('user_detail')->insert([
             'id_user' => $userId,
             'nama' => 'Super Admin',
-            'role' => '1',
+            'role' => 1,
             'id_opd' => 1,
             'is_active' => 1,
-            'ditambahkan_oleh' => 0,  // Tambahkan nilai default
-            'diupdate_oleh' => 0,     // Jika ada kolom ini, tambahkan juga
+            'ditambahkan_oleh' => $userId,
+            'diupdate_oleh' => $userId,
             'is_delete' => null,
             'no_ktp' => '123123',
             'no_hp' => '081558739861',
@@ -36,7 +33,5 @@ class UserSeeder extends Seeder
             'kecamatan' => '40303',
             'desa' => '040303AC',
         ]);
-
-
     }
 }
