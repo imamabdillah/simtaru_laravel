@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 
 
 class PetaController extends Controller
@@ -380,12 +381,15 @@ class PetaController extends Controller
         $atribut = AtributLayer::where('id_layer', $id_layer)->get();
     
         // Mengambil data nilai atribut dengan join berdasarkan id_atribut
-        $data_peta = ValueAttribut::select('tabel_value_attribut.*')
-            ->join('tabel_atribut_layer', 'tabel_atribut_layer.id_atribut', '=', 'tabel_value_attribut.id_atribut')
-            ->where('tabel_atribut_layer.id_layer', $id_layer)
-            ->get();
+        $data_peta = ValueAttribut::whereHas('collection', function ($query) use ($id_layer) {
+            $query->where('id_layer', $id_layer);
+        })
+        ->with(['atribut', 'collection'])
+        ->get()
+        ->groupBy('id_collection');
     
         return view('admin.peta.kelola_data_layer', compact('layer', 'atribut', 'data_peta'));
+        // dd($data_peta);
     }
 
     public function addDataLayer(Request $request)
@@ -513,7 +517,19 @@ class PetaController extends Controller
             'group' => $request->group,
             'add_by' => Auth::id(),
         ]);
-    
+
+        // Simpan data atribut
+        $atributs = AtributLayer::where('id_layer', $request->id_layer)->get();
+        foreach ($atributs as $atribut) {
+            ValueAttribut::create([
+                'id_atribut' => $atribut->id_atribut,
+                'id_collection' => $data->id_collection,
+                'data_value' => $request->input($atribut->slug),
+                'created' => now(),
+                'edited' => now(),
+                'add_by' => Auth::id(),
+            ]);
+        }
         return response()->json([
             'status' => 'success',
             'message' => 'Data berhasil disimpan!',

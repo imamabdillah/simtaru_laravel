@@ -48,11 +48,30 @@
                             <th style="text-align: center; width: 40px;">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody id="show_data">
+                    <tbody>
+                        @forelse ($data_peta as $id_collection => $values)
+                            <tr>
+                                <td style="text-align: center;">{{ $loop->iteration }}</td>
+                                @foreach ($atribut as $row)
+                                    @php
+                                        $nilai = $values->where('id_atribut', $row->id_atribut)->first();
+                                    @endphp
+                                    <td style="text-align: center;">{{ $nilai->data_value ?? '-' }}</td>
+                                @endforeach
+                                <td style="text-align: center;">
+                                    <button class="btn btn-warning btn-sm edit-atribut" data-id="{{ $id_collection }}"><i class="fa fa-edit"></i></button>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="{{ $atribut->count() + 2 }}" class="text-center">Tidak ada data</td>
+                            </tr>
+                        @endforelse
                     </tbody>
                 </table>
                 <!-- Table end -->
             </div>
+            
         </div>
         
         @else
