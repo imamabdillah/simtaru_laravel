@@ -422,7 +422,7 @@ class PetaController extends Controller
         $atribut = AtributLayer::where('id_layer', $id)->get();
         $koordinat = ReferensiKoordinat::all();
         $data_icon = ReferensiIcon::all();
-        // kyknya nanti butuh collection dari tabel collection
+        
         return view('admin.peta.tambah_data_point', compact('layer', 'data_icon', 'koordinat', 'atribut', 'tipe_layer', 'id_layer'));
     }
 
@@ -433,9 +433,9 @@ class PetaController extends Controller
         $layer = Layer::findOrFail($id);
         $atribut = AtributLayer::where('id_layer', $id)->get();
         $koordinat = ReferensiKoordinat::all();
-        // kyknya nanti butuh collection dari tabel collection
+        $data_icon = ReferensiIcon::all();
 
-        return view('admin.peta.tambah_data_line', compact('layer', 'koordinat', 'tipe_layer', 'atribut', 'id_layer'));
+        return view('admin.peta.tambah_data_line', compact('layer', 'data_icon', 'koordinat', 'atribut', 'tipe_layer', 'id_layer'));
     }
 
     public function addDataLayerPolygon(Request $request, $id)

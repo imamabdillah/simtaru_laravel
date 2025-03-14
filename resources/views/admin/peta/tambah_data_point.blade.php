@@ -189,9 +189,9 @@
                                     <div class="col-lg-8">
                                         <select  id="icon_name" name="icon_name" class="form-control" style="width: 100%;">
                                             <option data-img="default" value="default">default</option>
-                                            <?php foreach($data_icon as $icon): ?>
-                                                <option data-img="<?=$icon['nama_icon']?>" value="<?=$icon['nama_icon']?>"><?=$icon['nama_icon']?></option>
-                                            <?php endforeach;?>
+                                            @foreach ($data_icon as $icon)
+                                                <option data-img="{{ $icon->nama_icon }}" value="{{ $icon->nama_icon }}">{{ $icon->nama_icon }}</option>
+                                            @endforeach
                                         </select>
                                     </div>
                                 </div>
@@ -393,7 +393,7 @@ function init_map()
         
         if (!state.id) { return state.text; }
         var $state = $(
-            '<span ><img class="select2_img" style="display: inline-block;" src="{{ asset("assets/uploads/marker_icon/") }}'+icon+'.png" /> ' + state.text + '</span>'
+            '<span><img class="select2_img" style="display: inline-block;" src="'+ '{{ asset("assets/uploads/marker_icon/") }}/' + icon + '.png" /> ' + state.text + '</span>'
         );
         return $state;
     }
