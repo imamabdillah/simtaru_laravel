@@ -60,7 +60,7 @@
                                 </div>
                                 <hr>
                                 <input type="hidden" name="id_layer" value="{{ $id_layer }}">
-                                <input type="hidden" name="tipe_layer" value="LineString">
+                                <input type="hidden" name="tipe_layer" value="Polygon">
                                 <?php foreach ($atribut as $item) { ?>
                                 <div class="form-group row">
                                     <label class="col-lg-4 col-form-label" for="<?= $item->slug; ?>"><?= $item->nama_atribut; ?> <span class="text-danger">*</span></label>
@@ -232,3 +232,278 @@
 <script src="{{ asset('assets_front/js/leaflet-esri.js') }}"></script>
 <script src="{{ asset('assets_front/js/leaflet.draw.js') }}"></script>
 
+<script>
+var map;
+var active_basemap = 'osm';
+var basemap = {};
+var coords = '';
+
+$(document).ready(function(){
+    init_map();
+})
+
+function init_map()
+{
+    map = L.map('map',{
+        attributionControl: false,
+        zoomControl: false
+    }).setView([-6.868354, 109.131658], 13);
+    basemap = {
+        osm: L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+        }).addTo(map),
+        google_roadmap: L.tileLayer('https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',{
+            maxZoom: 20,
+            subdomains:['mt0','mt1','mt2','mt3']
+        }),
+        google_satellite: L.tileLayer('https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',{
+            maxZoom: 20,
+            subdomains:['mt0','mt1','mt2','mt3']
+        }),
+        google_hybrid: L.tileLayer('https://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}',{
+            maxZoom: 20,
+            subdomains:['mt0','mt1','mt2','mt3']
+        }),
+        google_terrain: L.tileLayer('https://{s}.google.com/vt/lyrs=p&x={x}&y={y}&z={z}',{
+            maxZoom: 20,
+            subdomains:['mt0','mt1','mt2','mt3']
+        }),
+        esri_world_imagery: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{
+            maxZoom: 17
+        }),
+        esri_world_street_map: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}'),
+        esri_world_topo_map: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}'),
+        citra_satelit: L.esri.imageMapLayer({
+            url: 'https://portal.ina-sdi.or.id/arcgis/rest/services/CITRASATELIT/JawaBaliNusra_2015_ImgServ1/ImageServer',
+            attribution : 'Badan Informasi Geospasial'
+        }),
+        peta_rbi: L.esri.dynamicMapLayer({
+            url: 'https://portal.ina-sdi.or.id/arcgis/rest/services/IGD/RupabumiIndonesia/MapServer',
+            attribution : 'Badan Informasi Geospasial'
+        }),
+        peta_rbi_opensource: L.tileLayer.wms('http://palapa.big.go.id:8080/geoserver/gwc/service/wms',{
+            maxZoom : 20,
+            layers : "basemap_rbi:basemap",
+            format : "image/png",
+            attribution : 'Badan Informasi Geospasial'
+        })
+    }
+
+    L.control.layers(basemap).addTo(map);
+
+    let el = L.featureGroup();
+    map.addLayer(el);
+
+    let draw_options = {
+        position: 'topleft',
+        draw: {
+            rectangle: false,
+            circle: false,
+            circlemarker: false,
+            polyline: false,
+            marker: false,
+            polygon: true
+        },
+        edit: {
+            featureGroup: el
+        }
+    }
+
+    let draw_options_edit = {
+        position: 'topleft',
+        draw: {
+            rectangle: false,
+            circle: false,
+            circlemarker: false,
+            polyline: false,
+            marker: false,
+            polygon: false
+        },
+        edit: {
+            featureGroup: el
+        }
+    }
+
+    let draw_control = new L.Control.Draw(draw_options);
+    let draw_control_edit = new L.Control.Draw(draw_options_edit);
+
+    if(el.getLayers().length > 0)
+    {
+        map.addControl(draw_control_edit);
+    }
+    else
+    {
+        map.addControl(draw_control);
+    }
+
+    map.on('draw:created',(e)=>{
+        let l = e.layer;
+        l.addTo(el);
+        to_geojson_coordinates(l);
+
+        draw_control.remove(map);
+        draw_control_edit.addTo(map);
+    })
+
+    map.on('draw:edited',(e)=>{
+        let l = e.layers.getLayers()[0];
+        to_geojson_coordinates(l);
+    })
+
+    map.on('draw:deleted',(e)=>{
+        if(el.getLayers().length == 0)
+        {
+            draw_control_edit.remove(map);
+            draw_control.addTo(map);
+            $('#pilih_koordinat').val('').trigger('change');
+        }
+    })
+
+    var pilih_koordinat = '';
+    $('#pilih_koordinat').change(function(){
+        let val = $(this).val();
+        if(val>0)
+        {
+            $.ajax({
+                url: '{{ url("admin/peta/get_koordinat") }}',
+                type: 'GET',
+                dataType: 'JSON',
+                data: {id: val, type: 'Polygon'}
+            })
+            .then(res=>{
+                let x = [{
+                    "type": res.data.tipe_koordinat,
+                    "coordinates": JSON.parse(res.data.koordinat)
+                }]
+                pilih_koordinat = x;
+                if(pilih_koordinat != '')
+                {
+                    let el_first = el._layers[Object.keys(el._layers)[0]];
+
+                    if(typeof el_first != 'undefined')
+                    {
+                        el_first.remove(map);
+                        el.removeLayer(el_first);
+                    }
+                    
+                    let koordinat = L.geoJSON(pilih_koordinat);
+                    let koord = koordinat._layers[[Object.keys(koordinat._layers)[0]]];
+                    koord.addTo(el);
+                    map.flyToBounds(koord.getBounds());
+                    draw_control.remove(map);
+                    draw_control_edit.addTo(map);
+                    coords = res.data.koordinat;
+                }
+                else
+                {
+                    coords = '';
+                }
+            })
+        }
+        else
+        {
+            let el_first = el._layers[Object.keys(el._layers)[0]];
+
+            if(typeof el_first != 'undefined')
+            {
+                el_first.remove(map);
+                el.removeLayer(el_first);
+                draw_control_edit.remove(map);
+                draw_control.addTo(map);
+            }
+        }
+    })
+
+    function to_geojson_coordinates(l){
+        let geojson = l.toGeoJSON();
+        let coordinates = JSON.stringify(geojson.geometry.coordinates);
+        let type = geojson.geometry.type;
+        coords = coordinates;
+    }
+}
+</script>
+<script>
+
+    $(document).ready(function(){
+        
+        $('#icon_name').select2({
+            templateResult: formatState,
+            templateSelection: formatState
+        });
+        // $('#pilih_koordinat').select2();
+        $('#pilih_koordinat').select2({
+            ajax: {
+                url: '{{ route("admin.peta.ref_koordinat") }}',
+                dataType: 'JSON',
+                data: function(d){
+                    let q = {
+                        search: d.term,
+                        type: '{{ request()->segment(5) }}'
+                    }
+                    return q;
+                },
+                delay: 500
+            }
+        });
+
+        $('#tambah_data_peta').on('submit', function(e){
+            e.preventDefault();
+            console.log('tombol submit ditekan');
+            if(typeof coords === 'undefined' || coords == '')
+            {
+                Swal.fire({
+                    title : 'Gagal!',
+                    text : 'Koordinat lokasi tidak terdeteksi',
+                    icon: 'error'
+                });
+            }
+            else
+            {
+                var coord = coords;
+                var form_data = new FormData(this);
+                form_data.append('coordinates', coord);
+                $.ajax({
+                    url: '{{ route("admin.peta.simpan_data_peta_polygon") }}',
+                    type: "post",
+                    data: form_data,
+                    processData: false,
+                    contentType: false,
+                    cache: false,
+                    success: function(response){
+                        Swal.fire({
+                            title : 'Sukses!',
+                            text : 'Data berhasil disimpan!',
+                            icon: 'success',
+                            timer: 1500
+                        });
+                        window.location.replace("{{ url('admin/peta/kelola/'.request()->segment(4)) }}");
+                    }
+                });
+                return false;
+            }
+        });
+
+    })
+
+    function formatState (state) {
+        var icon;
+        if(state.text != 'Searching…')
+        {
+            icon = state.element.attributes['data-img'].value;
+        }
+        
+        if (!state.id) { return state.text; }
+        var $state = $(
+            '<span><img class="select2_img" style="display: inline-block;" src="'+ '{{ asset("assets/uploads/marker_icon/") }}/' + icon + '.png" /> ' + state.text + '</span>'
+        );
+        return $state;
+    }
+    $('.angka-saja').keyup(function(e) {
+        if (/\D/g.test(this.value))
+        {
+            this.value = this.value.replace(/\D/g, '');
+        }
+    });
+
+
+</script>

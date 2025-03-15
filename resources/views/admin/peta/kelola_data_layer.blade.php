@@ -59,7 +59,9 @@
                                     <td style="text-align: center;">{{ $nilai->data_value ?? '-' }}</td>
                                 @endforeach
                                 <td style="text-align: center;">
-                                    <button class="btn btn-warning btn-sm edit-atribut" data-id="{{ $id_collection }}"><i class="fa fa-edit"></i></button>
+                                    <a href="{{ route('admin.peta.edit_data_layer', $id_collection) }}" class="btn btn-warning btn-sm">
+                                        <i class="fa fa-edit"></i>
+                                    </a>
                                 </td>
                             </tr>
                         @empty
@@ -248,5 +250,21 @@
 
             $('#modal-popin').modal('show');
         });
+
+        $(document).on('click', '.btn-import-data', function () {
+            $('#modal-import').modal('show');
+        });
+
+        $(document).on('click', '.btn-export-data', function () {
+            $('#modal-template').modal('show');
+        });
+
+        $(document).on('click', '.edit-atribut', function () {
+            var url = $(this).data('url');
+            window.location.href = url;
+        });
+
+
+
     });
 </script>

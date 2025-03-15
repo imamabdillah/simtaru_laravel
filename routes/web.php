@@ -67,8 +67,18 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
         Route::get('/tambah_data_peta/{id}/linestring', [PetaController::class, 'addDataLayerLine'])->name('admin.peta.add_data_layer_line');
         Route::get('/tambah_data_peta/{id}/polygon', [PetaController::class, 'addDataLayerPolygon'])->name('admin.peta.add_data_layer_polygon');
         Route::get('/kelola/{id_layer}', [PetaController::class, 'kelolaDataLayer'])->name('admin.peta.kelola_data_layer');
-        Route::post('/tambah_data_peta', [PetaController::class, 'storePetaPoint'])->name('admin.peta.simpan_data_peta_point');
-        Route::post('/tambah_data_peta', [PetaController::class, 'storePetaLine'])->name('admin.peta.simpan_data_peta_line');
+        Route::post('/tambah_data_peta_point', [PetaController::class, 'storePetaPoint'])->name('admin.peta.simpan_data_peta_point');
+        Route::post('/tambah_data_peta_stringline', [PetaController::class, 'storePetaLine'])->name('admin.peta.simpan_data_peta_line');
+        Route::post('/tambah_data_peta_polygon', [PetaController::class, 'storePetaPolygon'])->name('admin.peta.simpan_data_peta_polygon');
+
+        // Edit Data Layer Management
+        // Route::get('/edit_data_peta/{id_collection}', [PetaController::class, 'editDataLayer'])->name('admin.peta.edit_data_layer');
+        Route::get('/edit_data_peta/{id_collection}', [PetaController::class, 'editDataLayer2'])
+        ->name('admin.peta.edit_data_layer');
+        Route::get('/edit_data_peta/point/{id}', [PetaController::class, 'editDataLayerPoint'])->name('admin.peta.edit_data_layer_point');
+        Route::get('/edit_data_peta/line/{id}', [PetaController::class, 'editDataLayerLine'])->name('admin.peta.edit_data_layer_line');
+        Route::get('/edit_data_peta/polygon/{id}', [PetaController::class, 'editDataLayerPolygon'])->name('admin.peta.edit_data_layer_polygon');
+
 
 
         // Koordinat Management
