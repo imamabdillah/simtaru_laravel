@@ -292,9 +292,10 @@ function init_map()
         to_geojson_coordinates(l);
     });
 
-    function to_geojson_coordinates(l){
+    function to_geojson_coordinates(l) {
         let geojson = l.toGeoJSON();
-        coords = JSON.stringify(geojson.geometry.coordinates);
+        let coordinates = JSON.stringify(geojson.geometry.coordinates);
+        coords = coordinates;
     }
 
     $('#pilih_koordinat').change(function(){
