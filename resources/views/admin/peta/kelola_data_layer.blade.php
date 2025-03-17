@@ -65,6 +65,9 @@
                                     <a class="btn btn-warning btn-sm btn-edit-data" data-id-collection="{{ $id_collection }}" data-id-layer="{{ $layer->id_layer }}">
                                         <i class="fa fa-edit"></i>
                                     </a>
+                                    <button type="button" class="btn btn-sm btn-danger mb-10 item_hapus" data-id-collection="{{ $id_collection }}" title="Hapus Data"><i class="fa fa-trash"></i></button>
+
+                                    </button>
                                 </td>
                             </tr>
                         @empty
@@ -245,6 +248,8 @@
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 
 
 <script>
@@ -291,8 +296,59 @@
             });
         });
 
-
-
+        $(document).on('click', '.item_hapus', function (e) {
+            e.preventDefault();
+            var id_collection = $(this).data('id-collection');
+            console.log('Button hapus diklik, ID:', id_collection); // Debugging
+            hapus_data(id_collection);
+        });
 
     });
+
+    function hapus_data(id_collection) {
+        Swal.fire({
+            title: 'Apakah anda yakin?',
+            text: "Apakah anda yakin akan menghapus data ini?",
+            type: "warning",
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            confirmButtonText: 'Hapus sekarang!',
+            cancelButtonColor: '#d33',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.value) {
+                console.log('User mengonfirmasi penghapusan'); // Debugging
+                $.ajax({
+                    type: 'POST',  // Laravel tidak bisa menerima DELETE dengan data, ubah ke POST
+                    url: '{{ url("admin/peta/hapus_data_peta") }}/' + id_collection,
+                    data: {
+                        _method: 'DELETE', // Kirimkan method DELETE secara eksplisit
+                        _token: '{{ csrf_token() }}'
+                    },
+                    success: function (response) {
+                        console.log('AJAX sukses:', response); // Debugging
+                        Swal.fire(
+                            'Terhapus!',
+                            'Data yang dipilih telah dihapus!',
+                            'success'
+                        ).then(() => {
+                            location.reload(); // Reload halaman setelah sukses
+                        });
+                    },
+                    error: function (xhr, status, error) {
+                        console.log('AJAX error:', xhr.responseText); // Debugging
+                        Swal.fire(
+                            'Error!',
+                            'Terjadi kesalahan saat menghapus data.',
+                            'error'
+                        );
+                    }
+                });
+            }
+        });
+    }
+
+
+
+
 </script>

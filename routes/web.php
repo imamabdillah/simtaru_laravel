@@ -71,16 +71,17 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
         Route::post('/tambah_data_peta_point', [PetaController::class, 'storePetaPoint'])->name('admin.peta.simpan_data_peta_point');
         Route::post('/tambah_data_peta_stringline', [PetaController::class, 'storePetaLine'])->name('admin.peta.simpan_data_peta_line');
         Route::post('/tambah_data_peta_polygon', [PetaController::class, 'storePetaPolygon'])->name('admin.peta.simpan_data_peta_polygon');
+        Route::delete('/hapus_data_peta/{id_collection}', [PetaController::class, 'hapusDataPeta'])->name('admin.peta.hapus_data_peta');
 
+    
+
+        
         // Edit Data Layer Management
-        // Route::get('/edit_data_peta/{id_collection}', [PetaController::class, 'editDataLayer'])->name('admin.peta.edit_data_layer');
-        // Route::get('/edit_data_peta/{id_collection}', [PetaController::class, 'editDataLayer2'])->name('admin.peta.edit_data_layer');
         Route::get('/edit_data_peta/{id_layer}/{tipe_layer}/{id_collection}', [PetaController::class, 'editDataLayer3'])
         ->name('admin.peta.edit_data_layer_3');
         Route::get('/edit_data_peta/point/{id}', [PetaController::class, 'editDataLayerPoint'])->name('admin.peta.edit_data_layer_point');
         Route::get('/edit_data_peta/line/{id}', [PetaController::class, 'editDataLayerLine'])->name('admin.peta.edit_data_layer_line');
         Route::get('/edit_data_peta/polygon/{id}', [PetaController::class, 'editDataLayerPolygon'])->name('admin.peta.edit_data_layer_polygon');
-        // Route::put('/update_data_peta_point/{id_collection}', [PetaController::class, 'updateDataLayerPoint'])->name('admin.peta.update_data_layer_point');
         Route::put('/update_data_peta/{id_collection}', [PetaController::class, 'updateDataLayer'])->name('admin.peta.update_data_layer');
         Route::get('/edit_data_peta_geojson/{id}', [PetaController::class, 'editDataPetaGeojson']);
         Route::get('/get_koordinat', [PetaController::class, 'getKoordinat'])->name('admin.peta.ref_koordinat');

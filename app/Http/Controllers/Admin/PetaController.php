@@ -851,6 +851,26 @@ class PetaController extends Controller
         ]);
     }
 
+    public function hapusDataPeta($id_collection)
+    {
+        try {
+            // Cek apakah data ada
+            $data = Collection::where('id_collection', $id_collection)->first();
+            if (!$data) {
+                return response()->json(['status' => 'error', 'message' => 'Data tidak ditemukan.'], 404);
+            }
+    
+            // Hapus data
+            $data->delete();
+    
+            return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus.']);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => 'Terjadi kesalahan: ' . $e->getMessage()], 500);
+        }
+    }
+    
+      
+
     
 
 }
