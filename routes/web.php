@@ -82,19 +82,10 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
         Route::get('/edit_data_peta/polygon/{id}', [PetaController::class, 'editDataLayerPolygon'])->name('admin.peta.edit_data_layer_polygon');
         // Route::put('/update_data_peta_point/{id_collection}', [PetaController::class, 'updateDataLayerPoint'])->name('admin.peta.update_data_layer_point');
         Route::put('/update_data_peta/{id_collection}', [PetaController::class, 'updateDataLayer'])->name('admin.peta.update_data_layer');
-
-
-
-
-
-
         Route::get('/edit_data_peta_geojson/{id}', [PetaController::class, 'editDataPetaGeojson']);
-
-
-
-
-        // Koordinat Management
         Route::get('/get_koordinat', [PetaController::class, 'getKoordinat'])->name('admin.peta.ref_koordinat');
+        Route::get('/get_detail_page_status/{id_collection}', [PetaController::class, 'getStatusDetailPage']);
+
 
 
 

@@ -721,101 +721,6 @@ class PetaController extends Controller
         }
     }
 
-    public function editDataLayer($id_collection)
-    {
-        // Ambil data collection dan pastikan ada relasi ke layer
-        $collection = Collection::with('layer')->findOrFail($id_collection);
-    
-        // Ambil id_layer dan tipe_layer dari hasil query
-        $tipe_layer = $collection->tipe_layer; 
-    
-        // Redirect berdasarkan tipe layer
-        if ($tipe_layer == 'Point') {
-            return redirect()->route('admin.peta.edit_data_layer_point', $id_collection);
-        } elseif ($tipe_layer == 'LineString') {
-            return redirect()->route('admin.peta.edit_data_layer_line', $id_collection);
-        } elseif ($tipe_layer == 'Polygon') {
-            return redirect()->route('admin.peta.edit_data_layer_polygon', $id_collection);
-        } else {
-            return back()->with('error', 'Tipe layer tidak valid.');
-        }
-    
-    }
-    
-
-    public function editDataLayerPoint($id_collection)
-    {
-        // Ambil data collection beserta layer & atribut
-        $collection = Collection::with(['layer'])->findOrFail($id_collection);
-        $id_layer = $collection->id_layer;
-        $layer = $collection->layer;
-        $tipe_layer = $collection->tipe_layer;
-        $atribut = AtributLayer::where('id_layer', $id_layer)->get();
-        $koordinat = ReferensiKoordinat::all();
-        $data_icon = ReferensiIcon::all();
-    
-        return view('admin.peta.edit_data_point', compact('collection', 'layer', 'data_icon', 'koordinat', 'atribut', 'id_layer', 'tipe_layer'));
-    }
-    
-    public function editDataLayerLine($id_collection)
-    {
-        $collection = Collection::with(['layer'])->findOrFail($id_collection);
-        $id_layer = $collection->id_layer;
-        $layer = $collection->layer;
-        $tipe_layer = $collection->tipe_layer;
-        $atribut = AtributLayer::where('id_layer', $id_layer)->get();
-        $koordinat = ReferensiKoordinat::all();
-        $data_icon = ReferensiIcon::all();
-    
-        return view('admin.peta.edit_data_line', compact('collection', 'tipe_layer', 'layer', 'data_icon', 'koordinat', 'atribut', 'id_layer'));
-    }
-    
-    public function editDataLayerPolygon($id_collection)
-    {
-        $collection = Collection::with(['layer'])->findOrFail($id_collection);
-        $id_layer = $collection->id_layer;
-        $layer = $collection->layer;
-        $tipe_layer = $collection->tipe_layer;
-        $atribut = AtributLayer::where('id_layer', $id_layer)->get();
-        $koordinat = ReferensiKoordinat::all();
-    
-        return view('admin.peta.edit_data_polygon', compact('collection', 'tipe_layer' , 'layer', 'koordinat', 'atribut', 'id_layer'));
-    }
-
-    public function editDataLayer2($id_collection)
-    {
-        // Ambil data collection beserta layer & atribut
-        // $collection = Collection::with(['layer'])->findOrFail($id_collection);
-        $collection = Collection::findOrFail($id_collection);
-        $id_layer = $collection->id_layer;
-        $layer = $collection->layer;
-        $tipe_layer = $collection->tipe_layer;
-        $atribut = AtributLayer::where('id_layer', $id_layer)->get();
-        $koordinat = ReferensiKoordinat::all();
-        $data_icon = ReferensiIcon::all(); // Untuk point & line
-        
-        
-        // Tentukan view berdasarkan tipe layer
-        $view = match ($tipe_layer) {
-            'Point'   => 'admin.peta.edit_data_point',
-            'LineString'    => 'admin.peta.edit_data_line',
-            'Polygon' => 'admin.peta.edit_data_polygon',
-            default   => null
-        };
-    
-        // Jika tipe layer tidak valid, kembali dengan error
-        if (!$view) {
-            return back()->with('error', 'Tipe layer tidak valid.');
-        }
-    
-        // Tentukan data tambahan berdasarkan tipe layer
-        $data = compact('collection', 'layer', 'koordinat', 'atribut', 'id_layer');
-        if (in_array($tipe_layer, ['point', 'line'])) {
-            $data['data_icon'] = $data_icon;
-        }
-    
-        return view($view, $data);
-    }
 
     public function editDataLayer3($id_layer, $tipe_layer, $id_collection)
     {
@@ -928,6 +833,24 @@ class PetaController extends Controller
                 throw $th;
             }
     }
+
+    public function getStatusDetailPage($id_collection)
+    {
+        $data = Collection::find($id_collection);
+
+        if (!$data) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Data tidak ditemukan!'
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $data
+        ]);
+    }
+
     
 
 }

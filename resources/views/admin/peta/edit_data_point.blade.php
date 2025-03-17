@@ -158,7 +158,7 @@
                                 </div>
     
                                 <!-- Input Map Feature Styles | Line / LineString -->
-                                @elseif(request()->segment(5) == 'line')
+                                @elseif(request()->segment(5) == 'LineString')
                                 <div class="form-group row">
                                     <label class="col-lg-4 col-form-label" for="stroke">Stroke <span class="text-danger">*</span></label>
                                     <div class="col-lg-8">
@@ -216,7 +216,8 @@
                                 <div class="form-group row">
                                     <div class="col-lg-12">
                                         <label class="css-control css-control-success css-checkbox">
-                                            <input type="checkbox" name="page_detail" class="css-control-input" {{ $collection->page_detail ? 'checked' : '' }}>
+                                            <input type="hidden" name="page_detail" value="0">
+                                            <input type="checkbox" name="page_detail" class="css-control-input" id="page_detail" value="1" data-id-collection="{{ request()->segment(6) }}">                                            
                                             <span class="css-control-indicator"></span> Aktifkan Fitur Halaman Detail
                                         </label>
                                     </div>
@@ -509,6 +510,31 @@ function init_map() {
     $('.angka-saja').on('keyup', function(){
         this.value = this.value.replace(/\D/g, '');
     });
+
+    $(document).ready(function () {
+        var id_collection = $('#page_detail').data('id-collection'); // Pastikan elemen memiliki atribut data-id-collection
+
+        $.ajax({
+            url: '{{ url("admin/peta/get_detail_page_status") }}/' + id_collection,
+            type: 'GET',
+            dataType: 'json',
+            success: function (response) {
+                if (response.status === 'success') {
+                    var pageDetailValue = response.data.page_detail;
+
+                    // Set status checkbox sesuai dengan nilai dari server
+                    $('#page_detail').prop('checked', pageDetailValue == 1);
+                } else {
+                    alert('Gagal mengambil data layer.');
+                }
+            },
+            error: function () {
+                alert('Terjadi kesalahan saat mengambil data.');
+            }
+        });
+    });
+
+
     
 </script>
     
