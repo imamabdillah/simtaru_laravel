@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Response;
 
 
 class PetaController extends Controller
@@ -869,7 +870,49 @@ class PetaController extends Controller
         }
     }
     
-      
+    public function importTemplate(Request $request, $id_layer)
+    {
+        // Ambil atribut berdasarkan id_layer
+        $atributLayer = AtributLayer::where('id_layer', $id_layer)->get();
+
+        $geo = [
+            'type' => 'FeatureCollection',
+            'features' => [
+                [
+                    'type' => 'Feature',
+                    'properties' => [
+                        'name' => 'Nama Feature',
+                        'group' => null,
+                        'stroke' => '#000000',
+                        'stroke_opacity' => 1,
+                        'stroke_width' => 2,
+                        'fill' => '#777777',
+                        'fill_opacity' => 0.2,
+                        'icon_name' => null
+                    ],
+                    'geometry' => [
+                        'type' => 'Polygon',
+                        'coordinates' => [
+                            [
+                                [110.82824680175781, -7.568517689091984],
+                                [110.82824680175781, -7.571517689091984],
+                                [110.83024680175781, -7.571517689091984],
+                                [110.83024680175781, -7.568517689091984],
+                                [110.82824680175781, -7.568517689091984]
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ];
+
+        // Tambahkan atribut layer ke dalam properties
+        foreach ($atributLayer as $atribut) {
+            $geo['features'][0]['properties'][$atribut->nama_atribut] = 'isi ' . $atribut->nama_atribut;
+        }
+
+        return Response::json($geo, 200, [], JSON_PRETTY_PRINT);
+    }
 
     
 

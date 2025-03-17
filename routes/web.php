@@ -37,6 +37,7 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
         Route::get('/edit_layer/{id}', [PetaController::class, 'editLayer'])->name('admin.peta.edit_layer');
         Route::post('/update_layer/{id}', [PetaController::class, 'updateLayer'])->name('admin.peta.update_layer');
 
+
         // kelola data layer
 
 
@@ -86,6 +87,7 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
         Route::get('/edit_data_peta_geojson/{id}', [PetaController::class, 'editDataPetaGeojson']);
         Route::get('/get_koordinat', [PetaController::class, 'getKoordinat'])->name('admin.peta.ref_koordinat');
         Route::get('/get_detail_page_status/{id_collection}', [PetaController::class, 'getStatusDetailPage']);
+        Route::get('/import_template/{id_layer}', [PetaController::class, 'importTemplate']);
 
 
 

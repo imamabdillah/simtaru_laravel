@@ -218,7 +218,9 @@
                             </div>
                         </div>
                         <div class="block-content">
-                            <div id="template_geojson" class="form-group row" style="padding:20px">
+                            <div 
+                            {{-- id="template_geojson" --}}
+                             class="form-group row" style="padding:20px">
                                 <input type="hidden" name="id_collection" id="id_collection">
                                 <div class="row items-push js-gallery img-fluid-100" id="form_tempat_foto">
 
@@ -303,6 +305,37 @@
             hapus_data(id_collection);
         });
 
+    //     $('#btn_import_template').on('click', function(e){
+    //     $.ajax({
+    //         url: '{{ url("admin/peta/import_template") }}',
+    //         type: "POST",
+    //         dataType: 'JSON'
+    //     })
+    //     .done(res=>{
+    //         let html  = '<pre>';
+    //             html += JSON.stringify(res, undefined, 2);
+    //             html += '<pre>';
+    //         $('#template_geojson').html(html);
+    //     })
+    // });
+
+    $('#btn_import_template').on('click', function(e) {
+        let idLayer = {{ request()->segment(4) }}; // Ambil ID layer dari blade template
+
+        $.ajax({
+            url: "/admin/peta/import_template/" + idLayer,
+            type: "GET",
+            dataType: "JSON"
+        })
+        .done(res => {
+            let html = '<pre>' + JSON.stringify(res, undefined, 2) + '</pre>';
+            $('#template_geojson').html(html);
+        })
+        .fail(err => {
+            console.error("Terjadi kesalahan:", err);
+        });
+    });
+
     });
 
     function hapus_data(id_collection) {
@@ -347,6 +380,7 @@
             }
         });
     }
+
 
 
 
