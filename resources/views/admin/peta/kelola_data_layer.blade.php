@@ -58,8 +58,11 @@
                                     @endphp
                                     <td style="text-align: center;">{{ $nilai->data_value ?? '-' }}</td>
                                 @endforeach
-                                <td style="text-align: center;">
-                                    <a href="{{ route('admin.peta.edit_data_layer', $id_collection) }}" class="btn btn-warning btn-sm">
+                                <td style="text-align: center;" >
+                                    {{-- <a href="{{ route('admin.peta.edit_data_layer', $id_collection) }}" class="btn btn-warning btn-sm btn-edit-data" data-id-collection="{{ $id_collection }}" data-id-layer="{{ $layer->id_layer }}">
+                                        <i class="fa fa-edit"></i>
+                                    </a> --}}
+                                    <a href="{{ route('admin.peta.edit_data_layer', $id_collection) }}" class="btn btn-warning btn-sm btn-edit-data" data-id-collection="{{ $id_collection }}" data-id-layer="{{ $layer->id_layer }}">
                                         <i class="fa fa-edit"></i>
                                     </a>
                                 </td>
@@ -259,10 +262,35 @@
             $('#modal-template').modal('show');
         });
 
-        $(document).on('click', '.edit-atribut', function () {
-            var url = $(this).data('url');
-            window.location.href = url;
+        // $(document).on('click', '.edit-atribut', function () {
+        //     var url = $(this).data('url');
+        //     window.location.href = url;
+        // });
+
+        $(document).on('click', '.btn-edit-data', function (e) {
+            e.preventDefault();
+            
+            var id_collection = $(this).data('id-collection');
+            var id_layer = $(this).data('id-layer');
+
+            $.ajax({
+                url: '{{ url('admin/peta/get_tipe_layer') }}/' + id_collection,
+                type: 'GET',
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        var tipe_layer = response.tipe_layer;
+                        window.location.href = '{{ url('admin/peta/edit_data_peta') }}/' + id_layer + '/' + tipe_layer + '/' + id_collection;
+                    } else {
+                        alert('Tipe layer tidak ditemukan.');
+                    }
+                },
+                error: function() {
+                    alert('Terjadi kesalahan saat mengambil tipe layer.');
+                }
+            });
         });
+
 
 
 

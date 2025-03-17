@@ -309,7 +309,7 @@ function init_map() {
     let draw_control = new L.Control.Draw(draw_options);
     let draw_control_edit = new L.Control.Draw(draw_options_edit);
 
-    var geojson_url = '{{ url("admin/peta/edit_data_peta_geojson") }}/{{ request()->segment(4) }}';
+    var geojson_url = '{{ url("admin/peta/edit_data_peta_geojson") }}/{{ request()->segment(6) }}';
     $.getJSON(geojson_url, function(data) {
         console.log("Data GeoJSON:", data);
         L.geoJSON(data, {
