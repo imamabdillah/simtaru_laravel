@@ -74,16 +74,15 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
 
         // Edit Data Layer Management
         // Route::get('/edit_data_peta/{id_collection}', [PetaController::class, 'editDataLayer'])->name('admin.peta.edit_data_layer');
-        Route::get('/edit_data_peta/{id_collection}', [PetaController::class, 'editDataLayer2'])->name('admin.peta.edit_data_layer');
+        // Route::get('/edit_data_peta/{id_collection}', [PetaController::class, 'editDataLayer2'])->name('admin.peta.edit_data_layer');
+        Route::get('/edit_data_peta/{id_layer}/{tipe_layer}/{id_collection}', [PetaController::class, 'editDataLayer3'])
+        ->name('admin.peta.edit_data_layer_3');
         Route::get('/edit_data_peta/point/{id}', [PetaController::class, 'editDataLayerPoint'])->name('admin.peta.edit_data_layer_point');
         Route::get('/edit_data_peta/line/{id}', [PetaController::class, 'editDataLayerLine'])->name('admin.peta.edit_data_layer_line');
         Route::get('/edit_data_peta/polygon/{id}', [PetaController::class, 'editDataLayerPolygon'])->name('admin.peta.edit_data_layer_polygon');
+        Route::put('/update_data_peta_point/{id_collection}', [PetaController::class, 'updateDataLayerPoint'])->name('admin.peta.update_data_layer_point');
 
 
-        // tes ke halaman edit data layer 2
-
-        Route::get('/edit_data_peta/{id_layer}/{tipe_layer}/{id_collection}', [PetaController::class, 'editDataLayer3'])
-        ->name('admin.peta.edit_data_layer_3');
 
 
 

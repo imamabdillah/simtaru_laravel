@@ -62,7 +62,7 @@
                                     {{-- <a href="{{ route('admin.peta.edit_data_layer', $id_collection) }}" class="btn btn-warning btn-sm btn-edit-data" data-id-collection="{{ $id_collection }}" data-id-layer="{{ $layer->id_layer }}">
                                         <i class="fa fa-edit"></i>
                                     </a> --}}
-                                    <a href="{{ route('admin.peta.edit_data_layer', $id_collection) }}" class="btn btn-warning btn-sm btn-edit-data" data-id-collection="{{ $id_collection }}" data-id-layer="{{ $layer->id_layer }}">
+                                    <a class="btn btn-warning btn-sm btn-edit-data" data-id-collection="{{ $id_collection }}" data-id-layer="{{ $layer->id_layer }}">
                                         <i class="fa fa-edit"></i>
                                     </a>
                                 </td>

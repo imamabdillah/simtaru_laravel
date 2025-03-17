@@ -44,7 +44,9 @@
                 <div class="block-content">
                     <div class="row justify-content-center py-20">
                         <div class="col-xl-6">
-                            <form method="post" id="edit_data_peta">
+                            <form method="POST" id="edit_data_peta" 
+                            action="{{ route('admin.peta.update_data_layer_point', ['id_collection' => $collection->id_collection]) }}"
+                            enctype="multipart/form-data">
                                 @csrf
                                 <div class="form-group row">
                                     <label class="col-lg-4 col-form-label" for="pilih_koordinat">Pilih Koordinat</label>
@@ -56,6 +58,7 @@
                                     </div>
                                 </div>
                                 <hr>
+                                
                                 <input type="hidden" name="id_layer" value="{{ $id_layer }}">
                                 <input type="hidden" name="tipe_layer" value="Point">
                                 <input type="hidden" name="id_collection" value="{{ $collection->id_collection }}">
@@ -441,20 +444,8 @@ function init_map() {
                 }
             }
         });
-    });
-    
-    function formatState(state) {
-        if (!state.id) { return state.text; }
-        var icon = state.element ? state.element.getAttribute('data-img') : '';
-        var $state = $(`<span><img class="select2_img" style="display: inline-block;" src="{{ url('assets/uploads/marker_icon') }}/${icon}.png" /> ${state.text}</span>`);
-        return $state;
-    }
-    
-    $('.angka-saja').on('keyup', function(){
-        this.value = this.value.replace(/\D/g, '');
-    });
-    
-    $('#tambah_data_peta').submit(function(e){
+
+        $('#edit_data_peta').submit(function(e){
         e.preventDefault();
         
         if(typeof coords === 'undefined' || coords === '') {
@@ -468,7 +459,7 @@ function init_map() {
             form_data.append('coordinates', coords);
     
             // Ambil id_collection dari segmen URL
-            let id_collection = window.location.pathname.split('/')[5];
+            let id_collection = window.location.pathname.split('/')[6];
             form_data.append('_method', 'PUT');
  
 
@@ -489,7 +480,7 @@ function init_map() {
                         icon: 'success',
                         timer: 1500
                     }).then(() => {
-                        window.location.replace("{{ url('admin/peta/data_peta/' . request()->segment(4)) }}");
+                        window.location.replace("{{ url('admin/peta/kelola/' . request()->segment(4)) }}");
                     });
                 },
                 error: function(xhr) {
@@ -504,5 +495,19 @@ function init_map() {
 
         }
     });
+
+    });
+    
+    function formatState(state) {
+        if (!state.id) { return state.text; }
+        var icon = state.element ? state.element.getAttribute('data-img') : '';
+        var $state = $(`<span><img class="select2_img" style="display: inline-block;" src="{{ url('assets/uploads/marker_icon') }}/${icon}.png" /> ${state.text}</span>`);
+        return $state;
+    }
+    
+    $('.angka-saja').on('keyup', function(){
+        this.value = this.value.replace(/\D/g, '');
+    });
+    
 </script>
     
