@@ -61,18 +61,32 @@
                                 <input type="hidden" name="id_collection" value="{{ $collection->id_collection }}">
                                 @foreach ($atribut as $item)
                                 <div class="form-group row">
-                                    <label class="col-lg-4 col-form-label" for="<?= $item->slug; ?>"><?= $item->nama_atribut; ?> <span class="text-danger">*</span></label>
+                                    <label class="col-lg-4 col-form-label" for="{{ $item->slug }}">
+                                        {{ $item->nama_atribut }} <span class="text-danger">*</span>
+                                    </label>
                                     <div class="col-lg-8">
-                                        <input type="hidden" name="id_atribut_<?= $item->slug; ?>" value="<?= $item->id_atribut; ?>">
-                                        <?php if($item->tipe_data != "File"){ ?>
-                                            <input required type="text" class="form-control <?php if($item->tipe_data == "Angka"){echo "angka-saja";} ?>" id="<?= $item->slug; ?>" name="<?= $item->slug; ?>" placeholder="Masukkan <?= $item->nama_atribut; ?>" value="{{ $item->slug ? $item->slug : '' }}">
-                                        <?php }else{ ?>
-                                            <input required type="file" id="<?= $item->slug; ?>" name="<?= $item->slug; ?>">
-                                        <?php }?>
+                                        <input type="hidden" name="id_atribut_{{ $item->slug }}" value="{{ $item->id_atribut }}">
+                            
+                                        @if ($item->tipe_data != "File")
+                                            <input 
+                                                required 
+                                                type="text" 
+                                                class="form-control {{ $item->tipe_data == 'Angka' ? 'angka-saja' : '' }}" 
+                                                id="{{ $item->slug }}" 
+                                                name="{{ $item->slug }}" 
+                                                placeholder="Masukkan {{ $item->nama_atribut }}" 
+                                                value="{{ $nilai_atribut[$item->id_atribut] ?? '' }}">
+                                        @else
+                                            <input 
+                                                required 
+                                                type="file" 
+                                                id="{{ $item->slug }}" 
+                                                name="{{ $item->slug }}">
+                                        @endif
                                     </div>
                                 </div>
-                                    
-                                @endforeach
+                            @endforeach
+                            
     
                                 <!-- Static input form -->
                                 <hr>
@@ -176,7 +190,7 @@
                                 </div>
     
                                 <!-- Input Map Feature Styles | Point -->
-                                @elseif(request()->segment(5) == 'point')
+                                @elseif(request()->segment(5) == 'Point')
                                 <div class="form-group row">
                                     <label class="col-lg-4 col-form-label" for="stroke_width">Icon Name <span class="text-danger">*</span></label>
                                     <div class="col-lg-8">

@@ -827,6 +827,8 @@ class PetaController extends Controller
         $atribut = AtributLayer::where('id_layer', $id_layer)->get();
         $koordinat = ReferensiKoordinat::all();
         $data_icon = ReferensiIcon::all(); // Untuk point & line
+        $nilai_atribut = ValueAttribut::where('id_collection', $id_collection)
+            ->pluck('data_value', 'id_atribut');
     
         // Tentukan view berdasarkan tipe layer
         $view = match ($tipe_layer) {
@@ -842,7 +844,7 @@ class PetaController extends Controller
         }
     
         // Tentukan data tambahan berdasarkan tipe layer
-        $data = compact('collection', 'koordinat', 'atribut', 'id_layer', 'tipe_layer', 'layer');
+        $data = compact('collection', 'koordinat', 'atribut', 'id_layer', 'tipe_layer', 'layer', 'nilai_atribut');
         if (in_array($tipe_layer, ['Point', 'LineString'])) {
             $data['data_icon'] = $data_icon;
         }
