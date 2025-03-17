@@ -853,7 +853,8 @@ class PetaController extends Controller
     }
     
     
-    public function updateDataLayerPoint(Request $request, $id_collection)
+
+    public function updateDataLayer(Request $request, $id_collection)
     {
         try {
             //code...
@@ -917,12 +918,12 @@ class PetaController extends Controller
                 );
             }
         
-            // return response()->json([
-            //     'status' => 'success',
-            //     'message' => 'Data berhasil diperbarui!',
-            //     'data' => $data
-            // ]);
-            return redirect()->route('admin.peta')->with('success', 'Layer berhasil diperbarui.');
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Data berhasil diperbarui!',
+                'data' => $data
+            ]);
+            // return redirect()->route('admin.peta')->with('success', 'Layer berhasil diperbarui.');
             } catch (\Throwable $th) {
                 throw $th;
             }

@@ -45,7 +45,7 @@
                     <div class="row justify-content-center py-20">
                         <div class="col-xl-6">
                             <form method="POST" id="edit_data_peta" 
-                            action="{{ route('admin.peta.update_data_layer_point', ['id_collection' => $collection->id_collection]) }}"
+                            {{-- action="{{ route('admin.peta.update_data_layer_point', ['id_collection' => $collection->id_collection]) }}" --}}
                             enctype="multipart/form-data">
                                 @csrf
                                 <div class="form-group row">
@@ -464,7 +464,8 @@ function init_map() {
  
 
             $.ajax({
-                url: '{{ url("admin/peta/update_data_peta_point") }}/' + id_collection, // Gunakan id_collection di URL
+                // url: '{{ url("admin/peta/update_data_peta_point") }}/' + id_collection, // Gunakan id_collection di URL
+                url: '{{ url("admin/peta/update_data_peta") }}/' + id_collection, // Gunakan id_collection di URL
                 type: 'POST', // Laravel butuh POST untuk FormData, tapi kita tambahkan _method: PUT
                 data: form_data,
                 processData: false,
