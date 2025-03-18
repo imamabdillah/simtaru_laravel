@@ -44,7 +44,9 @@
                 <div class="block-content">
                     <div class="row justify-content-center py-20">
                         <div class="col-xl-6">
-                            <form method="post" id="edit_data_peta">
+                            <form method="POST" id="edit_data_peta" 
+                            {{-- action="{{ route('admin.peta.update_data_layer_point', ['id_collection' => $collection->id_collection]) }}" --}}
+                            enctype="multipart/form-data">
                                 @csrf
                                 <div class="form-group row">
                                     <label class="col-lg-4 col-form-label" for="pilih_koordinat">Pilih Koordinat</label>
@@ -56,23 +58,38 @@
                                     </div>
                                 </div>
                                 <hr>
+                                
                                 <input type="hidden" name="id_layer" value="{{ $id_layer }}">
                                 <input type="hidden" name="tipe_layer" value="Point">
                                 <input type="hidden" name="id_collection" value="{{ $collection->id_collection }}">
                                 @foreach ($atribut as $item)
                                 <div class="form-group row">
-                                    <label class="col-lg-4 col-form-label" for="<?= $item->slug; ?>"><?= $item->nama_atribut; ?> <span class="text-danger">*</span></label>
+                                    <label class="col-lg-4 col-form-label" for="{{ $item->slug }}">
+                                        {{ $item->nama_atribut }} <span class="text-danger">*</span>
+                                    </label>
                                     <div class="col-lg-8">
-                                        <input type="hidden" name="id_atribut_<?= $item->slug; ?>" value="<?= $item->id_atribut; ?>">
-                                        <?php if($item->tipe_data != "File"){ ?>
-                                            <input required type="text" class="form-control <?php if($item->tipe_data == "Angka"){echo "angka-saja";} ?>" id="<?= $item->slug; ?>" name="<?= $item->slug; ?>" placeholder="Masukkan <?= $item->nama_atribut; ?>" value="{{ $item->slug ? $item->slug : '' }}">
-                                        <?php }else{ ?>
-                                            <input required type="file" id="<?= $item->slug; ?>" name="<?= $item->slug; ?>">
-                                        <?php }?>
+                                        <input type="hidden" name="id_atribut_{{ $item->slug }}" value="{{ $item->id_atribut }}">
+                            
+                                        @if ($item->tipe_data != "File")
+                                            <input 
+                                                required 
+                                                type="text" 
+                                                class="form-control {{ $item->tipe_data == 'Angka' ? 'angka-saja' : '' }}" 
+                                                id="{{ $item->slug }}" 
+                                                name="{{ $item->slug }}" 
+                                                placeholder="Masukkan {{ $item->nama_atribut }}" 
+                                                value="{{ $nilai_atribut[$item->id_atribut] ?? '' }}">
+                                        @else
+                                            <input 
+                                                required 
+                                                type="file" 
+                                                id="{{ $item->slug }}" 
+                                                name="{{ $item->slug }}">
+                                        @endif
                                     </div>
                                 </div>
-                                    
-                                @endforeach
+                            @endforeach
+                            
     
                                 <!-- Static input form -->
                                 <hr>
@@ -141,7 +158,7 @@
                                 </div>
     
                                 <!-- Input Map Feature Styles | Line / LineString -->
-                                @elseif(request()->segment(5) == 'line')
+                                @elseif(request()->segment(5) == 'LineString')
                                 <div class="form-group row">
                                     <label class="col-lg-4 col-form-label" for="stroke">Stroke <span class="text-danger">*</span></label>
                                     <div class="col-lg-8">
@@ -176,7 +193,7 @@
                                 </div>
     
                                 <!-- Input Map Feature Styles | Point -->
-                                @elseif(request()->segment(5) == 'point')
+                                @elseif(request()->segment(5) == 'Point')
                                 <div class="form-group row">
                                     <label class="col-lg-4 col-form-label" for="stroke_width">Icon Name <span class="text-danger">*</span></label>
                                     <div class="col-lg-8">
@@ -199,7 +216,8 @@
                                 <div class="form-group row">
                                     <div class="col-lg-12">
                                         <label class="css-control css-control-success css-checkbox">
-                                            <input type="checkbox" name="page_detail" class="css-control-input" {{ $collection->page_detail ? 'checked' : '' }}>
+                                            <input type="hidden" name="page_detail" value="0">
+                                            <input type="checkbox" name="page_detail" class="css-control-input" id="page_detail" value="1" data-id-collection="{{ request()->segment(6) }}">                                            
                                             <span class="css-control-indicator"></span> Aktifkan Fitur Halaman Detail
                                         </label>
                                     </div>
@@ -309,7 +327,7 @@ function init_map() {
     let draw_control = new L.Control.Draw(draw_options);
     let draw_control_edit = new L.Control.Draw(draw_options_edit);
 
-    var geojson_url = '{{ url("admin/peta/edit_data_peta_geojson") }}/{{ request()->segment(4) }}';
+    var geojson_url = '{{ url("admin/peta/edit_data_peta_geojson") }}/{{ request()->segment(6) }}';
     $.getJSON(geojson_url, function(data) {
         console.log("Data GeoJSON:", data);
         L.geoJSON(data, {
@@ -427,20 +445,8 @@ function init_map() {
                 }
             }
         });
-    });
-    
-    function formatState(state) {
-        if (!state.id) { return state.text; }
-        var icon = state.element ? state.element.getAttribute('data-img') : '';
-        var $state = $(`<span><img class="select2_img" style="display: inline-block;" src="{{ url('assets/uploads/marker_icon') }}/${icon}.png" /> ${state.text}</span>`);
-        return $state;
-    }
-    
-    $('.angka-saja').on('keyup', function(){
-        this.value = this.value.replace(/\D/g, '');
-    });
-    
-    $('#tambah_data_peta').submit(function(e){
+
+        $('#edit_data_peta').submit(function(e){
         e.preventDefault();
         
         if(typeof coords === 'undefined' || coords === '') {
@@ -454,12 +460,13 @@ function init_map() {
             form_data.append('coordinates', coords);
     
             // Ambil id_collection dari segmen URL
-            let id_collection = window.location.pathname.split('/')[5];
+            let id_collection = window.location.pathname.split('/')[6];
             form_data.append('_method', 'PUT');
  
 
             $.ajax({
-                url: '{{ url("admin/peta/update_data_peta_point") }}/' + id_collection, // Gunakan id_collection di URL
+                // url: '{{ url("admin/peta/update_data_peta_point") }}/' + id_collection, // Gunakan id_collection di URL
+                url: '{{ url("admin/peta/update_data_peta") }}/' + id_collection, // Gunakan id_collection di URL
                 type: 'POST', // Laravel butuh POST untuk FormData, tapi kita tambahkan _method: PUT
                 data: form_data,
                 processData: false,
@@ -475,7 +482,7 @@ function init_map() {
                         icon: 'success',
                         timer: 1500
                     }).then(() => {
-                        window.location.replace("{{ url('admin/peta/data_peta/' . request()->segment(4)) }}");
+                        window.location.replace("{{ url('admin/peta/kelola/' . request()->segment(4)) }}");
                     });
                 },
                 error: function(xhr) {
@@ -490,5 +497,44 @@ function init_map() {
 
         }
     });
+
+    });
+    
+    function formatState(state) {
+        if (!state.id) { return state.text; }
+        var icon = state.element ? state.element.getAttribute('data-img') : '';
+        var $state = $(`<span><img class="select2_img" style="display: inline-block;" src="{{ url('assets/uploads/marker_icon') }}/${icon}.png" /> ${state.text}</span>`);
+        return $state;
+    }
+    
+    $('.angka-saja').on('keyup', function(){
+        this.value = this.value.replace(/\D/g, '');
+    });
+
+    $(document).ready(function () {
+        var id_collection = $('#page_detail').data('id-collection'); // Pastikan elemen memiliki atribut data-id-collection
+
+        $.ajax({
+            url: '{{ url("admin/peta/get_detail_page_status") }}/' + id_collection,
+            type: 'GET',
+            dataType: 'json',
+            success: function (response) {
+                if (response.status === 'success') {
+                    var pageDetailValue = response.data.page_detail;
+
+                    // Set status checkbox sesuai dengan nilai dari server
+                    $('#page_detail').prop('checked', pageDetailValue == 1);
+                } else {
+                    alert('Gagal mengambil data layer.');
+                }
+            },
+            error: function () {
+                alert('Terjadi kesalahan saat mengambil data.');
+            }
+        });
+    });
+
+
+    
 </script>
     

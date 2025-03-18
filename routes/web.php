@@ -38,6 +38,7 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
         Route::get('/edit_layer/{id}', [PetaController::class, 'editLayer'])->name('admin.peta.edit_layer');
         Route::post('/update_layer/{id}', [PetaController::class, 'updateLayer'])->name('admin.peta.update_layer');
 
+
         // kelola data layer
 
 
@@ -63,30 +64,16 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
 
 
         // Data Layer Management
+        Route::get('/kelola/{id_layer}', [PetaController::class, 'kelolaDataLayer'])->name('admin.peta.kelola_data_layer');
+        Route::get('/get_tipe_layer/{id_collection}', [PetaController::class, 'getTipeLayer']);
         Route::post('/data_peta/tambah', [PetaController::class, 'addDataLayer'])->name('admin.peta.add_data_layer');
         Route::get('/tambah_data_peta/{id}/point', [PetaController::class, 'addDataLayerPoint'])->name('admin.peta.add_data_layer_point');
         Route::get('/tambah_data_peta/{id}/linestring', [PetaController::class, 'addDataLayerLine'])->name('admin.peta.add_data_layer_line');
         Route::get('/tambah_data_peta/{id}/polygon', [PetaController::class, 'addDataLayerPolygon'])->name('admin.peta.add_data_layer_polygon');
-        Route::get('/kelola/{id_layer}', [PetaController::class, 'kelolaDataLayer'])->name('admin.peta.kelola_data_layer');
         Route::post('/tambah_data_peta_point', [PetaController::class, 'storePetaPoint'])->name('admin.peta.simpan_data_peta_point');
         Route::post('/tambah_data_peta_stringline', [PetaController::class, 'storePetaLine'])->name('admin.peta.simpan_data_peta_line');
         Route::post('/tambah_data_peta_polygon', [PetaController::class, 'storePetaPolygon'])->name('admin.peta.simpan_data_peta_polygon');
-
-        // Edit Data Layer Management
-        Route::get('/edit_data_peta/{id_collection}', [PetaController::class, 'editDataLayer2'])->name('admin.peta.edit_data_layer');
-        Route::get('/edit_data_peta/point/{id}', [PetaController::class, 'editDataLayerPoint'])->name('admin.peta.edit_data_layer_point');
-        Route::get('/edit_data_peta/line/{id}', [PetaController::class, 'editDataLayerLine'])->name('admin.peta.edit_data_layer_line');
-        Route::get('/edit_data_peta/polygon/{id}', [PetaController::class, 'editDataLayerPolygon'])->name('admin.peta.edit_data_layer_polygon');
-
-        //Group Atribut Management
-        Route::get('/grup_atribut/{id_layer}', [GrupController::class, 'grupAtribut'])->name('admin.peta.grup_atribut');
-        // Route::post('/get_group', [GrupController::class, 'getGroup'])->name('admin.peta.get_group');
-        // Route::post('/add_group', [GrupController::class, 'add_group'])->name('admin.peta.add_group');
-        // Route::post('/edit_group', [GrupController::class, 'edit_group'])->name('admin.peta.edit_group');
-        // Route::post('/delete_group', [GrupController::class, 'delete_group'])->name('admin.peta.delete_group');
-        // Route::post('/get_group_items', [GrupController::class, 'getGroupItems'])->name('admin.peta.get_group_items');
-        // Route::post('/get_group_by_id', [GrupController::class, 'getGroupById'])->name('admin.peta.get_group_by_id');
-
+        Route::delete('/hapus_data_peta/{id_collection}', [PetaController::class, 'hapusDataPeta'])->name('admin.peta.hapus_data_peta');
 
 
         // GET ROUTES
@@ -107,20 +94,23 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
         Route::post('/update-pos-group', [GrupController::class, 'updatePosGroup'])->name('admin.peta.update_pos_group');
         Route::post('/update-pos-group-item', [GrupController::class, 'updatePosGroupItem'])->name('admin.peta.update_pos_group_item');
 
-
-        // ke halaman edit data layer 2
-    //     Route::get('/edit_data_peta/{id_layer}/{tipe_layer}/{id_collection}', [PetaController::class, 'editDataLayer3'])
-    // ->name('admin.peta.edit_data_layer');
-
-
-
+        // Edit Data Layer Management
+        Route::get('/edit_data_peta/{id_layer}/{tipe_layer}/{id_collection}', [PetaController::class, 'editDataLayer3'])
+        ->name('admin.peta.edit_data_layer_3');
+        Route::get('/edit_data_peta/point/{id}', [PetaController::class, 'editDataLayerPoint'])->name('admin.peta.edit_data_layer_point');
+        Route::get('/edit_data_peta/line/{id}', [PetaController::class, 'editDataLayerLine'])->name('admin.peta.edit_data_layer_line');
+        Route::get('/edit_data_peta/polygon/{id}', [PetaController::class, 'editDataLayerPolygon'])->name('admin.peta.edit_data_layer_polygon');
+        Route::put('/update_data_peta/{id_collection}', [PetaController::class, 'updateDataLayer'])->name('admin.peta.update_data_layer');
         Route::get('/edit_data_peta_geojson/{id}', [PetaController::class, 'editDataPetaGeojson']);
-
-
-
-
-        // Koordinat Management
         Route::get('/get_koordinat', [PetaController::class, 'getKoordinat'])->name('admin.peta.ref_koordinat');
+        Route::get('/get_detail_page_status/{id_collection}', [PetaController::class, 'getStatusDetailPage']);
+        Route::get('/import_template/{id_layer}', [PetaController::class, 'importTemplate']);
+        Route::get('/diskripsi/{id_layer}/{id_collection}', [PetaController::class, 'diskripsiDataLayer'])->name('admin.peta.diskripsi_data_layer');
+        Route::get('/get_foto', [PetaController::class, 'getFoto'])->name('admin.peta.get_foto');
+        Route::post('/upload_foto', [PetaController::class, 'uploadFoto'])->name('admin.peta.upload_foto');
+        Route::post('/delete_foto', [PetaController::class, 'deleteFoto'])->name('admin.peta.delete_foto');
+
+
 
 
 
