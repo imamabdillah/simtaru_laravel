@@ -15,6 +15,7 @@ use App\Models\ReferensiIcon;
 use App\Models\ValueAttribut;
 use App\Models\ReferensiKoordinat;
 use App\Models\FotoCollection;
+use App\Models\DeskripsiCollection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
@@ -982,4 +983,37 @@ class PetaController extends Controller
 
         return response()->json(['success' => 'File berhasil dihapus!']);
     }
+
+    public function ambilDiskripsi(Request $request)
+    {
+        $request->validate([
+            'id_collection' => 'required|integer'
+        ]);
+
+        $data = DeskripsiCollection::where('id_collection', $request->id_collection)->first();
+        return response()->json($data);
+        
+    }
+
+    public function insertDiskripsi(Request $request)
+    {
+        $request->validate([
+            'id_collection' => 'required|integer',
+            'nama' => 'required|string',
+            'website' => 'nullable|string',
+            'deskripsi' => 'required|string'
+        ]);
+    
+        DeskripsiCollection::updateOrCreate(
+            ['id_collection' => $request->id_collection], // Kriteria pencarian
+            [
+                'nama' => $request->nama,
+                'website' => $request->website,
+                'deskripsi' => $request->deskripsi
+            ]
+        );
+    
+        return response()->json(['success' => 'Data berhasil disimpan!']);
+    }
+    
 }

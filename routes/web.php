@@ -92,6 +92,8 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
         Route::get('/get_foto', [PetaController::class, 'getFoto'])->name('admin.peta.get_foto');
         Route::post('/upload_foto', [PetaController::class, 'uploadFoto'])->name('admin.peta.upload_foto');
         Route::post('/delete_foto', [PetaController::class, 'deleteFoto'])->name('admin.peta.delete_foto');
+        Route::get('/ambil_diskripsi', [PetaController::class, 'ambilDiskripsi'])->name('admin.peta.ambil_diskripsi');
+        Route::post('/insert_diskripsi', [PetaController::class, 'insertDiskripsi'])->name('admin.peta.insert_diskripsi');
         
 
 
