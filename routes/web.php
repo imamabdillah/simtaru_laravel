@@ -76,11 +76,10 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
         Route::delete('/hapus_data_peta/{id_collection}', [PetaController::class, 'hapusDataPeta'])->name('admin.peta.hapus_data_peta');
 
 
-        // GET ROUTES
+        // Group
+        Route::get('/grup_atribut/{id_layer}', [GrupController::class, 'grupAtribut'])->name('admin.peta.grup_atribut');
         Route::get('/ref-koordinat', [GrupController::class, 'refKoordinat'])->name('admin.peta.ref_koordinat');
         Route::get('/download-geojson/{id}/{name}', [GrupController::class, 'downloadGeojson'])->name('admin.peta.download_geojson');
-
-        // POST ROUTES
         Route::post('/get-group', [GrupController::class, 'getGroup'])->name('admin.peta.get_group');
         Route::post('/get-layer-attribute', [GrupController::class, 'getLayerAttribute'])->name('admin.peta.get_layer_attribute');
         Route::post('/add-group', [GrupController::class, 'addGroup'])->name('admin.peta.add_group');

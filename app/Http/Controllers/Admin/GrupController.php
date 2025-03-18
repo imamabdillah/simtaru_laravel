@@ -123,11 +123,20 @@ class GrupController extends Controller
         return response()->json($res);
     }
 
-    public function getGroupItems(Request $request)
-    {
+   public function getGroupItems(Request $request)
+{
+    try {
         $id = $request->id;
+        Log::info('getGroupItems started', ['id' => $id]);
 
         $item_order = DB::table('tabel_grup_atribut')->where('id_grup_atribut', $id)->first();
+        if (!$item_order) {
+            Log::warning('Item order not found', ['id' => $id]);
+            $res['status'] = 'error';
+            $res['message'] = 'Data tidak ditemukan';
+            return response()->json($res);
+        }
+
         $res['item_order'] = json_decode($item_order->pos_grup_atribut_item, true);
 
         $get = DB::table('tabel_grup_atribut as t1')
@@ -151,19 +160,42 @@ class GrupController extends Controller
             ->get()
             ->toArray();
 
+        Log::info('Query executed', ['count' => count($get)]);
+
         if (count($get) > 0) {
             $res['status'] = 'success';
             $res['data'] = $get;
+            Log::info('getGroupItems successful', ['id' => $id, 'items_count' => count($get)]);
         } else {
             $res['status'] = 'error';
             $res['message'] = 'Data tidak ditemukan';
+            Log::warning('getGroupItems: Data not found', ['id' => $id]);
         }
 
         return response()->json($res);
-    }
+    } catch (\Exception $e) {
+        Log::error('getGroupItems exception', [
+            'id' => $request->id ?? null,
+            'message' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
 
-    public function addGroupItem(Request $request)
-    {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Terjadi kesalahan sistem'
+        ]);
+    }
+}
+
+public function addGroupItem(Request $request)
+{
+    try {
+        Log::info('addGroupItem started', [
+            'id_atribut' => $request->id_atribut,
+            'id_grup_atribut' => $request->id_grup_atribut,
+            'nama_atribut' => $request->nama_atribut
+        ]);
+
         $a = [];
         $a['id_atribut'] = $request->id_atribut;
         $a['id_grup_atribut'] = $request->id_grup_atribut;
@@ -179,14 +211,35 @@ class GrupController extends Controller
             $res['data']['id_item'] = $id_item;
             $res['data']['id_grup_atribut'] = $request->id_grup_atribut;
             $res['data']['nama_atribut'] = $request->nama_atribut;
+            Log::info('addGroupItem successful', [
+                'id_item' => $id_item,
+                'id_grup_atribut' => $request->id_grup_atribut,
+                'user_id' => Auth::id()
+            ]);
         } else {
             $res['status'] = 'error';
             $res['message'] = 'Gagal menambahkan grup item';
+            Log::error('addGroupItem failed to insert record', [
+                'id_atribut' => $request->id_atribut,
+                'id_grup_atribut' => $request->id_grup_atribut
+            ]);
         }
 
         return response()->json($res);
-    }
+    } catch (\Exception $e) {
+        Log::error('addGroupItem exception', [
+            'id_atribut' => $request->id_atribut ?? null,
+            'id_grup_atribut' => $request->id_grup_atribut ?? null,
+            'message' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
 
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Terjadi kesalahan sistem'
+        ]);
+    }
+}
     public function deleteGroupItem(Request $request)
     {
         $id = $request->id_item;
