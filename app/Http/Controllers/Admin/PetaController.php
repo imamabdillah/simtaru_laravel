@@ -14,6 +14,7 @@ use Illuminate\Http\Request;
 use App\Models\ReferensiIcon;
 use App\Models\ValueAttribut;
 use App\Models\ReferensiKoordinat;
+use App\Models\FotoCollection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
@@ -885,7 +886,7 @@ class PetaController extends Controller
                         'group' => null,
                         'stroke' => '#000000',
                         'stroke_opacity' => 1,
-                        'stroke_width' => 2,
+                        'stroke_width' => 2, 
                         'fill' => '#777777',
                         'fill_opacity' => 0.2,
                         'icon_name' => null
@@ -914,6 +915,71 @@ class PetaController extends Controller
         return Response::json($geo, 200, [], JSON_PRETTY_PRINT);
     }
 
-    
+    public function diskripsiDataLayer($id_layer, $id_collection)
+    {
+        $collection = Collection::findOrFail($id_collection);
+        $atribut = AtributLayer::where('id_layer', $id_layer)->get();
+        $nilai_atribut = ValueAttribut::where('id_collection', $id_collection)
+            ->pluck('data_value', 'id_atribut');
 
+        return view('admin.peta.diskripsi_data_layer', compact('collection', 'atribut', 'nilai_atribut'));
+    }
+
+    public function getFoto(Request $request)
+    {
+        $request->validate([
+            'id_collection' => 'required|integer'
+        ]);
+
+        $data = FotoCollection::where('id_collection', $request->id_collection)->get();
+        return response()->json($data);
+    }
+
+    public function uploadFoto(Request $request)
+    {
+        $request->validate([
+            'file_upload' => 'required|mimes:jpg,jpeg,png,pdf|max:10240',
+            'id_collection' => 'required|integer'
+        ]);
+
+        if ($request->hasFile('file_upload')) {
+            $file = $request->file('file_upload');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $path = 'assets/uploads/foto_collection/' . $request->id_collection;
+            
+            // Simpan file ke dalam folder
+            $file->move(public_path($path), $filename);
+
+            // Simpan ke database
+            FotoCollection::create([
+                'id_collection' => $request->id_collection,
+                'file' => $filename
+            ]);
+
+            return response()->json(['success' => 'File berhasil diunggah!']);
+        }
+
+        return response()->json(['error' => 'Gagal mengunggah file!'], 400);
+    }
+
+    public function deleteFoto(Request $request)
+    {
+        $request->validate([
+            'id' => 'required|integer',
+            'id_collection' => 'required|integer'
+        ]);
+
+        $foto = FotoCollection::findOrFail($request->id);
+        $filePath = public_path("assets/uploads/foto_collection/{$foto->id_collection}/{$foto->file}");
+
+        // Hapus file fisik jika ada
+        if (file_exists($filePath)) {
+            unlink($filePath);
+        }
+
+        // Hapus dari database
+        $foto->delete();
+
+        return response()->json(['success' => 'File berhasil dihapus!']);
+    }
 }

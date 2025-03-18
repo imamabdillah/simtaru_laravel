@@ -11,7 +11,7 @@ class FotoCollection extends Model
     use HasFactory;
     protected $table = 'tabel_foto_collection';
     protected $primaryKey = 'id';
-    public $timestamps = true;
+    public $timestamps = false;
     protected $fillable = [
         'id_collection', 'folder', 'file', 'added', 'edited', 'add_by' 
     ];

@@ -88,6 +88,11 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
         Route::get('/get_koordinat', [PetaController::class, 'getKoordinat'])->name('admin.peta.ref_koordinat');
         Route::get('/get_detail_page_status/{id_collection}', [PetaController::class, 'getStatusDetailPage']);
         Route::get('/import_template/{id_layer}', [PetaController::class, 'importTemplate']);
+        Route::get('/diskripsi/{id_layer}/{id_collection}', [PetaController::class, 'diskripsiDataLayer'])->name('admin.peta.diskripsi_data_layer');
+        Route::get('/get_foto', [PetaController::class, 'getFoto'])->name('admin.peta.get_foto');
+        Route::post('/upload_foto', [PetaController::class, 'uploadFoto'])->name('admin.peta.upload_foto');
+        Route::post('/delete_foto', [PetaController::class, 'deleteFoto'])->name('admin.peta.delete_foto');
+        
 
 
 
