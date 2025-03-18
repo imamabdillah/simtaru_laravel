@@ -37,6 +37,8 @@
     <link rel="stylesheet" href="{{ asset('assets/css/leaflet.measure.css') }}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2-bootstrap-theme/0.1.0-beta.10/select2-bootstrap.min.css">
+    <!-- jQuery UI CSS -->
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 
     <!-- Dropzone -->
     <link rel="stylesheet" href="{{ asset('assets/js/plugins/dropzonejs/min/dropzone.min.css') }}">

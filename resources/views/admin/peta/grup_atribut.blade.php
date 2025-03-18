@@ -251,182 +251,321 @@
 @endsection
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="{{ asset('assets/js/plugins/jquery-ui/jquery-ui.min.js') }}"></script>
-
-
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 
 <script>
-   $(document).ready(function () {
     let mode = '';
     let id_group = 0;
-    let id_layer = $('#id_layer').val();
+    const id_layer = {{ request()->segment(4) }};
 
-    // Fungsi untuk reload daftar grup
-    function init_group() {
-        $.ajax({
-            url: "{{ route('admin.peta.get_group') }}",
-            type: "POST",
-            data: {
-                id_layer: id_layer,
-                _token: "{{ csrf_token() }}" },
-            success: function (response) {
-                if (response.status === 'success') {
-                    $('#group_title').empty();
-                    response.groups.forEach(group => {
-                        let groupItem = `<div id="group_${group.id}" class="group_title_item group_item" data-id="${group.id}">
-                                            ${group.judul_grup_atribut}
-                                         </div>`;
-                        $('#group_title').append(groupItem);
-                    });
-                }
+    $(document).ready(function() {
+        // Safety timeout to ensure loader doesn't get stuck
+        setLoaderSafetyTimeout();
+
+        // Get CSRF token from meta tag
+        const csrfToken = $('meta[name="csrf-token"]').attr('content');
+
+        // Set up AJAX to always send the CSRF token
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': csrfToken
             }
         });
-    }
 
-    init_group(); // Panggil saat pertama kali halaman dimuat
+        // Make sure jQuery UI is properly loaded before initializing
+        if (typeof $.fn.sortable !== 'function') {
+            console.error('jQuery UI sortable is not available. Attempting to load it dynamically.');
+            loadJQueryUI();
+            return;
+        }
 
-    // Event listener untuk tombol "Tambah Grup"
-    $('#btn_modal_grup').click(function (e) {
-        e.preventDefault();
-        mode = 'tambah';
-        id_group = 0;
-        $('#modal_grup').modal('show');
-        $('.modal-footer button[type="submit"]').html('Tambah');
-        $('#form_grup').trigger('reset');
-    });
+        init_group();
 
-    // Event listener untuk edit grup
-    $(document).on('click', '.group_title_item', function () {
-        mode = 'edit';
-        id_group = $(this).data('id');
-        $('#modal_grup').modal('show');
-        $('.modal-footer button[type="submit"]').html('Edit');
-
-        // Ambil data grup berdasarkan ID
-        $.ajax({
-            url: "{{ route('admin.peta.get_group_by_id') }}",
-            type: "POST",
-            data: {
-                id_group: id_group ,
-                _token: "{{ csrf_token() }}"},
-            success: function (response) {
-                if (response.status === 'success') {
-                    $('#judul_grup').val(response.data.judul_grup_atribut);
-                    $('#sub_judul_grup').val(response.data.sub_judul_grup_atribut);
-                    $('#tipe_grup').val(response.data.tipe_grup_atribut);
-                    $('#ukuran_grup').val(response.data.ukuran_grup_atribut);
-                }
-            }
+        $('#btn_modal_grup').click(function(e) {
+            e.preventDefault();
+            mode = 'tambah';
+            $('#modal_grup').modal('show');
+            $('.modal-footer button[type="submit"]').html('Tambah');
+            $('#form_grup').trigger('reset');
         });
-    });
 
-    // Event listener untuk submit form tambah/edit grup
-    $('#form_grup').submit(function (e) {
-        e.preventDefault();
-        $('#modal_grup').modal('hide');
-        $('#loader_box').show();
+        $('#form_grup').submit(function(e) {
+            e.preventDefault();
+            $('#modal_grup').modal('hide');
+            $('#loader_box').show();
+            let data = new FormData(this);
+            data.append('id_layer', id_layer);
+            data.append('id_group', id_group);
+            data.append('_token', csrfToken);
 
-        let formData = new FormData(this);
-        formData.append('id_group', id_group);
-        formData.append('id_layer', id_layer);
+            if (mode == 'tambah') {
+                $.ajax({
+                    url: "{{ route('admin.peta.add_group') }}",
+                    type: "POST",
+                    dataType: "JSON",
+                    data: data,
+                    contentType: false,
+                    processData: false,
+                    success: function(res) {
+                        $('#loader_box').hide();
+                        if (res.status == 'success') {
+                            Swal.fire({
+                                title: 'Sukses!',
+                                text: 'Grup berhasil ditambahkan!',
+                                type: 'success',
+                                timer: 1500
+                            });
 
-        let url = (mode === 'tambah') ? "{{ route('admin.peta.add_group') }}" : "{{ route('admin.peta.edit_group') }}";
+                            let x = '<div id="group_' + res.data.id + '" class="group_title_item group_item" data-id="' + res.data.id + '">' + res.data.judul + '</div>';
+                            $('#group_title').append(x);
 
-        $.ajax({
-            url: url,
-            type: "POST",
-            data: formData,
-            contentType: false,
-            processData: false,
-            success: function (response) {
-                $('#loader_box').hide();
+                            let data = $('#group_title').sortable('serialize', {
+                                key: 'group_sort[]'
+                            });
 
-                if (response.status === 'success') {
-                    Swal.fire({
-                        title: 'Sukses!',
-                        text: (mode === 'tambah') ? 'Grup berhasil ditambahkan!' : 'Grup berhasil diubah!',
-                        icon: 'success',
-                        timer: 1500
-                    }).then(() => {
-                        location.reload(); // Refresh halaman setelah sukses
-                    });
+                            $.ajax({
+                                url: "{{ route('admin.peta.update_pos_group') }}",
+                                type: 'POST',
+                                dataType: 'JSON',
+                                data: {
+                                    id_layer: id_layer,
+                                    data: data,
+                                    _token: csrfToken
+                                },
+                                success: function() {
+                                    location.reload();
+                                },
+                                error: function(xhr, status, error) {
+                                    console.error('Update position error:', status, error);
+                                    $('#loader_box').hide();
+                                }
+                            });
+                        } else {
+                            Swal.fire({
+                                title: 'Gagal!',
+                                text: 'Grup tidak berhasil ditambahkan!',
+                                type: 'error',
+                                timer: 1500
+                            });
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Add group error:', status, error);
+                        $('#loader_box').hide();
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'Terjadi kesalahan saat menambahkan grup',
+                            type: 'error'
+                        });
+                    }
+                });
+            } else if (mode == 'edit') {
+                $.ajax({
+                    url: "{{ route('admin.peta.edit_group') }}",
+                    type: "POST",
+                    dataType: "JSON",
+                    data: data,
+                    contentType: false,
+                    processData: false,
+                    success: function(res) {
+                        $('#loader_box').hide();
+                        if (res.status == 'success') {
+                            Swal.fire({
+                                title: 'Sukses!',
+                                text: 'Grup berhasil diubah!',
+                                type: 'success',
+                                timer: 1500
+                            });
 
-                } else {
-                    Swal.fire({
-                        title: 'Gagal!',
-                        text: response.message,
-                        icon: 'error',
-                        timer: 1500
-                    });
-                }
-            },
-            error: function () {
-                $('#loader_box').hide();
-                Swal.fire({
-                    title: 'Error!',
-                    text: 'Terjadi kesalahan pada server.',
-                    icon: 'error',
-                    timer: 1500
+                            $('.group_title_item[data-id="' + res.data.id + '"]').html(res.data.judul);
+                        } else {
+                            Swal.fire({
+                                title: 'Gagal!',
+                                text: res.message,
+                                type: 'error',
+                                timer: 1500
+                            });
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Edit group error:', status, error);
+                        $('#loader_box').hide();
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'Terjadi kesalahan saat mengubah grup',
+                            type: 'error'
+                        });
+                    }
                 });
             }
         });
-    });
-});
 
-
-   $(document).ready(function () {
-        let id_layer = $('#id_layer').val();
-
-        function loadGroups() {
-            console.log("Memuat grup untuk id_layer:", id_layer);
-
-            $.ajax({
-                url: "{{ route('admin.peta.get_group') }}",
-                type: "POST",
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                },
-                data: { id_layer: id_layer },
-                success: function (response) {
-                    if (response.status === 'success') {
-                        $('#group_title').empty();
-
-                        response.groups.forEach(group => {
-                            let groupHtml = `
-                                <div id="group_${group.id_grup_atribut}" class="group_title_item group_item" data-id="${group.id_grup_atribut}">
-                                    ${group.judul_grup_atribut}
-                                </div>`;
-                            $('#group_title').append(groupHtml);
-                        });
-
-                        console.log("Grup berhasil dimuat:", response.groups);
-                    } else {
-                        console.error("Gagal mengambil grup:", response.message);
-                    }
-                },
-                error: function (xhr) {
-                    console.error("Terjadi kesalahan saat mengambil grup:", xhr.responseText);
-                }
-            });
-        }
-
-        // Panggil loadGroups saat halaman dimuat
-        loadGroups();
-
-        // Event delegation untuk klik pada .group_title_item yang ditambahkan secara dinamis
-        $(document).on('click', '.group_title_item', function (e) {
+        // Context menu for group title items
+        $(document).on('contextmenu', '.group_title_item', function(e) {
+            console.log('Context menu triggered on item:', $(this).text());
             e.preventDefault();
 
+            // Pastikan menu muncul dan di-reset
+            $('#cmenu').html('').show().css({
+                top: e.pageY + 'px',
+                left: e.pageX + 'px'
+            });
+
+            let dataId = $(this).attr('data-id');
+            let h = '';
+            h += '<div class="edit_group_title" data-id="' + dataId + '"> <i class="fa fa-edit"></i> Edit</div>';
+            h += '<div class="delete_group_title" data-id="' + dataId + '"> <i class="fa fa-trash"></i> Hapus</div>';
+            $('#cmenu').html(h);
+
+            return false;
+        });
+
+        // Click outside menu to close it
+        $(document).on('mousedown', function(e) {
+            if (!$(e.target).parents("#cmenu").length > 0 && !$(e.target).is("#cmenu")) {
+                $("#cmenu").hide();
+            }
+        });
+
+        // Context menu edit action
+        $(document).on('click', '.edit_group_title', function() {
+            console.log('Edit clicked for item:', $(this).attr('data-id'));
+            $("#cmenu").hide();
+            id_group = $(this).attr('data-id');
+            $('#modal_grup').modal('show');
+
+            $.ajax({
+                url: "{{ route('admin.peta.get_group_detail') }}",
+                type: 'POST',
+                dataType: 'JSON',
+                data: {
+                    id: id_group,
+                    _token: csrfToken
+                },
+                success: function(res) {
+                    if (res.status == 'success') {
+                        mode = 'edit';
+                        $('[name="judul_grup"]').val(res.data.judul_grup_atribut);
+                        $('[name="sub_judul_grup"]').val(res.data.sub_judul_grup_atribut);
+                        $('[name="tipe_grup"]').val(res.data.tipe_grup_atribut).trigger('change');
+                        $('[name="ukuran_grup"]').val(res.data.ukuran_grup_atribut).trigger('change');
+                        $('.modal-footer button[type="submit"]').html('Simpan');
+                    } else {
+                        $('#modal_grup').modal('hide');
+                        Swal.fire(
+                            'Gagal!',
+                            res.message,
+                            'error'
+                        );
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Get group detail error:', status, error);
+                    $('#modal_grup').modal('hide');
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'Terjadi kesalahan saat mengambil detail grup',
+                        type: 'error'
+                    });
+                }
+            });
+        });
+
+        // Context menu delete action
+        $(document).on('click', '.delete_group_title', function() {
+            console.log('Delete clicked for item:', $(this).attr('data-id'));
+            $("#cmenu").hide();
+            let deleteId = $(this).attr('data-id');
+
+            Swal.fire({
+                title: 'Apakah anda yakin?',
+                text: "Anda tidak dapat mengembalikan grup yang sudah dihapus!",
+                type: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Hapus sekarang!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.value) {
+                    $.ajax({
+                        url: "{{ route('admin.peta.delete_group') }}",
+                        type: 'POST',
+                        dataType: 'JSON',
+                        data: {
+                            id: deleteId,
+                            _token: csrfToken
+                        },
+                        success: function(res) {
+                            if (res.status == 'success') {
+                                $('#group_' + deleteId).remove();
+
+                                let data = $('#group_title').sortable('serialize', {
+                                    key: 'group_sort[]'
+                                });
+
+                                $.ajax({
+                                    url: "{{ route('admin.peta.update_pos_group') }}",
+                                    type: 'POST',
+                                    dataType: 'JSON',
+                                    data: {
+                                        id_layer: id_layer,
+                                        data: data,
+                                        _token: csrfToken
+                                    },
+                                    success: function() {
+                                        Swal.fire(
+                                            'Terhapus!',
+                                            'Grup yang dipilih telah dihapus!',
+                                            'success',
+                                            1500
+                                        );
+                                        setTimeout(function() {
+                                            location.reload();
+                                        }, 1500);
+                                    },
+                                    error: function(xhr, status, error) {
+                                        console.error('Update position after delete error:', status, error);
+                                        Swal.fire({
+                                            title: 'Warning',
+                                            text: 'Grup dihapus tetapi terjadi error saat update posisi',
+                                            type: 'warning'
+                                        });
+                                    }
+                                });
+                            } else {
+                                Swal.fire(
+                                    'Gagal dihapus!',
+                                    res.message,
+                                    'error'
+                                );
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('Delete group error:', status, error);
+                            Swal.fire({
+                                title: 'Error!',
+                                text: 'Terjadi kesalahan saat menghapus grup',
+                                type: 'error'
+                            });
+                        }
+                    });
+                }
+            });
+        });
+
+        // Click on group title items - FIXED
+        $(document).on('click', '.group_title_item', function() {
+            console.log('Group title item clicked');
             $('.group_title_item').css('background', '#ffffff');
             $(this).css('background', '#f7f8d0');
 
-            let id_grup_atribut = $(this).data('id');
+            let id = $(this).attr('data-id');
+            console.log('Group ID:', id);
 
-            console.log("ID Grup Atribut yang dikirim:", id_grup_atribut);
-
-            if (!id_grup_atribut) {
-                console.error("Error: ID Grup Atribut tidak ditemukan.");
-                Swal.fire('Gagal!', 'ID Grup Atribut tidak ditemukan.', 'error');
+            if (!id) {
+                console.error('No data-id attribute found on clicked element');
                 return;
             }
 
@@ -434,57 +573,487 @@
 
             $.ajax({
                 url: "{{ route('admin.peta.get_group_items') }}",
-                type: "POST",
-                dataType: "JSON",
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                type: 'POST',
+                dataType: 'JSON',
+                data: {
+                    id: id,
+                    _token: csrfToken
                 },
-                data: { id: id_grup_atribut },
-                success: function (res) {
+                success: function(res) {
                     $('#loader_box').hide();
+                    console.log('Group items response:', res);
 
-                    if (res.status === 'success') {
-                        console.log("Data grup atribut yang diterima:", res.data);
-                        $('#layer_attribute').html('');
-                        $('#group_attribute').html('');
-                        let a = {};
+                    if (res.status == 'success') {
+                        $('#layer_attribute').empty();
+                        $('#group_attribute').empty();
 
-                        let build_array = res.data.map(v => {
-                            return new Promise(resolve => {
-                                let x = `<div id="draggable_${v.id_atribut}" class="group_item draggable_item col-12"
-                                    data-attr-id="${v.id_atribut}" data-group-id="${v.id_grup_atribut}"
-                                    data-item-id="${v.id_grup_atribut_item || 0}" data-attr-name="${v.nama_atribut_layer}">
-                                    ${v.alias_atribut_layer || v.nama_atribut_layer}
-                                </div>`;
+                        let attributeItems = {};
 
-                                if (v.id_grup_atribut_item > 0) {
-                                    a[v.id_atribut] = x;
+                        // Process all items
+                        if (res.data && res.data.length > 0) {
+                            $.each(res.data, function(index, item) {
+                                if (item.id_grup_atribut_item > 0) {
+                                    // Item belongs to the group
+                                    let displayName = (item.alias_atribut_layer != null && item.alias_atribut_layer != '') ?
+                                                    item.alias_atribut_layer : item.nama_atribut_layer;
+
+                                    let groupItem = '<div id="draggable_' + item.id_atribut + '" ' +
+                                                'class="group_item draggable_item col-12" ' +
+                                                'data-attr-id="' + item.id_atribut + '" ' +
+                                                'data-group-id="' + item.id_grup_atribut + '" ' +
+                                                'data-item-id="' + item.id_grup_atribut_item + '" ' +
+                                                'data-attr-name="' + item.nama_atribut_layer + '">' +
+                                                displayName + '</div>';
+
+                                    attributeItems[item.id_atribut] = groupItem;
                                 } else {
-                                    $('#layer_attribute').append(x);
-                                }
-                                resolve(x);
-                            });
-                        });
+                                    // Item doesn't belong to the group (in layer attributes)
+                                    let layerItem = '<div id="draggable_' + item.id_atribut + '" ' +
+                                                'class="group_item draggable_item col-12" ' +
+                                                'data-attr-id="' + item.id_atribut + '" ' +
+                                                'data-group-id="' + item.id_grup_atribut + '" ' +
+                                                'data-item-id="0" ' +
+                                                'data-attr-name="' + item.nama_atribut_layer + '">' +
+                                                item.nama_atribut + '</div>';
 
-                        Promise.all(build_array).then(() => {
-                            if (res.item_order && res.item_order.item_sort) {
-                                res.item_order.item_sort.forEach(v => {
-                                    $('#group_attribute').append(a[v]);
+                                    $('#layer_attribute').append(layerItem);
+                                }
+                            });
+
+                            // Add items to the group attribute container in the specified order
+                            if (res.item_order && res.item_order.item_sort && res.item_order.item_sort.length > 0) {
+                                $.each(res.item_order.item_sort, function(index, attrId) {
+                                    if (attributeItems[attrId]) {
+                                        $('#group_attribute').append(attributeItems[attrId]);
+                                    }
+                                });
+                            } else {
+                                // If no specific order, add all grouped items
+                                $.each(res.data, function(index, item) {
+                                    if (item.id_grup_atribut_item > 0 && attributeItems[item.id_atribut]) {
+                                        $('#group_attribute').append(attributeItems[item.id_atribut]);
+                                    }
                                 });
                             }
-                        });
 
+                            // Initialize sortable and draggable for the items
+                            initSortableDraggable(id);
+                        } else {
+                            console.log('No items found for this group');
+                        }
                     } else {
-                        Swal.fire('Gagal!', res.message, 'error');
+                        console.error('Error loading group items:', res.message);
+                        Swal.fire(
+                            'Gagal!',
+                            res.message || 'Gagal memuat item grup',
+                            'error'
+                        );
                     }
                 },
-                error: function (xhr) {
+                error: function(xhr, status, error) {
                     $('#loader_box').hide();
-                    console.error("Error response:", xhr.responseText);
-                    Swal.fire('Gagal!', 'Terjadi kesalahan pada server.', 'error');
+                    console.error('AJAX error when loading group items:', status, error);
+                    console.log('Response text:', xhr.responseText);
+
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'Terjadi kesalahan saat mengambil item grup',
+                        type: 'error'
+                    });
+                }
+            });
+        });
+
+        // Context menu for group items
+        $(document).on('contextmenu', '#group_attribute .group_item', function(e) {
+            console.log('Context menu triggered on group item:', $(this).text());
+            e.preventDefault();
+
+            // Pastikan menu muncul dan di-reset
+            $('#cmenu').html('').show().css({
+                top: e.pageY + 'px',
+                left: e.pageX + 'px'
+            });
+
+            let itemId = $(this).attr('data-item-id');
+            let h = '<div class="rename_group_item" data-item-id="' + itemId + '"> <i class="fa fa-edit"></i> Rename</div>';
+            $('#cmenu').html(h);
+
+            return false;
+        });
+
+        // Context menu rename action for group items
+        $(document).on('click', '.rename_group_item', function() {
+            console.log('Rename clicked for item:', $(this).attr('data-item-id'));
+            $("#cmenu").hide();
+            let itemId = $(this).attr('data-item-id');
+            let currentText = $('.draggable_item[data-item-id="' + itemId + '"]').text();
+
+            $('#modal_rename').modal('show');
+            $('[name="alias_grup_item"]').val(currentText);
+
+            // Reset form submission handler
+            $('#form_rename').off('submit');
+
+            // Set up form submission handler for renaming
+            $('#form_rename').on('submit', function(f) {
+                f.preventDefault();
+                $('#modal_rename').modal('hide');
+                $('#loader_box').show();
+
+                let alias = $('[name="alias_grup_item"]').val().trim();
+
+                if (alias != '') {
+                    $.ajax({
+                        url: "{{ route('admin.peta.rename_group_item') }}",
+                        type: 'POST',
+                        dataType: 'JSON',
+                        data: {
+                            id_item: itemId,
+                            alias: alias,
+                            _token: csrfToken
+                        },
+                        success: function(res) {
+                            $('#loader_box').hide();
+                            if (res.status == 'success') {
+                                $('.draggable_item[data-item-id="' + itemId + '"]').html(alias);
+                                Swal.fire({
+                                    title: 'Sukses!',
+                                    text: 'Nama item berhasil diubah',
+                                    type: 'success',
+                                    timer: 1500
+                                });
+                            } else {
+                                Swal.fire({
+                                    title: 'Gagal!',
+                                    text: res.message || 'Gagal mengubah nama item',
+                                    type: 'error'
+                                });
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('Rename group item error:', status, error);
+                            $('#loader_box').hide();
+                            Swal.fire({
+                                title: 'Error!',
+                                text: 'Terjadi kesalahan saat mengubah nama item',
+                                type: 'error'
+                            });
+                        }
+                    });
+                } else {
+                    $('#loader_box').hide();
                 }
             });
         });
     });
-</script>
 
+    // Add CSS for context menu
+    $('<style>\
+        #cmenu {\
+            display: none;\
+            z-index: 9999;\
+            position: absolute;\
+            overflow: hidden;\
+            border: 1px solid #CCC;\
+            white-space: nowrap;\
+            background: #FFF;\
+            color: #333;\
+            border-radius: 4px;\
+            padding: 5px;\
+            font-size: smaller;\
+            box-shadow: 0px 5px 5px #dedede;\
+        }\
+        #cmenu div {\
+            width: 100px;\
+            padding: 8px;\
+            cursor: pointer;\
+            color: #777777;\
+        }\
+        #cmenu div:hover {\
+            font-weight: bold;\
+            color: #ffffff;\
+            background: #777777;\
+        }\
+    </style>').appendTo('head');
+
+    // Function to set a safety timeout for the loader
+    function setLoaderSafetyTimeout() {
+        setTimeout(function() {
+            if ($('#loader_box').is(':visible')) {
+                console.warn('Loader was forced to hide after timeout');
+                $('#loader_box').hide();
+            }
+        }, 10000); // 10 seconds safety timeout
+    }
+
+    // Function to dynamically load jQuery UI if needed
+    function loadJQueryUI() {
+        console.log('Attempting to load jQuery UI dynamically');
+
+        // First try to load the CSS
+        $('head').append('<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css">');
+
+        // Then load the JS
+        $.getScript('https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js')
+            .done(function() {
+                console.log('jQuery UI loaded successfully');
+                if (typeof $.fn.sortable === 'function') {
+                    init_group(); // Initialize after loading
+                } else {
+                    console.error('jQuery UI loaded but sortable is still not available');
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'Tidak dapat memuat jQuery UI sortable. Silakan refresh halaman.',
+                        type: 'error'
+                    });
+                }
+            })
+            .fail(function(jqxhr, settings, exception) {
+                console.error('Failed to load jQuery UI:', exception);
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Gagal memuat jQuery UI. Silakan refresh halaman.',
+                    type: 'error'
+                });
+            });
+    }
+
+    function init_group() {
+        $('#loader_box').show();
+        setLoaderSafetyTimeout(); // Set a safety timeout for this operation
+
+        $.ajax({
+            url: "{{ route('admin.peta.get_group') }}",
+            type: 'POST',
+            dataType: 'JSON',
+            data: {
+                id_layer: id_layer,
+                _token: $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function(res) {
+                console.log('Get groups response:', res);
+
+                if (!res.group || res.group.length === 0) {
+                    console.log('No groups found');
+                    $('#loader_box').hide();
+                    return;
+                }
+
+                let groupItems = {};
+
+                // Process all groups
+                $.each(res.group, function(index, group) {
+                    let title = group.judul_grup_atribut == null || group.judul_grup_atribut == '' ?
+                                'Judul ' + group.id_grup_atribut : group.judul_grup_atribut;
+
+                    let displayTitle = title.length > 27 ? title.substring(0, 27) + ' ...' : title;
+
+                    let groupElement = '<div id="group_' + group.id_grup_atribut + '" ' +
+                                      'class="group_title_item group_item" ' +
+                                      'data-id="' + group.id_grup_atribut + '" ' +
+                                      'title="' + title + '">' + displayTitle + '</div>';
+
+                    groupItems[group.id_grup_atribut] = groupElement;
+                });
+
+                // Add groups in the specified order if available
+                if (res.group_order && res.group_order.group_sort && res.group_order.group_sort.length > 0) {
+                    $.each(res.group_order.group_sort, function(index, groupId) {
+                        if (groupItems[groupId]) {
+                            $('#group_title').append(groupItems[groupId]);
+                        }
+                    });
+                } else {
+                    // If no specific order, add all groups
+                    $.each(res.group, function(index, group) {
+                        if (groupItems[group.id_grup_atribut]) {
+                            $('#group_title').append(groupItems[group.id_grup_atribut]);
+                        }
+                    });
+                }
+
+                try {
+                    initGroupTitleSortable();
+                    $('#loader_box').hide();
+                } catch (err) {
+                    console.error('Error in initGroupTitleSortable:', err);
+                    $('#loader_box').hide();
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'Terjadi kesalahan saat inisialisasi sortable. Silakan refresh halaman.',
+                        type: 'error'
+                    });
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Init group error:', status, error);
+                $('#loader_box').hide();
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Terjadi kesalahan saat menginisialisasi grup',
+                    type: 'error'
+                });
+            }
+        });
+    }
+
+    function initGroupTitleSortable() {
+        // Check if sortable is available before using it
+        if (typeof $.fn.sortable !== 'function') {
+            console.error('jQuery UI sortable is not available in initGroupTitleSortable');
+            throw new Error('jQuery UI sortable is not available');
+        }
+
+        $('#group_title').sortable({
+            revert: false,
+            update: function(e, i) {
+                let data = $(this).sortable('serialize', {
+                    key: 'group_sort[]'
+                });
+
+                $.ajax({
+                    url: "{{ route('admin.peta.update_pos_group') }}",
+                    type: 'POST',
+                    dataType: 'JSON',
+                    data: {
+                        id_layer: id_layer,
+                        data: data,
+                        _token: $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(res) {
+                        console.log('Update position success:', res);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Update group position error:', status, error);
+                    }
+                });
+            }
+        });
+    }
+
+function initSortableDraggable(groupId) {
+    // Check if sortable and draggable are available
+    if (typeof $.fn.sortable !== 'function' || typeof $.fn.draggable !== 'function') {
+        console.error('jQuery UI sortable or draggable is not available in initSortableDraggable');
+        Swal.fire({
+            title: 'Error!',
+            text: 'Terjadi kesalahan pada fungsi sortable/draggable',
+            type: 'error'
+        });
+        return;
+    }
+
+    // Initialize sortable for both containers
+    $('#group_attribute, #layer_attribute').sortable({
+        revert: false,
+        update: function(e, i) {
+            if ($(this).attr('id') === 'group_attribute') {
+                let data = $('#group_attribute').sortable('serialize', {
+                    key: 'item_sort[]'
+                });
+
+                $.ajax({
+                    url: "{{ route('admin.peta.update_pos_group_item') }}",
+                    type: 'POST',
+                    dataType: 'JSON',
+                    data: {
+                        id_group: groupId,
+                        data: data,
+                        _token: $('meta[name="csrf-token"]').attr('content')
+                    }
+                })
+                .catch(error => {
+                    console.error('Update group item position error:', error);
+                });
+            }
+        }
+    });
+
+    // Initialize draggable for all items
+    $('.draggable_item').draggable({
+        connectToSortable: '#group_attribute, #layer_attribute',
+        cursor: 'grabbing',
+        start: function() {
+            this.parentOld = $(this).parent().attr('id');
+        },
+        stop: function() {
+            let parent = $(this).parent().attr('id');
+            let parentOld = this.parentOld;
+
+            if (parent === 'group_attribute' && parent !== parentOld) {
+                // Add item to group
+                $('#loader_box').show();
+                $.ajax({
+                    url: "{{ route('admin.peta.add_group_item') }}",
+                    type: 'POST',
+                    dataType: 'JSON',
+                    data: {
+                        id_atribut: $(this).attr('data-attr-id'),
+                        id_grup_atribut: groupId,
+                        nama_atribut: $(this).html(),
+                        _token: $('meta[name="csrf-token"]').attr('content')
+                    }
+                })
+                .then(res => {
+                    if (res.status === 'success') {
+                        $(this).attr('data-item-id', res.data.id_item);
+                        // Refresh the container
+                        $('.group_title_item[data-id="' + groupId + '"]').trigger('click');
+                    } else {
+                        Swal.fire({
+                            title: 'Gagal!',
+                            text: res.message || 'Gagal menambahkan item ke grup',
+                            type: 'error'
+                        });
+                    }
+                    $('#loader_box').hide();
+                })
+                .catch(error => {
+                    console.error('Add group item error:', error);
+                    $('#loader_box').hide();
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'Terjadi kesalahan saat menambahkan item ke grup',
+                        type: 'error'
+                    });
+                });
+            } else if (parent === 'layer_attribute' && parent !== parentOld) {
+                // Remove item from group
+                $('#loader_box').show();
+                $.ajax({
+                    url: "{{ route('admin.peta.delete_group_item') }}",
+                    type: 'POST',
+                    dataType: 'JSON',
+                    data: {
+                        id_item: $(this).attr('data-item-id'),
+                        _token: $('meta[name="csrf-token"]').attr('content')
+                    }
+                })
+                .then(res => {
+                    if (res.status === 'success') {
+                        $(this).attr('data-item-id', 0);
+                        $(this).html($(this).attr('data-attr-name'));
+                    } else {
+                        Swal.fire({
+                            title: 'Gagal!',
+                            text: res.message || 'Gagal menghapus item dari grup',
+                            type: 'error'
+                        });
+                    }
+                    $('#loader_box').hide();
+                })
+                .catch(error => {
+                    console.error('Delete group item error:', error);
+                    $('#loader_box').hide();
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'Terjadi kesalahan saat menghapus item dari grup',
+                        type: 'error'
+                    });
+                });
+            }
+        }
+    });
+}
+</script>
