@@ -1,8 +1,9 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\GrupController;
+use App\Http\Controllers\Admin\PetaController;
 use App\Http\Controllers\Admin\BerandaController;
-use App\Http\Controllers\admin\PetaController;
 
 Route::name('auth.')->group(base_path('routes/public/auth.php'));
 
@@ -74,9 +75,24 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
         Route::post('/tambah_data_peta_polygon', [PetaController::class, 'storePetaPolygon'])->name('admin.peta.simpan_data_peta_polygon');
         Route::delete('/hapus_data_peta/{id_collection}', [PetaController::class, 'hapusDataPeta'])->name('admin.peta.hapus_data_peta');
 
-    
 
-        
+        // Group
+        Route::get('/grup_atribut/{id_layer}', [GrupController::class, 'grupAtribut'])->name('admin.peta.grup_atribut');
+        Route::get('/ref-koordinat', [GrupController::class, 'refKoordinat'])->name('admin.peta.ref_koordinat');
+        Route::get('/download-geojson/{id}/{name}', [GrupController::class, 'downloadGeojson'])->name('admin.peta.download_geojson');
+        Route::post('/get-group', [GrupController::class, 'getGroup'])->name('admin.peta.get_group');
+        Route::post('/get-layer-attribute', [GrupController::class, 'getLayerAttribute'])->name('admin.peta.get_layer_attribute');
+        Route::post('/add-group', [GrupController::class, 'addGroup'])->name('admin.peta.add_group');
+        Route::post('/edit-group', [GrupController::class, 'editGroup'])->name('admin.peta.edit_group');
+        Route::post('/delete-group', [GrupController::class, 'deleteGroup'])->name('admin.peta.delete_group');
+        Route::post('/get-group-detail', [GrupController::class, 'getGroupDetail'])->name('admin.peta.get_group_detail');
+        Route::post('/get-group-items', [GrupController::class, 'getGroupItems'])->name('admin.peta.get_group_items');
+        Route::post('/add-group-item', [GrupController::class, 'addGroupItem'])->name('admin.peta.add_group_item');
+        Route::post('/delete-group-item', [GrupController::class, 'deleteGroupItem'])->name('admin.peta.delete_group_item');
+        Route::post('/rename-group-item', [GrupController::class, 'renameGroupItem'])->name('admin.peta.rename_group_item');
+        Route::post('/update-pos-group', [GrupController::class, 'updatePosGroup'])->name('admin.peta.update_pos_group');
+        Route::post('/update-pos-group-item', [GrupController::class, 'updatePosGroupItem'])->name('admin.peta.update_pos_group_item');
+
         // Edit Data Layer Management
         Route::get('/edit_data_peta/{id_layer}/{tipe_layer}/{id_collection}', [PetaController::class, 'editDataLayer3'])
         ->name('admin.peta.edit_data_layer_3');
@@ -95,6 +111,7 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
         Route::get('/ambil_diskripsi', [PetaController::class, 'ambilDiskripsi'])->name('admin.peta.ambil_diskripsi');
         Route::post('/insert_diskripsi', [PetaController::class, 'insertDiskripsi'])->name('admin.peta.insert_diskripsi');
         
+
 
 
 
