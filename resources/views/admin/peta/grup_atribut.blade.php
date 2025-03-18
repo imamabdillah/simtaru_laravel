@@ -1,3 +1,5 @@
+@extends('layouts.wrapper')
+
 <style>
     .container-fluid {
         padding: 0px 0px 10px 0px;
@@ -83,17 +85,18 @@
     }
 </style>
 
+@section('contents')
 <!-- Main Container -->
 <main id="main-container">
     <div class="content">
         <!-- <h2 class="content-heading"></h2> -->
         <div class="block block-themed">
             <div class="block-header bg-primary-dark">
-                <h3 class="block-title">Grup Atribut "<b class="header_layer"></b>"</h3>
+                <h3 class="block-title">Grup Atribut "<b>{{ $layer->nama_layer }}</b>"</h3>
                 <div class="block-options">
-                    <a class="btn btn-sm btn-danger" href="<?= base_url('admin/peta') ?>">
+                     <a class="btn btn-sm btn-danger" href="{{ url('admin/peta') }}">
                         <i class="fa fa-angle-left"></i> Kembali
-                    </a> 
+                    </a>
                 </div>
             </div>
             <div class="block-content">
@@ -131,6 +134,7 @@
 <div class="modal fade" id="modal_grup" tabindex="-1" role="dialog" aria-labelledby="modal-popin" aria-hidden="true">
     <div class="modal-dialog modal-dialog-popin" role="document">
         <form id="form_grup">
+            @csrf
             <div class="modal-content">
                 <div class="block block-themed block-transparent mb-0">
                     <div class="block-header bg-primary-dark">
@@ -142,7 +146,7 @@
                         </div>
                     </div>
                     <div class="block-content">
-
+                        <input type="hidden" name="id_layer" id="id_layer" value="{{ $layer->id_layer }}">
                         <div class="col-12">
                             <label for="judul_grup">Judul Group</label>
                             <input name="judul_grup" type="text" class="form-control">
@@ -244,3 +248,243 @@
         </g>
     </svg>
 </div>
+@endsection
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="{{ asset('assets/js/plugins/jquery-ui/jquery-ui.min.js') }}"></script>
+
+
+
+<script>
+   $(document).ready(function () {
+    let mode = '';
+    let id_group = 0;
+    let id_layer = $('#id_layer').val();
+
+    // Fungsi untuk reload daftar grup
+    function init_group() {
+        $.ajax({
+            url: "{{ route('admin.peta.get_group') }}",
+            type: "POST",
+            data: {
+                id_layer: id_layer,
+                _token: "{{ csrf_token() }}" },
+            success: function (response) {
+                if (response.status === 'success') {
+                    $('#group_title').empty();
+                    response.groups.forEach(group => {
+                        let groupItem = `<div id="group_${group.id}" class="group_title_item group_item" data-id="${group.id}">
+                                            ${group.judul_grup_atribut}
+                                         </div>`;
+                        $('#group_title').append(groupItem);
+                    });
+                }
+            }
+        });
+    }
+
+    init_group(); // Panggil saat pertama kali halaman dimuat
+
+    // Event listener untuk tombol "Tambah Grup"
+    $('#btn_modal_grup').click(function (e) {
+        e.preventDefault();
+        mode = 'tambah';
+        id_group = 0;
+        $('#modal_grup').modal('show');
+        $('.modal-footer button[type="submit"]').html('Tambah');
+        $('#form_grup').trigger('reset');
+    });
+
+    // Event listener untuk edit grup
+    $(document).on('click', '.group_title_item', function () {
+        mode = 'edit';
+        id_group = $(this).data('id');
+        $('#modal_grup').modal('show');
+        $('.modal-footer button[type="submit"]').html('Edit');
+
+        // Ambil data grup berdasarkan ID
+        $.ajax({
+            url: "{{ route('admin.peta.get_group_by_id') }}",
+            type: "POST",
+            data: {
+                id_group: id_group ,
+                _token: "{{ csrf_token() }}"},
+            success: function (response) {
+                if (response.status === 'success') {
+                    $('#judul_grup').val(response.data.judul_grup_atribut);
+                    $('#sub_judul_grup').val(response.data.sub_judul_grup_atribut);
+                    $('#tipe_grup').val(response.data.tipe_grup_atribut);
+                    $('#ukuran_grup').val(response.data.ukuran_grup_atribut);
+                }
+            }
+        });
+    });
+
+    // Event listener untuk submit form tambah/edit grup
+    $('#form_grup').submit(function (e) {
+        e.preventDefault();
+        $('#modal_grup').modal('hide');
+        $('#loader_box').show();
+
+        let formData = new FormData(this);
+        formData.append('id_group', id_group);
+        formData.append('id_layer', id_layer);
+
+        let url = (mode === 'tambah') ? "{{ route('admin.peta.add_group') }}" : "{{ route('admin.peta.edit_group') }}";
+
+        $.ajax({
+            url: url,
+            type: "POST",
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function (response) {
+                $('#loader_box').hide();
+
+                if (response.status === 'success') {
+                    Swal.fire({
+                        title: 'Sukses!',
+                        text: (mode === 'tambah') ? 'Grup berhasil ditambahkan!' : 'Grup berhasil diubah!',
+                        icon: 'success',
+                        timer: 1500
+                    }).then(() => {
+                        location.reload(); // Refresh halaman setelah sukses
+                    });
+
+                } else {
+                    Swal.fire({
+                        title: 'Gagal!',
+                        text: response.message,
+                        icon: 'error',
+                        timer: 1500
+                    });
+                }
+            },
+            error: function () {
+                $('#loader_box').hide();
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Terjadi kesalahan pada server.',
+                    icon: 'error',
+                    timer: 1500
+                });
+            }
+        });
+    });
+});
+
+
+   $(document).ready(function () {
+        let id_layer = $('#id_layer').val();
+
+        function loadGroups() {
+            console.log("Memuat grup untuk id_layer:", id_layer);
+
+            $.ajax({
+                url: "{{ route('admin.peta.get_group') }}",
+                type: "POST",
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                data: { id_layer: id_layer },
+                success: function (response) {
+                    if (response.status === 'success') {
+                        $('#group_title').empty();
+
+                        response.groups.forEach(group => {
+                            let groupHtml = `
+                                <div id="group_${group.id_grup_atribut}" class="group_title_item group_item" data-id="${group.id_grup_atribut}">
+                                    ${group.judul_grup_atribut}
+                                </div>`;
+                            $('#group_title').append(groupHtml);
+                        });
+
+                        console.log("Grup berhasil dimuat:", response.groups);
+                    } else {
+                        console.error("Gagal mengambil grup:", response.message);
+                    }
+                },
+                error: function (xhr) {
+                    console.error("Terjadi kesalahan saat mengambil grup:", xhr.responseText);
+                }
+            });
+        }
+
+        // Panggil loadGroups saat halaman dimuat
+        loadGroups();
+
+        // Event delegation untuk klik pada .group_title_item yang ditambahkan secara dinamis
+        $(document).on('click', '.group_title_item', function (e) {
+            e.preventDefault();
+
+            $('.group_title_item').css('background', '#ffffff');
+            $(this).css('background', '#f7f8d0');
+
+            let id_grup_atribut = $(this).data('id');
+
+            console.log("ID Grup Atribut yang dikirim:", id_grup_atribut);
+
+            if (!id_grup_atribut) {
+                console.error("Error: ID Grup Atribut tidak ditemukan.");
+                Swal.fire('Gagal!', 'ID Grup Atribut tidak ditemukan.', 'error');
+                return;
+            }
+
+            $('#loader_box').show();
+
+            $.ajax({
+                url: "{{ route('admin.peta.get_group_items') }}",
+                type: "POST",
+                dataType: "JSON",
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                data: { id: id_grup_atribut },
+                success: function (res) {
+                    $('#loader_box').hide();
+
+                    if (res.status === 'success') {
+                        console.log("Data grup atribut yang diterima:", res.data);
+                        $('#layer_attribute').html('');
+                        $('#group_attribute').html('');
+                        let a = {};
+
+                        let build_array = res.data.map(v => {
+                            return new Promise(resolve => {
+                                let x = `<div id="draggable_${v.id_atribut}" class="group_item draggable_item col-12"
+                                    data-attr-id="${v.id_atribut}" data-group-id="${v.id_grup_atribut}"
+                                    data-item-id="${v.id_grup_atribut_item || 0}" data-attr-name="${v.nama_atribut_layer}">
+                                    ${v.alias_atribut_layer || v.nama_atribut_layer}
+                                </div>`;
+
+                                if (v.id_grup_atribut_item > 0) {
+                                    a[v.id_atribut] = x;
+                                } else {
+                                    $('#layer_attribute').append(x);
+                                }
+                                resolve(x);
+                            });
+                        });
+
+                        Promise.all(build_array).then(() => {
+                            if (res.item_order && res.item_order.item_sort) {
+                                res.item_order.item_sort.forEach(v => {
+                                    $('#group_attribute').append(a[v]);
+                                });
+                            }
+                        });
+
+                    } else {
+                        Swal.fire('Gagal!', res.message, 'error');
+                    }
+                },
+                error: function (xhr) {
+                    $('#loader_box').hide();
+                    console.error("Error response:", xhr.responseText);
+                    Swal.fire('Gagal!', 'Terjadi kesalahan pada server.', 'error');
+                }
+            });
+        });
+    });
+</script>
+

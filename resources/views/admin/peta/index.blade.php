@@ -138,7 +138,13 @@
 									<a href="{{ route('admin.peta.edit_layer', $layer->id_layer) }}" class="btn btn-success btn_kelola" title="Kelola Layer {{ $layer->nama_layer }}">
 										<i class="fa fa-edit"></i>
 									</a>
-									<button data-id="{{ $layer->id_layer }}" class="btn btn-warning btn_group" title="Grup Atribut {{ $layer->nama_layer }}"><i class="fa fa-clone"></i></button>
+									<button
+                                        data-id="{{ $layer->id_layer }}"
+                                        class="btn btn-warning btn_group"
+                                        title="Grup Atribut {{ $layer->nama_layer }}"
+                                        onclick="window.location.href='{{ route('admin.peta.grup_atribut', $layer->id_layer) }}'">
+                                        <i class="fa fa-clone"></i>
+                                    </button>
 								</div>
                                 <button data-id="{{ $layer->id_layer }}" class="btn btn-danger btn-sm btn_clear"
                                         title="Hapus Semua Data {{ $layer->nama_layer }}">

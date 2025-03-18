@@ -1,8 +1,9 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\GrupController;
+use App\Http\Controllers\Admin\PetaController;
 use App\Http\Controllers\Admin\BerandaController;
-use App\Http\Controllers\admin\PetaController;
 
 Route::name('auth.')->group(base_path('routes/public/auth.php'));
 
@@ -77,6 +78,26 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
         Route::get('/edit_data_peta/line/{id}', [PetaController::class, 'editDataLayerLine'])->name('admin.peta.edit_data_layer_line');
         Route::get('/edit_data_peta/polygon/{id}', [PetaController::class, 'editDataLayerPolygon'])->name('admin.peta.edit_data_layer_polygon');
 
+        //Group Management
+        Route::get('/grup_atribut/{id_layer}', [GrupController::class, 'grupAtribut'])->name('admin.peta.grup_atribut');
+        Route::post('/get_group', [GrupController::class, 'getGroup'])->name('admin.peta.get_group');
+        Route::post('/add_group', [GrupController::class, 'add_group'])->name('admin.peta.add_group');
+        Route::post('/edit_group', [GrupController::class, 'edit_group'])->name('admin.peta.edit_group');
+        Route::post('/delete_group', [GrupController::class, 'delete_group'])->name('admin.peta.delete_group');
+        Route::post('/get_group_items', [GrupController::class, 'getGroupItems'])->name('admin.peta.get_group_items');
+        Route::post('/get_group_by_id', [GrupController::class, 'getGroupById'])->name('admin.peta.get_group_by_id');
+
+
+
+        // Route::post('/get_group', [PetaController::class, 'getGroup'])->name('admin.peta.get_group');
+        // Route::post('/update_pos_group', [PetaController::class, 'updatePosGroup'])->name('admin.peta.update_pos_group');
+        // Route::post('/get_group_detail', [PetaController::class, 'getGroupDetail'])->name('admin.peta.get_group_detail');
+        // Route::post('/delete_group', [PetaController::class, 'deleteGroup'])->name('admin.peta.delete_group');
+        // Route::post('/get_group_items', [PetaController::class, 'getGroupItems'])->name('admin.peta.get_group_items');
+        // Route::post('/update_pos_group_item', [PetaController::class, 'updatePosGroupItem'])->name('admin.peta.update_pos_group_item');
+        // Route::post('/add_group_item', [PetaController::class, 'addGroupItem'])->name('admin.peta.add_group_item');
+        // Route::post('/delete_group_item', [PetaController::class, 'deleteGroupItem'])->name('admin.peta.delete_group_item');
+        // Route::post('/rename_group_item', [PetaController::class, 'renameGroupItem'])->name('admin.peta.rename_group_item');
 
         // ke halaman edit data layer 2
     //     Route::get('/edit_data_peta/{id_layer}/{tipe_layer}/{id_collection}', [PetaController::class, 'editDataLayer3'])
