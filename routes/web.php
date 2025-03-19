@@ -37,9 +37,13 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
         Route::delete('/hapus_layer/{id}', [PetaController::class, 'hapusLayer'])->name('admin.peta.hapus_layer');
         Route::get('/edit_layer/{id}', [PetaController::class, 'editLayer'])->name('admin.peta.edit_layer');
         Route::post('/update_layer/{id}', [PetaController::class, 'updateLayer'])->name('admin.peta.update_layer');
+        Route::get('/geojson/{id}', [PetaController::class, 'getGeoJson'])->name('admin.peta.geojson');
+        Route::get('/download-geojson/{id}', [PetaController::class, 'downloadGeoJson'])->name('peta.downloadGeoJson');
+        
+        // Route::get('/download_geojson/{id}/{name}', [PetaController::class, 'downloadGeojson']);
+        Route::get('/download_geojson/{id}/{name}', [PetaController::class, 'downloadGeojson']);
+        Route::get('/get_geojson/{prefix}/{id}', [PetaController::class, 'getGeojson']);
 
-
-        // kelola data layer
 
 
         // Grup Layer Management
@@ -79,7 +83,6 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
         // Group
         Route::get('/grup_atribut/{id_layer}', [GrupController::class, 'grupAtribut'])->name('admin.peta.grup_atribut');
         Route::get('/ref-koordinat', [GrupController::class, 'refKoordinat'])->name('admin.peta.ref_koordinat');
-        Route::get('/download-geojson/{id}/{name}', [GrupController::class, 'downloadGeojson'])->name('admin.peta.download_geojson');
         Route::post('/get-group', [GrupController::class, 'getGroup'])->name('admin.peta.get_group');
         Route::post('/get-layer-attribute', [GrupController::class, 'getLayerAttribute'])->name('admin.peta.get_layer_attribute');
         Route::post('/add-group', [GrupController::class, 'addGroup'])->name('admin.peta.add_group');

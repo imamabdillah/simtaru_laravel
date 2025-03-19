@@ -131,7 +131,7 @@
 							</td>
 							<td>
 								<div class="btn-group btn-group-sm">
-									<button data-id="{{ $layer->id_layer }}" class="btn btn-default btn_download" title="Download File GeoJSON {{ $layer->nama_layer }}"><i class="fa fa-download"></i></button>
+                                    <button data-id="{{ $layer->id_layer }}" type="button" data-name="{{ $layer->nama_layer }}" class="btn btn-default btn_download" title="Download File GeoJSON {{ $layer->nama_layer }}"><i class="fa fa-download"></i></button>
                                     <a href="{{ route('admin.peta.kelola_data_layer', $layer->id_layer) }}" class="btn btn-primary btn_data" data-id="{{ $layer->id_layer }}" title="Kelola Data Layer {{ $layer->nama_layer }}">
                                         <i class="fa fa-database"></i>
                                     </a>
@@ -511,27 +511,27 @@
 
 	// script link api
 	document.addEventListener("DOMContentLoaded", function() {
-		// Ambil elemen yang diperlukan
 		let sumberSelect = document.getElementById("sumber");
 		let linkApiBox = document.getElementById("link_api_box");
 
-		// Fungsi untuk menampilkan atau menyembunyikan input Link API
 		function toggleLinkApi() {
 			if (sumberSelect.value == "2") {
-				linkApiBox.style.display = "block"; // Tampilkan jika sumber = API
+				linkApiBox.style.display = "block"; 
 			} else {
-				linkApiBox.style.display = "none"; // Sembunyikan jika sumber = Database
+				linkApiBox.style.display = "none"; 
 			}
 		}
 
-		// Jalankan saat halaman dimuat untuk menangani kondisi default
 		toggleLinkApi();
 
-		// Tambahkan event listener untuk menangani perubahan dropdown
 		sumberSelect.addEventListener("change", toggleLinkApi);
 	});
 
-	$(document).on('change', '.switch_perbaikan', function () {
+
+
+$(document).ready(function() {
+    // switch perbaikan
+    $(document).on('change', '.switch_perbaikan', function () {
 		let layerId = $(this).data('id');
 		let status = $(this).is(':checked') ? 1 : 0; // Ambil status checkbox
 
@@ -555,8 +555,7 @@
 			}
 		});
 	});
-
-$(document).ready(function() {
+    // hapus layer
     $(document).on('click', '.btn_clear', function() {
         let id = $(this).data('id'); // Ambil ID layer
         let url = "{{ route('admin.peta.hapus_semua_data_layer', ':id') }}".replace(':id', id);
@@ -598,6 +597,9 @@ $(document).ready(function() {
             });
         }
     });
+
+
+    
 });
 
 
@@ -605,6 +607,19 @@ $(document).ready(function() {
     $(document).on("click", ".btn_data", function () {
         var id = $(this).data("id");
         window.location.href = "/admin/peta/data_peta/" + id;
+    });
+
+    // // script download / export geojson
+    $(document).ready(function() {
+        $(document).on('click', '.btn_download', function(e) {
+            e.preventDefault();
+            var id_data = $(this).attr('data-id');
+            var name = $(this).attr('data-name');
+
+            var url = `/admin/peta/download_geojson/${id_data}/${name}`;
+
+            window.open(url, '_blank');
+        });
     });
 
 

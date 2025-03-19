@@ -24,6 +24,7 @@ use Illuminate\Support\Facades\Storage;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Http;
 
 
 class PetaController extends Controller
@@ -1015,5 +1016,168 @@ class PetaController extends Controller
     
         return response()->json(['success' => 'Data berhasil disimpan!']);
     }
+
     
+    
+
+    public function downloadGeoJson($id)
+    {
+        // $response = $this->getGeoJson(new Request(), $id);
+        $response = $this->getGeoJson2(new Request(), $id);
+        $namaFile = Layer::find($id)->nama_layer;
+        if ($response->getStatusCode() !== 200) {
+            return response()->json(['error' => 'Failed to fetch GeoJSON'], 500);
+        }
+    
+        $geojsonData = $response->getContent();
+        // $fileName = "layer_{$id}.geojson";
+        $fileName = "{$namaFile}.geojson";
+
+    
+        return response($geojsonData)
+            ->header('Content-Type', 'application/json')
+            ->header('Content-Disposition', "attachment; filename={$fileName}");
+    }
+    
+
+    public function getGeojson2($prefix, $id)
+    {
+        $layer = Layer::where('id_layer', $id)->first();
+    
+        if (!$layer) {
+            return response()->json(['error' => 'Layer tidak ditemukan'], 404);
+        }
+        // Jika sumber dari database
+        if ($layer->sumber == '1') {
+            return $this->sumberDatabase2($id);
+        }
+    
+        // Jika sumber dari API
+        if ($layer->sumber == '2' && $layer->link_api) {
+            return $this->sumberApi($id, $layer->link_api);
+        }
+    
+        return response()->json(['error' => 'Invalid source'], 400); 
+    }
+
+
+    private function sumberDatabase2($id)
+    {
+        // Ambil alias atribut dari database
+        $alias = DB::table('tabel_layer as t1')
+            ->join('tabel_grup_atribut as t2', 't2.id_layer', '=', 't1.id_layer')
+            ->join('tabel_grup_atribut_item as t3', 't3.id_grup_atribut', '=', 't2.id_grup_atribut')
+            ->where('t1.id_layer', $id)
+            ->get()
+            ->keyBy('id_atribut'); // Simpan sebagai array key-value
+    
+        // Ambil data utama untuk xdata
+        $data_grup = DB::table('tabel_layer as t1')
+            ->join('tabel_grup_atribut as t2', 't2.id_layer', '=', 't1.id_layer')
+            ->where('t1.id_layer', $id)
+            ->get();
+    
+        // Ambil data fitur dari database
+        $data = DB::table('tabel_layer as t1')
+            ->join('tabel_atribut_layer as t2', 't2.id_layer', '=', 't1.id_layer')
+            ->join('tabel_value_attribut as t3', 't3.id_atribut', '=', 't2.id_atribut')
+            ->join('tabel_collection as t4', 't4.id_collection', '=', 't3.id_collection')
+            ->leftJoin(DB::raw("(SELECT id_collection, COUNT(1) as total_foto FROM tabel_foto_collection GROUP BY id_collection) as t5"), 't5.id_collection', '=', 't4.id_collection')
+            ->select(
+                't1.id_layer', 't1.id_opd', 't1.nama_layer', 't1.is_perbaikan',
+                't2.id_atribut', 't2.nama_atribut', 't3.id_collection', 't3.data_value',
+                't4.tipe_layer', 't4.koordinat', 't4.stroke', 't4.stroke_opacity', 
+                't4.stroke_width', 't4.stroke_dash', 't4.fill', 't4.fill_opacity',
+                't4.icon_name', 't4.name', 't4.group', 't4.page_detail', 't5.total_foto'
+            )
+            ->where('t1.id_layer', $id)
+            ->get();
+    
+        if ($data->isEmpty()) {
+            return response()->json([
+                'type' => 'FeatureCollection',
+                'features' => []
+            ]);
+        }
+    
+        // Inisialisasi array untuk fitur
+        $features = [];
+    
+        foreach ($data as $row) {
+            $id_collection = $row->id_collection;
+    
+            if (!isset($features[$id_collection])) {
+                $features[$id_collection] = [
+                    'type' => 'Feature',
+                    'properties' => [
+                        'id_layer' => (string) $row->id_layer,
+                        'id_opd' => (string) $row->id_opd,
+                        'id_collection' => (string) $id_collection,
+                        'nama_layer' => $row->nama_layer,
+                        'name' => $row->name,
+                        'stroke' => $row->stroke,
+                        'stroke_opacity' => $row->stroke_opacity,
+                        'stroke_width' => $row->stroke_width,
+                        'stroke_dash' => $row->stroke_dash,
+                        'fill' => $row->fill,
+                        'fill_opacity' => $row->fill_opacity,
+                        'icon_name' => $row->icon_name ?? 'default',
+                        'group' => $row->group,
+                        'page_detail' => (string) $row->page_detail,
+                        'total_foto' => (string) ($row->total_foto ?? 0),
+                        'is_perbaikan' => (string) $row->is_perbaikan,
+                        'sumber' => $row->name, // Bisa diganti sesuai kebutuhan
+                    ],
+                    'geometry' => [
+                        'type' => $row->tipe_layer,
+                        'coordinates' => json_decode($row->koordinat, true),
+                    ],
+                ];
+            }
+    
+            // Tambahkan atribut ke properties
+            $features[$id_collection]['properties'][$row->nama_atribut] = $row->data_value;
+        }
+    
+        // Susun xdata berdasarkan data_grup
+        $xdata = [];
+        foreach ($data_grup as $v) {
+            $xdata[] = [
+                'judul_grup' => $v->judul_grup_atribut,
+                'sub_judul_grup' => $v->sub_judul_grup_atribut,
+                'tipe_grup' => $v->tipe_grup_atribut,
+                'ukuran_grup' => $v->ukuran_grup_atribut,
+                'item_grup' => json_decode($v->pos_grup_atribut_item, true) ?? ['item_sort' => []],
+            ];
+        }
+    
+        return response()->json([
+            'type' => 'FeatureCollection',
+            'xconfig' => [
+                'sumber' => 'database',
+                'autoopen_infografis' => true
+            ],
+            'xdata' => $xdata,
+            'xalias' => $alias, // Bisa diubah jika perlu array kosong []
+            'features' => array_values($features),
+        ]);
+    }
+    
+
+    private function sumberApi($id, $linkApi)
+    {
+        $response = Http::get($linkApi);
+    
+        if ($response->failed()) {
+            return response()->json(['error' => 'Gagal mengambil data dari API'], 500);
+        }
+    
+        return response()->json($response->json());
+    }
+
+    private function sumberApiEksternal($prefix, $id)
+    {
+        // Implementasi untuk sumber API eksternal
+        return response()->json(['message' => 'Sumber API eksternal dipanggil']);
+    }
 }
