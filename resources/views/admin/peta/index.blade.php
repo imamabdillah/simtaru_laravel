@@ -385,6 +385,7 @@
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 
     // script section filter
@@ -555,47 +556,126 @@ $(document).ready(function() {
 			}
 		});
 	});
+    // // hapus layer
+    // $(document).on('click', '.btn_clear', function() {
+    //     let id = $(this).data('id'); // Ambil ID layer
+    //     let url = "{{ route('admin.peta.hapus_semua_data_layer', ':id') }}".replace(':id', id);
+
+    //     if (confirm('Apakah Anda yakin ingin menghapus semua data layer ini?')) {
+    //         $.ajax({
+    //             url: url,
+    //             type: 'DELETE',
+    //             data: { _method: 'DELETE', _token: '{{ csrf_token() }}' },
+    //             success: function(response) {
+    //                 alert('Semua data telah dihapus.');
+    //                 location.reload(); // Refresh halaman setelah berhasil menghapus
+    //             },
+    //             error: function(xhr) {
+    //                 console.log(xhr.responseText);
+    //                 alert('Terjadi kesalahan saat menghapus data.');
+    //             }
+    //         });
+    //     }
+    // });
+
     // hapus layer
     $(document).on('click', '.btn_clear', function() {
         let id = $(this).data('id'); // Ambil ID layer
         let url = "{{ route('admin.peta.hapus_semua_data_layer', ':id') }}".replace(':id', id);
-
-        if (confirm('Apakah Anda yakin ingin menghapus semua data layer ini?')) {
-            $.ajax({
-                url: url,
-                type: 'DELETE',
-                data: { _method: 'DELETE', _token: '{{ csrf_token() }}' },
-                success: function(response) {
-                    alert('Semua data telah dihapus.');
-                    location.reload(); // Refresh halaman setelah berhasil menghapus
-                },
-                error: function(xhr) {
-                    console.log(xhr.responseText);
-                    alert('Terjadi kesalahan saat menghapus data.');
-                }
-            });
-        }
+        Swal.fire({
+            title: 'Apakah Anda yakin?',
+            text: "Data yang dihapus tidak dapat dikembalikan!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Ya, hapus!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.value) {
+                $.ajax({
+                    url: url,
+                    type: 'DELETE',
+                    data: { _method: 'DELETE', _token: '{{ csrf_token() }}' },
+                    success: function(response) {
+                        Swal.fire(
+                            'Terhapus!',
+                            'Semua data telah dihapus.',
+                            'success'
+                        );
+                        location.reload(); // Refresh halaman setelah berhasil menghapus
+                    },
+                    error: function(xhr) {
+                        console.log(xhr.responseText);
+                        Swal.fire(
+                            'Gagal!',
+                            'Terjadi kesalahan saat menghapus data.',
+                            'error'
+                        );
+                    }
+                });
+            }
+        });
     });
+
+    // $(document).on('click', '.btn_hapus', function() {
+    //     let layerId = $(this).data('id');
+    //     let url = "/admin/peta/hapus_layer/" + layerId;
+
+    //     if (confirm('Apakah Anda yakin ingin menghapus layer ini?')) {
+    //         $.ajax({
+    //             url: url,
+    //             type: 'DELETE',
+    //             data: { _method: 'DELETE', _token: '{{ csrf_token() }}' },
+    //             success: function(response) {
+    //                 alert('Layer berhasil dihapus.');
+    //                 location.reload(); // Refresh halaman setelah berhasil menghapus
+    //             },
+    //             error: function(xhr) {
+    //                 console.log(xhr.responseText);
+    //                 alert('Terjadi kesalahan. Coba lagi!');
+    //             }
+    //         });
+    //     }
+    // });
 
     $(document).on('click', '.btn_hapus', function() {
         let layerId = $(this).data('id');
         let url = "/admin/peta/hapus_layer/" + layerId;
-
-        if (confirm('Apakah Anda yakin ingin menghapus layer ini?')) {
-            $.ajax({
-                url: url,
-                type: 'DELETE',
-                data: { _method: 'DELETE', _token: '{{ csrf_token() }}' },
-                success: function(response) {
-                    alert('Layer berhasil dihapus.');
-                    location.reload(); // Refresh halaman setelah berhasil menghapus
-                },
-                error: function(xhr) {
-                    console.log(xhr.responseText);
-                    alert('Terjadi kesalahan. Coba lagi!');
-                }
-            });
-        }
+        Swal.fire({
+            title: 'Apakah Anda yakin?',
+            text: "Data yang dihapus tidak dapat dikembalikan!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Ya, hapus!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.value) {
+                $.ajax({
+                    url: url,
+                    type: 'DELETE',
+                    data: { _method: 'DELETE', _token: '{{ csrf_token() }}' },
+                    success: function(response) {
+                        Swal.fire(
+                            'Terhapus!',
+                            'Layer berhasil dihapus.',
+                            'success'
+                        );
+                        location.reload(); // Refresh halaman setelah berhasil menghapus
+                    },
+                    error: function(xhr) {
+                        console.log(xhr.responseText);
+                        Swal.fire(
+                            'Gagal!',
+                            'Terjadi kesalahan. Coba lagi!',
+                            'error'
+                        );
+                    }
+                });
+            }
+        });
     });
 
 

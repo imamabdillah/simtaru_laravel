@@ -1180,4 +1180,77 @@ class PetaController extends Controller
         // Implementasi untuk sumber API eksternal
         return response()->json(['message' => 'Sumber API eksternal dipanggil']);
     }
+
+    public function importDataPeta(Request $request)
+    {
+        try {
+            $request->validate([
+                'import_geojson' => 'required|file',
+                'id_layer' => 'required|integer|exists:tabel_layer,id_layer'
+            ]);
+    
+            $file = $request->file('import_geojson');
+            $ext = $file->getClientOriginalExtension();
+    
+            if ($ext !== 'geojson') {
+                return response()->json(['status' => 'error', 'message' => 'Format file harus .geojson'], 400);
+            }
+    
+            $fileName = $request->id_layer . '_' . time() . '.' . $ext;
+            $filePath = $file->storeAs('geojson_tmp', $fileName, 'public');
+    
+            $geojsonContent = Storage::disk('public')->get($filePath);
+            $geojson = json_decode($geojsonContent, true);
+    
+            if (!isset($geojson['features'])) {
+                Storage::disk('public')->delete($filePath);
+                return response()->json(['status' => 'error', 'message' => 'Format GeoJSON tidak valid'], 400);
+            }
+    
+            foreach ($geojson['features'] as $feature) {
+                if (!isset($feature['geometry'])) {
+                    continue;
+                }
+    
+                $collection = Collection::create([
+                    'id_layer' => $request->id_layer,
+                    'tipe_layer' => $feature['geometry']['type'],
+                    'koordinat' => json_encode($feature['geometry']['coordinates']),
+                    'stroke' => $feature['properties']['stroke'] ?? null,
+                    'stroke_opacity' => $feature['properties']['stroke_opacity'] ?? null,
+                    'stroke_dash' => $feature['properties']['stroke_dash'] ?? null,
+                    'stroke_width' => $feature['properties']['stroke_width'] ?? null,
+                    'fill' => $feature['properties']['fill'] ?? null,
+                    'fill_opacity' => $feature['properties']['fill_opacity'] ?? null,
+                    'icon_name' => $feature['properties']['icon_name'] ?? null,
+                    'name' => $feature['properties']['name'] ?? null,
+                    'group' => $feature['properties']['group'] ?? null,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                    'add_by' => Auth::id(),
+                ]);
+    
+                $layerAttributes = AtributLayer::where('id_layer', $request->id_layer)->get();
+    
+                foreach ($layerAttributes as $attribute) {
+                    ValueAttribut::create([
+                        'id_atribut' => $attribute->id_atribut,
+                        'id_collection' => $collection->id_collection,
+                        'data_value' => $feature['properties'][$attribute->nama_atribut] ?? null,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                        'add_by' => Auth::id(),
+                    ]);
+                }
+            }
+    
+            Storage::disk('public')->delete($filePath);
+    
+            return response()->json(['status' => 'success']);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => 'Terjadi kesalahan saat mengimpor data: ' . $e->getMessage()], 500);
+        }
+    }
+    
+    
 }

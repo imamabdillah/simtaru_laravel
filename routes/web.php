@@ -39,8 +39,7 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
         Route::post('/update_layer/{id}', [PetaController::class, 'updateLayer'])->name('admin.peta.update_layer');
         Route::get('/geojson/{id}', [PetaController::class, 'getGeoJson'])->name('admin.peta.geojson');
         Route::get('/download-geojson/{id}', [PetaController::class, 'downloadGeoJson'])->name('peta.downloadGeoJson');
-        
-        // Route::get('/download_geojson/{id}/{name}', [PetaController::class, 'downloadGeojson']);
+        Route::post('/import-data-peta', [PetaController::class, 'importDataPeta'])->name('peta.import');
         Route::get('/download_geojson/{id}/{name}', [PetaController::class, 'downloadGeojson']);
         Route::get('/get_geojson/{prefix}/{id}', [PetaController::class, 'getGeojson']);
 
