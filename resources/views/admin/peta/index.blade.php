@@ -284,15 +284,9 @@
                                 <button type="button" class="btn btn-sm btn-success btn-save-grup-layer" style="display: none;">
                                     <i class="fa fa-check"></i>
                                 </button>
-
-                                <!-- Form Hapus -->
-                                <form action="{{ route('admin.peta.hapus_grup_layer', $grup->id_grup_layer) }}" method="POST" style="display:inline;">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Yakin ingin menghapus {{ $grup->nama_grup_layer }}?')">
-                                        <i class="fa fa-remove"></i>
-                                    </button>
-                                </form>
+                                <button type="button" class="btn btn-sm btn-danger btn-hapus-grup" data-id-grup="{{ $grup->id_grup_layer }}" title="Hapus Grup Layer">
+                                    <i class="fa fa-remove"></i>
+                                </button>
                             </div>
                         </div>
                         <hr>
@@ -310,6 +304,7 @@
 
 <!-- END Grup layer Modal -->
 
+{{-- modal jenis peta --}}
 <div class="modal fade" id="modal_jenis_peta" tabindex="-1" role="dialog" aria-labelledby="modal_jenis_peta" aria-hidden="true">
     <div class="modal-dialog modal-dialog-popin modal-md" role="document">
         <div class="modal-content">
@@ -350,13 +345,16 @@
                                 <button type="button" class="btn btn-sm btn-success btn-save-jenis-peta" style="display: none;">
                                     <i class="fa fa-check"></i>
                                 </button>
-                                <form action="{{ route('admin.peta.hapus_jenis_peta', $jenis->id_jenis_peta) }}" method="POST" style="display:inline;">
+                                {{-- <form action="{{ route('admin.peta.hapus_jenis_peta', $jenis->id_jenis_peta) }}" method="POST" style="display:inline;">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Yakin ingin menghapus {{ $jenis->nama_jenis_peta }}?')">
                                         <i class="fa fa-remove"></i>
                                     </button>
-                                </form>
+                                </form> --}}
+                                <button type="submit" class="btn btn-sm btn-danger btn-hapus-jenis-peta" data-id="{{ $jenis->id_jenis_peta }}" title="Hapus Jenis Peta">
+                                    <i class="fa fa-remove"></i>
+                                </button>
                             </div>
                         </div>
                         <hr>
@@ -556,27 +554,6 @@ $(document).ready(function() {
 			}
 		});
 	});
-    // // hapus layer
-    // $(document).on('click', '.btn_clear', function() {
-    //     let id = $(this).data('id'); // Ambil ID layer
-    //     let url = "{{ route('admin.peta.hapus_semua_data_layer', ':id') }}".replace(':id', id);
-
-    //     if (confirm('Apakah Anda yakin ingin menghapus semua data layer ini?')) {
-    //         $.ajax({
-    //             url: url,
-    //             type: 'DELETE',
-    //             data: { _method: 'DELETE', _token: '{{ csrf_token() }}' },
-    //             success: function(response) {
-    //                 alert('Semua data telah dihapus.');
-    //                 location.reload(); // Refresh halaman setelah berhasil menghapus
-    //             },
-    //             error: function(xhr) {
-    //                 console.log(xhr.responseText);
-    //                 alert('Terjadi kesalahan saat menghapus data.');
-    //             }
-    //         });
-    //     }
-    // });
 
     // hapus layer
     $(document).on('click', '.btn_clear', function() {
@@ -585,7 +562,7 @@ $(document).ready(function() {
         Swal.fire({
             title: 'Apakah Anda yakin?',
             text: "Data yang dihapus tidak dapat dikembalikan!",
-            icon: 'warning',
+            type: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#d33',
             cancelButtonColor: '#3085d6',
@@ -618,34 +595,13 @@ $(document).ready(function() {
         });
     });
 
-    // $(document).on('click', '.btn_hapus', function() {
-    //     let layerId = $(this).data('id');
-    //     let url = "/admin/peta/hapus_layer/" + layerId;
-
-    //     if (confirm('Apakah Anda yakin ingin menghapus layer ini?')) {
-    //         $.ajax({
-    //             url: url,
-    //             type: 'DELETE',
-    //             data: { _method: 'DELETE', _token: '{{ csrf_token() }}' },
-    //             success: function(response) {
-    //                 alert('Layer berhasil dihapus.');
-    //                 location.reload(); // Refresh halaman setelah berhasil menghapus
-    //             },
-    //             error: function(xhr) {
-    //                 console.log(xhr.responseText);
-    //                 alert('Terjadi kesalahan. Coba lagi!');
-    //             }
-    //         });
-    //     }
-    // });
-
     $(document).on('click', '.btn_hapus', function() {
         let layerId = $(this).data('id');
         let url = "/admin/peta/hapus_layer/" + layerId;
         Swal.fire({
             title: 'Apakah Anda yakin?',
             text: "Data yang dihapus tidak dapat dikembalikan!",
-            icon: 'warning',
+            type: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#d33',
             cancelButtonColor: '#3085d6',
@@ -678,7 +634,89 @@ $(document).ready(function() {
         });
     });
 
+    // script hapus grup layer
+    $(document).on('click', '.btn-hapus-grup', function(e) {
+        e.preventDefault();
+        let grupId = $(this).data('id-grup');
+        console.log(grupId);
+        let url = "/admin/peta/hapus_grup_layer/" + grupId;
+        Swal.fire({
+            title: 'Apakah Anda yakin?',
+            text: "Data yang dihapus tidak dapat dikembalikan!",
+            type: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Ya, hapus!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.value) {
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    data: { _method: 'DELETE', _token: '{{ csrf_token() }}' },
+                    success: function(response) {
+                        Swal.fire(
+                            'Terhapus!',
+                            'Layer berhasil dihapus.',
+                            'success'
+                        );
+                        location.reload(); // Refresh halaman setelah berhasil menghapus
+                    },
+                    error: function(xhr) {
+                        console.log(xhr.responseText);
+                        Swal.fire(
+                            'Gagal!',
+                            'Terjadi kesalahan. Coba lagi!',
+                            'error'
+                        );
+                    }
+                });
+            }
+        });
+    });
 
+    // script hapus grup layer
+    $(document).on('click', '.btn-hapus-jenis-peta', function(e) {
+        e.preventDefault();
+        let idJenisPeta = $(this).data('id');
+        console.log(idJenisPeta);
+        let url = "/admin/peta/hapus_jenis_peta/" + idJenisPeta;
+        Swal.fire({
+            title: 'Apakah Anda yakin?',
+            text: "Data yang dihapus tidak dapat dikembalikan!",
+            type: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Ya, hapus!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.value) {
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    data: { _method: 'DELETE', _token: '{{ csrf_token() }}' },
+                    success: function(response) {
+                        Swal.fire(
+                            'Terhapus!',
+                            'Layer berhasil dihapus.',
+                            'success'
+                        );
+                        location.reload(); // Refresh halaman setelah berhasil menghapus
+                    },
+                    error: function(xhr) {
+                        console.log(xhr.responseText);
+                        Swal.fire(
+                            'Gagal!',
+                            'Terjadi kesalahan. Coba lagi!',
+                            'error'
+                        );
+                    }
+                });
+            }
+        });
+    });
     
 });
 
