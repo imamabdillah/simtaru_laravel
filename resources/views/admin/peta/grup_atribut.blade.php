@@ -251,18 +251,13 @@
 @endsection
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
-<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-
+<script src="{{ asset('assets/js/plugins/jquery-ui/jquery-ui.min.js') }}"></script>
 <script>
     let mode = '';
     let id_group = 0;
     const id_layer = {{ request()->segment(4) }};
 
     $(document).ready(function() {
-        // Safety timeout to ensure loader doesn't get stuck
-        setLoaderSafetyTimeout();
-
         // Get CSRF token from meta tag
         const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
@@ -273,15 +268,23 @@
             }
         });
 
-        // Make sure jQuery UI is properly loaded before initializing
+        // Load jQuery UI if not available and ensure initialization only happens after it's loaded
         if (typeof $.fn.sortable !== 'function') {
-            console.error('jQuery UI sortable is not available. Attempting to load it dynamically.');
-            loadJQueryUI();
-            return;
+            $.getScript('https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js')
+                .done(function() {
+                    $('head').append('<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css">');
+                    setTimeout(initializeApp, 100); // Initialize after a short delay
+                });
+        } else {
+            initializeApp(); // Initialize immediately if jQuery UI is already available
         }
+    });
 
+    // Main initialization function - all jQuery UI dependent code goes here
+    function initializeApp() {
         init_group();
 
+        // Set up modal button handler
         $('#btn_modal_grup').click(function(e) {
             e.preventDefault();
             mode = 'tambah';
@@ -290,6 +293,7 @@
             $('#form_grup').trigger('reset');
         });
 
+        // Set up form submission handler
         $('#form_grup').submit(function(e) {
             e.preventDefault();
             $('#modal_grup').modal('hide');
@@ -297,7 +301,7 @@
             let data = new FormData(this);
             data.append('id_layer', id_layer);
             data.append('id_group', id_group);
-            data.append('_token', csrfToken);
+            data.append('_token', $('meta[name="csrf-token"]').attr('content'));
 
             if (mode == 'tambah') {
                 $.ajax({
@@ -331,13 +335,12 @@
                                 data: {
                                     id_layer: id_layer,
                                     data: data,
-                                    _token: csrfToken
+                                    _token: $('meta[name="csrf-token"]').attr('content')
                                 },
                                 success: function() {
                                     location.reload();
                                 },
-                                error: function(xhr, status, error) {
-                                    console.error('Update position error:', status, error);
+                                error: function() {
                                     $('#loader_box').hide();
                                 }
                             });
@@ -350,8 +353,7 @@
                             });
                         }
                     },
-                    error: function(xhr, status, error) {
-                        console.error('Add group error:', status, error);
+                    error: function() {
                         $('#loader_box').hide();
                         Swal.fire({
                             title: 'Error!',
@@ -388,8 +390,7 @@
                             });
                         }
                     },
-                    error: function(xhr, status, error) {
-                        console.error('Edit group error:', status, error);
+                    error: function() {
                         $('#loader_box').hide();
                         Swal.fire({
                             title: 'Error!',
@@ -401,12 +402,18 @@
             }
         });
 
+        // Context menu setup and handlers - all other handlers remain the same
+        setupContextMenuHandlers();
+
+        // Other event handlers remain the same
+        setupGroupAndItemHandlers();
+    }
+
+    // Function to set up context menu handlers
+    function setupContextMenuHandlers() {
         // Context menu for group title items
         $(document).on('contextmenu', '.group_title_item', function(e) {
-            console.log('Context menu triggered on item:', $(this).text());
             e.preventDefault();
-
-            // Pastikan menu muncul dan di-reset
             $('#cmenu').html('').show().css({
                 top: e.pageY + 'px',
                 left: e.pageX + 'px'
@@ -417,7 +424,6 @@
             h += '<div class="edit_group_title" data-id="' + dataId + '"> <i class="fa fa-edit"></i> Edit</div>';
             h += '<div class="delete_group_title" data-id="' + dataId + '"> <i class="fa fa-trash"></i> Hapus</div>';
             $('#cmenu').html(h);
-
             return false;
         });
 
@@ -430,7 +436,6 @@
 
         // Context menu edit action
         $(document).on('click', '.edit_group_title', function() {
-            console.log('Edit clicked for item:', $(this).attr('data-id'));
             $("#cmenu").hide();
             id_group = $(this).attr('data-id');
             $('#modal_grup').modal('show');
@@ -441,7 +446,7 @@
                 dataType: 'JSON',
                 data: {
                     id: id_group,
-                    _token: csrfToken
+                    _token: $('meta[name="csrf-token"]').attr('content')
                 },
                 success: function(res) {
                     if (res.status == 'success') {
@@ -460,8 +465,7 @@
                         );
                     }
                 },
-                error: function(xhr, status, error) {
-                    console.error('Get group detail error:', status, error);
+                error: function() {
                     $('#modal_grup').modal('hide');
                     Swal.fire({
                         title: 'Error!',
@@ -474,7 +478,6 @@
 
         // Context menu delete action
         $(document).on('click', '.delete_group_title', function() {
-            console.log('Delete clicked for item:', $(this).attr('data-id'));
             $("#cmenu").hide();
             let deleteId = $(this).attr('data-id');
 
@@ -495,7 +498,7 @@
                         dataType: 'JSON',
                         data: {
                             id: deleteId,
-                            _token: csrfToken
+                            _token: $('meta[name="csrf-token"]').attr('content')
                         },
                         success: function(res) {
                             if (res.status == 'success') {
@@ -512,7 +515,7 @@
                                     data: {
                                         id_layer: id_layer,
                                         data: data,
-                                        _token: csrfToken
+                                        _token: $('meta[name="csrf-token"]').attr('content')
                                     },
                                     success: function() {
                                         Swal.fire(
@@ -525,8 +528,7 @@
                                             location.reload();
                                         }, 1500);
                                     },
-                                    error: function(xhr, status, error) {
-                                        console.error('Update position after delete error:', status, error);
+                                    error: function() {
                                         Swal.fire({
                                             title: 'Warning',
                                             text: 'Grup dihapus tetapi terjadi error saat update posisi',
@@ -542,8 +544,7 @@
                                 );
                             }
                         },
-                        error: function(xhr, status, error) {
-                            console.error('Delete group error:', status, error);
+                        error: function() {
                             Swal.fire({
                                 title: 'Error!',
                                 text: 'Terjadi kesalahan saat menghapus grup',
@@ -554,21 +555,17 @@
                 }
             });
         });
+    }
 
-        // Click on group title items - FIXED
-        $(document).on('click', '.group_title_item', function() {
-            console.log('Group title item clicked');
+    // Function to set up group and item event handlers
+    function setupGroupAndItemHandlers() {
+        // Group title item click handler
+        $(document).on('click', '.group_title_item', function(e) {
+            e.preventDefault();
             $('.group_title_item').css('background', '#ffffff');
             $(this).css('background', '#f7f8d0');
 
             let id = $(this).attr('data-id');
-            console.log('Group ID:', id);
-
-            if (!id) {
-                console.error('No data-id attribute found on clicked element');
-                return;
-            }
-
             $('#loader_box').show();
 
             $.ajax({
@@ -577,12 +574,10 @@
                 dataType: 'JSON',
                 data: {
                     id: id,
-                    _token: csrfToken
+                    _token: $('meta[name="csrf-token"]').attr('content')
                 },
                 success: function(res) {
                     $('#loader_box').hide();
-                    console.log('Group items response:', res);
-
                     if (res.status == 'success') {
                         $('#layer_attribute').empty();
                         $('#group_attribute').empty();
@@ -638,11 +633,8 @@
 
                             // Initialize sortable and draggable for the items
                             initSortableDraggable(id);
-                        } else {
-                            console.log('No items found for this group');
                         }
                     } else {
-                        console.error('Error loading group items:', res.message);
                         Swal.fire(
                             'Gagal!',
                             res.message || 'Gagal memuat item grup',
@@ -650,11 +642,8 @@
                         );
                     }
                 },
-                error: function(xhr, status, error) {
+                error: function() {
                     $('#loader_box').hide();
-                    console.error('AJAX error when loading group items:', status, error);
-                    console.log('Response text:', xhr.responseText);
-
                     Swal.fire({
                         title: 'Error!',
                         text: 'Terjadi kesalahan saat mengambil item grup',
@@ -666,10 +655,7 @@
 
         // Context menu for group items
         $(document).on('contextmenu', '#group_attribute .group_item', function(e) {
-            console.log('Context menu triggered on group item:', $(this).text());
             e.preventDefault();
-
-            // Pastikan menu muncul dan di-reset
             $('#cmenu').html('').show().css({
                 top: e.pageY + 'px',
                 left: e.pageX + 'px'
@@ -678,13 +664,11 @@
             let itemId = $(this).attr('data-item-id');
             let h = '<div class="rename_group_item" data-item-id="' + itemId + '"> <i class="fa fa-edit"></i> Rename</div>';
             $('#cmenu').html(h);
-
             return false;
         });
 
         // Context menu rename action for group items
         $(document).on('click', '.rename_group_item', function() {
-            console.log('Rename clicked for item:', $(this).attr('data-item-id'));
             $("#cmenu").hide();
             let itemId = $(this).attr('data-item-id');
             let currentText = $('.draggable_item[data-item-id="' + itemId + '"]').text();
@@ -711,7 +695,7 @@
                         data: {
                             id_item: itemId,
                             alias: alias,
-                            _token: csrfToken
+                            _token: $('meta[name="csrf-token"]').attr('content')
                         },
                         success: function(res) {
                             $('#loader_box').hide();
@@ -731,8 +715,7 @@
                                 });
                             }
                         },
-                        error: function(xhr, status, error) {
-                            console.error('Rename group item error:', status, error);
+                        error: function() {
                             $('#loader_box').hide();
                             Swal.fire({
                                 title: 'Error!',
@@ -746,7 +729,7 @@
                 }
             });
         });
-    });
+    }
 
     // Add CSS for context menu
     $('<style>\
@@ -777,51 +760,15 @@
         }\
     </style>').appendTo('head');
 
-    // Function to set a safety timeout for the loader
-    function setLoaderSafetyTimeout() {
-        setTimeout(function() {
-            if ($('#loader_box').is(':visible')) {
-                console.warn('Loader was forced to hide after timeout');
-                $('#loader_box').hide();
-            }
-        }, 10000); // 10 seconds safety timeout
-    }
-
-    // Function to dynamically load jQuery UI if needed
-    function loadJQueryUI() {
-        console.log('Attempting to load jQuery UI dynamically');
-
-        // First try to load the CSS
-        $('head').append('<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css">');
-
-        // Then load the JS
-        $.getScript('https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js')
-            .done(function() {
-                console.log('jQuery UI loaded successfully');
-                if (typeof $.fn.sortable === 'function') {
-                    init_group(); // Initialize after loading
-                } else {
-                    console.error('jQuery UI loaded but sortable is still not available');
-                    Swal.fire({
-                        title: 'Error!',
-                        text: 'Tidak dapat memuat jQuery UI sortable. Silakan refresh halaman.',
-                        type: 'error'
-                    });
-                }
-            })
-            .fail(function(jqxhr, settings, exception) {
-                console.error('Failed to load jQuery UI:', exception);
-                Swal.fire({
-                    title: 'Error!',
-                    text: 'Gagal memuat jQuery UI. Silakan refresh halaman.',
-                    type: 'error'
-                });
-            });
-    }
-
     function init_group() {
         $('#loader_box').show();
-        setLoaderSafetyTimeout(); // Set a safety timeout for this operation
+
+        // Set a safety timeout to hide loader after 10 seconds
+        setTimeout(function() {
+            if ($('#loader_box').is(':visible')) {
+                $('#loader_box').hide();
+            }
+        }, 10000);
 
         $.ajax({
             url: "{{ route('admin.peta.get_group') }}",
@@ -832,10 +779,7 @@
                 _token: $('meta[name="csrf-token"]').attr('content')
             },
             success: function(res) {
-                console.log('Get groups response:', res);
-
                 if (!res.group || res.group.length === 0) {
-                    console.log('No groups found');
                     $('#loader_box').hide();
                     return;
                 }
@@ -873,21 +817,10 @@
                     });
                 }
 
-                try {
-                    initGroupTitleSortable();
-                    $('#loader_box').hide();
-                } catch (err) {
-                    console.error('Error in initGroupTitleSortable:', err);
-                    $('#loader_box').hide();
-                    Swal.fire({
-                        title: 'Error!',
-                        text: 'Terjadi kesalahan saat inisialisasi sortable. Silakan refresh halaman.',
-                        type: 'error'
-                    });
-                }
+                initGroupTitleSortable();
+                $('#loader_box').hide();
             },
-            error: function(xhr, status, error) {
-                console.error('Init group error:', status, error);
+            error: function() {
                 $('#loader_box').hide();
                 Swal.fire({
                     title: 'Error!',
@@ -899,15 +832,9 @@
     }
 
     function initGroupTitleSortable() {
-        // Check if sortable is available before using it
-        if (typeof $.fn.sortable !== 'function') {
-            console.error('jQuery UI sortable is not available in initGroupTitleSortable');
-            throw new Error('jQuery UI sortable is not available');
-        }
-
         $('#group_title').sortable({
             revert: false,
-            update: function(e, i) {
+            update: function() {
                 let data = $(this).sortable('serialize', {
                     key: 'group_sort[]'
                 });
@@ -920,140 +847,118 @@
                         id_layer: id_layer,
                         data: data,
                         _token: $('meta[name="csrf-token"]').attr('content')
-                    },
-                    success: function(res) {
-                        console.log('Update position success:', res);
-                    },
-                    error: function(xhr, status, error) {
-                        console.error('Update group position error:', status, error);
                     }
                 });
             }
         });
     }
 
-function initSortableDraggable(groupId) {
-    // Check if sortable and draggable are available
-    if (typeof $.fn.sortable !== 'function' || typeof $.fn.draggable !== 'function') {
-        console.error('jQuery UI sortable or draggable is not available in initSortableDraggable');
-        Swal.fire({
-            title: 'Error!',
-            text: 'Terjadi kesalahan pada fungsi sortable/draggable',
-            type: 'error'
+    function initSortableDraggable(groupId) {
+        // Initialize sortable for both containers
+        $('#group_attribute, #layer_attribute').sortable({
+            revert: false,
+            update: function() {
+                if ($(this).attr('id') === 'group_attribute') {
+                    let data = $('#group_attribute').sortable('serialize', {
+                        key: 'item_sort[]'
+                    });
+
+                    $.ajax({
+                        url: "{{ route('admin.peta.update_pos_group_item') }}",
+                        type: 'POST',
+                        dataType: 'JSON',
+                        data: {
+                            id_group: groupId,
+                            data: data,
+                            _token: $('meta[name="csrf-token"]').attr('content')
+                        }
+                    });
+                }
+            }
         });
-        return;
+
+        // Initialize draggable for all items
+        $('.draggable_item').draggable({
+            connectToSortable: '#group_attribute, #layer_attribute',
+            cursor: 'grabbing',
+            start: function() {
+                this.parentOld = $(this).parent().attr('id');
+            },
+            stop: function() {
+                let parent = $(this).parent().attr('id');
+                let parentOld = this.parentOld;
+
+                if (parent === 'group_attribute' && parent !== parentOld) {
+                    // Add item to group
+                    $('#loader_box').show();
+                    $.ajax({
+                        url: "{{ route('admin.peta.add_group_item') }}",
+                        type: 'POST',
+                        dataType: 'JSON',
+                        data: {
+                            id_atribut: $(this).attr('data-attr-id'),
+                            id_grup_atribut: groupId,
+                            nama_atribut: $(this).html(),
+                            _token: $('meta[name="csrf-token"]').attr('content')
+                        },
+                        success: function(res) {
+                            if (res.status === 'success') {
+                                $(this).attr('data-item-id', res.data.id_item);
+                                // Refresh the container
+                                $('.group_title_item[data-id="' + groupId + '"]').trigger('click');
+                            } else {
+                                Swal.fire({
+                                    title: 'Gagal!',
+                                    text: res.message || 'Gagal menambahkan item ke grup',
+                                    type: 'error'
+                                });
+                            }
+                            $('#loader_box').hide();
+                        },
+                        error: function() {
+                            $('#loader_box').hide();
+                            Swal.fire({
+                                title: 'Error!',
+                                text: 'Terjadi kesalahan saat menambahkan item ke grup',
+                                type: 'error'
+                            });
+                        }
+                    });
+                } else if (parent === 'layer_attribute' && parent !== parentOld) {
+                    // Remove item from group
+                    $('#loader_box').show();
+                    $.ajax({
+                        url: "{{ route('admin.peta.delete_group_item') }}",
+                        type: 'POST',
+                        dataType: 'JSON',
+                        data: {
+                            id_item: $(this).attr('data-item-id'),
+                            _token: $('meta[name="csrf-token"]').attr('content')
+                        },
+                        success: function(res) {
+                            if (res.status === 'success') {
+                                $(this).attr('data-item-id', 0);
+                                $(this).html($(this).attr('data-attr-name'));
+                            } else {
+                                Swal.fire({
+                                    title: 'Gagal!',
+                                    text: res.message || 'Gagal menghapus item dari grup',
+                                    type: 'error'
+                                });
+                            }
+                            $('#loader_box').hide();
+                        },
+                        error: function() {
+                            $('#loader_box').hide();
+                            Swal.fire({
+                                title: 'Error!',
+                                text: 'Terjadi kesalahan saat menghapus item dari grup',
+                                type: 'error'
+                            });
+                        }
+                    });
+                }
+            }
+        });
     }
-
-    // Initialize sortable for both containers
-    $('#group_attribute, #layer_attribute').sortable({
-        revert: false,
-        update: function(e, i) {
-            if ($(this).attr('id') === 'group_attribute') {
-                let data = $('#group_attribute').sortable('serialize', {
-                    key: 'item_sort[]'
-                });
-
-                $.ajax({
-                    url: "{{ route('admin.peta.update_pos_group_item') }}",
-                    type: 'POST',
-                    dataType: 'JSON',
-                    data: {
-                        id_group: groupId,
-                        data: data,
-                        _token: $('meta[name="csrf-token"]').attr('content')
-                    }
-                })
-                .catch(error => {
-                    console.error('Update group item position error:', error);
-                });
-            }
-        }
-    });
-
-    // Initialize draggable for all items
-    $('.draggable_item').draggable({
-        connectToSortable: '#group_attribute, #layer_attribute',
-        cursor: 'grabbing',
-        start: function() {
-            this.parentOld = $(this).parent().attr('id');
-        },
-        stop: function() {
-            let parent = $(this).parent().attr('id');
-            let parentOld = this.parentOld;
-
-            if (parent === 'group_attribute' && parent !== parentOld) {
-                // Add item to group
-                $('#loader_box').show();
-                $.ajax({
-                    url: "{{ route('admin.peta.add_group_item') }}",
-                    type: 'POST',
-                    dataType: 'JSON',
-                    data: {
-                        id_atribut: $(this).attr('data-attr-id'),
-                        id_grup_atribut: groupId,
-                        nama_atribut: $(this).html(),
-                        _token: $('meta[name="csrf-token"]').attr('content')
-                    }
-                })
-                .then(res => {
-                    if (res.status === 'success') {
-                        $(this).attr('data-item-id', res.data.id_item);
-                        // Refresh the container
-                        $('.group_title_item[data-id="' + groupId + '"]').trigger('click');
-                    } else {
-                        Swal.fire({
-                            title: 'Gagal!',
-                            text: res.message || 'Gagal menambahkan item ke grup',
-                            type: 'error'
-                        });
-                    }
-                    $('#loader_box').hide();
-                })
-                .catch(error => {
-                    console.error('Add group item error:', error);
-                    $('#loader_box').hide();
-                    Swal.fire({
-                        title: 'Error!',
-                        text: 'Terjadi kesalahan saat menambahkan item ke grup',
-                        type: 'error'
-                    });
-                });
-            } else if (parent === 'layer_attribute' && parent !== parentOld) {
-                // Remove item from group
-                $('#loader_box').show();
-                $.ajax({
-                    url: "{{ route('admin.peta.delete_group_item') }}",
-                    type: 'POST',
-                    dataType: 'JSON',
-                    data: {
-                        id_item: $(this).attr('data-item-id'),
-                        _token: $('meta[name="csrf-token"]').attr('content')
-                    }
-                })
-                .then(res => {
-                    if (res.status === 'success') {
-                        $(this).attr('data-item-id', 0);
-                        $(this).html($(this).attr('data-attr-name'));
-                    } else {
-                        Swal.fire({
-                            title: 'Gagal!',
-                            text: res.message || 'Gagal menghapus item dari grup',
-                            type: 'error'
-                        });
-                    }
-                    $('#loader_box').hide();
-                })
-                .catch(error => {
-                    console.error('Delete group item error:', error);
-                    $('#loader_box').hide();
-                    Swal.fire({
-                        title: 'Error!',
-                        text: 'Terjadi kesalahan saat menghapus item dari grup',
-                        type: 'error'
-                    });
-                });
-            }
-        }
-    });
-}
 </script>

@@ -123,20 +123,11 @@ class GrupController extends Controller
         return response()->json($res);
     }
 
-   public function getGroupItems(Request $request)
-{
-    try {
+    public function getGroupItems(Request $request)
+    {
         $id = $request->id;
-        Log::info('getGroupItems started', ['id' => $id]);
 
         $item_order = DB::table('tabel_grup_atribut')->where('id_grup_atribut', $id)->first();
-        if (!$item_order) {
-            Log::warning('Item order not found', ['id' => $id]);
-            $res['status'] = 'error';
-            $res['message'] = 'Data tidak ditemukan';
-            return response()->json($res);
-        }
-
         $res['item_order'] = json_decode($item_order->pos_grup_atribut_item, true);
 
         $get = DB::table('tabel_grup_atribut as t1')
@@ -155,37 +146,21 @@ class GrupController extends Controller
             ->join('tabel_atribut_layer as t2', 't2.id_layer', '=', 't1.id_layer')
             ->leftJoin('tabel_grup_atribut_item as t3', function($join) {
                 $join->on('t3.id_atribut', '=', 't2.id_atribut')
-                     ->on('t3.id_grup_atribut', '=', 't1.id_grup_atribut');
+                    ->on('t3.id_grup_atribut', '=', 't1.id_grup_atribut');
             })
             ->get()
             ->toArray();
 
-        Log::info('Query executed', ['count' => count($get)]);
-
         if (count($get) > 0) {
             $res['status'] = 'success';
             $res['data'] = $get;
-            Log::info('getGroupItems successful', ['id' => $id, 'items_count' => count($get)]);
         } else {
             $res['status'] = 'error';
             $res['message'] = 'Data tidak ditemukan';
-            Log::warning('getGroupItems: Data not found', ['id' => $id]);
         }
 
         return response()->json($res);
-    } catch (\Exception $e) {
-        Log::error('getGroupItems exception', [
-            'id' => $request->id ?? null,
-            'message' => $e->getMessage(),
-            'trace' => $e->getTraceAsString()
-        ]);
-
-        return response()->json([
-            'status' => 'error',
-            'message' => 'Terjadi kesalahan sistem'
-        ]);
     }
-}
 
 public function addGroupItem(Request $request)
 {
