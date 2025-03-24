@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\GrupController;
 use App\Http\Controllers\Admin\PetaController;
 use App\Http\Controllers\Admin\BerandaController;
+use App\Http\Controllers\Admin\ReferensiBidangController;
 
 Route::name('auth.')->group(base_path('routes/public/auth.php'));
 
@@ -112,13 +113,17 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
         Route::post('/delete_foto', [PetaController::class, 'deleteFoto'])->name('admin.peta.delete_foto');
         Route::get('/ambil_diskripsi', [PetaController::class, 'ambilDiskripsi'])->name('admin.peta.ambil_diskripsi');
         Route::post('/insert_diskripsi', [PetaController::class, 'insertDiskripsi'])->name('admin.peta.insert_diskripsi');
-        
 
+    });
 
+    // route referensi
+    Route::prefix('/referensi')->group(function() {
 
-
-
-
-
+        // Management Referensi Bidang
+        Route::get('/opd', [ReferensiBidangController::class, 'index'])->name('admin.referensi.bidang');
+        Route::post('/opd', [ReferensiBidangController::class, 'store'])->name('admin.referensi.bidang.store');
+        Route::get('/opd/edit/{id_opd}', [ReferensiBidangController::class, 'edit'])->name('admin.referensi.bidang.edit');
+        Route::delete('/opd/delete/{id_opd}', [ReferensiBidangController::class, 'destroy'])->name('admin.referensi.bidang.delete');
+        Route::get('/opd/data', [ReferensiBidangController::class, 'getData'])->name('admin.referensi.bidang.data');
     });
 });

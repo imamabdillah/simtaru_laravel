@@ -447,11 +447,6 @@
             $('#modal-template').modal('show');
         });
 
-        // $(document).on('click', '.edit-atribut', function () {
-        //     var url = $(this).data('url');
-        //     window.location.href = url;
-        // });
-
         $(document).on('click', '.btn-edit-data', function(e) {
             e.preventDefault();
 
@@ -480,12 +475,12 @@
         $(document).on('click', '.item_hapus', function(e) {
             e.preventDefault();
             var id_collection = $(this).data('id-collection');
-            console.log('Button hapus diklik, ID:', id_collection); // Debugging
+            console.log('Button hapus diklik, ID:', id_collection); 
             hapus_data(id_collection);
         });
 
         $('#btn_import_template').on('click', function(e) {
-            let idLayer = {{ request()->segment(4) }}; // Ambil ID layer dari blade template
+            let idLayer = {{ request()->segment(4) }}; 
 
             $.ajax({
                     url: "/admin/peta/import_template/" + idLayer,
@@ -503,40 +498,6 @@
 
         $('#import_process').hide();
 
-
-
-        // $('#import_geojson').on('submit', function(e) {
-        //     e.preventDefault();
-        //     // $('#import_process').show();
-        //     $('#btn_import').attr('disabled', 'disabled');
-
-        //     $.ajax({
-        //         url: "/admin/peta/import-data-peta",
-        //         type: "POST",
-        //         data: new FormData(this),
-        //         processData: false,
-        //         contentType: false,
-        //         cache: false,
-        //         dataType: 'JSON',
-        //         headers: {
-        //             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-        //         }
-        //     })
-        //     .done(res => {
-        //         $('#import_process').hide();
-        //         if (res.status === 'success') {
-        //             location.reload();
-        //         } else {
-        //             $('#btn_import').removeAttr('disabled');
-        //             alert(res.message);
-        //         }
-        //     })
-        //     .fail(err => {
-        //         $('#import_process').hide();
-        //         $('#btn_import').removeAttr('disabled');
-        //         alert("Terjadi kesalahan saat mengimpor data.");
-        //     });
-        // });
 
         $('#import_geojson').on('submit', function(e) {
             e.preventDefault();
@@ -598,16 +559,16 @@
             cancelButtonText: 'Batal'
         }).then((result) => {
             if (result.value) {
-                console.log('User mengonfirmasi penghapusan'); // Debugging
+                console.log('User mengonfirmasi penghapusan'); 
                 $.ajax({
-                    type: 'POST', // Laravel tidak bisa menerima DELETE dengan data, ubah ke POST
+                    type: 'POST', 
                     url: '{{ url('admin/peta/hapus_data_peta') }}/' + id_collection,
                     data: {
-                        _method: 'DELETE', // Kirimkan method DELETE secara eksplisit
+                        _method: 'DELETE', 
                         _token: '{{ csrf_token() }}'
                     },
                     success: function(response) {
-                        console.log('AJAX sukses:', response); // Debugging
+                        console.log('AJAX sukses:', response);
                         Swal.fire(
                             'Terhapus!',
                             'Data yang dipilih telah dihapus!',
