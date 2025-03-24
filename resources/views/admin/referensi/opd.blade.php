@@ -28,16 +28,6 @@
                         </tr>
                     </thead>
                     <tbody id="show_data">
-                        @foreach ($daftar_opds as $index => $daftar_opd)
-                            <tr>
-                                <td style="text-align: center;">{{ $index + 1 }}</td>
-                                <td style="text-align: left;">{{ $daftar_opd->nama_opd }}</td>
-                                <td style="text-align: center;">
-                                    <button type="button" class="btn btn-sm btn-warning mb-10 item_edit" data-id-opd="{{ $daftar_opd->id_opd }}"><i class="fa fa-edit"></i></button>
-                                    <button type="button" class="btn btn-sm btn-danger mb-10 item_hapus" data-id-opd="{{ $daftar_opd->id_opd }}"><i class="fa fa-trash"></i></button>
-                                </td>
-                            </tr>
-                        @endforeach
                     </tbody>
                 </table>
             </div>
@@ -96,13 +86,7 @@
 <script>
 $(document).ready(function () {
 
-    // Datatable
-    // $('#mydata').DataTable({
-    //     "paging": true,      
-    //     "searching": true,    
-    //     "ordering": true,      
-    //     "info": true          
-    // });
+    // daftar data Referensi OPD
     $('#mydata').DataTable({
         processing: true,
         serverSide: true,
@@ -221,7 +205,7 @@ $(document).ready(function () {
         });
     });
 
-    
+
 });
 
 

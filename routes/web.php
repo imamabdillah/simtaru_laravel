@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\GrupController;
 use App\Http\Controllers\Admin\PetaController;
 use App\Http\Controllers\Admin\BerandaController;
 use App\Http\Controllers\Admin\ReferensiBidangController;
+use App\Http\Controllers\Admin\ReferensiIconController;
 
 Route::name('auth.')->group(base_path('routes/public/auth.php'));
 
@@ -116,14 +117,21 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
 
     });
 
-    // route referensi
+    // route referensi Bidang
     Route::prefix('/referensi')->group(function() {
-
-        // Management Referensi Bidang
         Route::get('/opd', [ReferensiBidangController::class, 'index'])->name('admin.referensi.bidang');
         Route::post('/opd', [ReferensiBidangController::class, 'store'])->name('admin.referensi.bidang.store');
         Route::get('/opd/edit/{id_opd}', [ReferensiBidangController::class, 'edit'])->name('admin.referensi.bidang.edit');
         Route::delete('/opd/delete/{id_opd}', [ReferensiBidangController::class, 'destroy'])->name('admin.referensi.bidang.delete');
         Route::get('/opd/data', [ReferensiBidangController::class, 'getData'])->name('admin.referensi.bidang.data');
+    });
+
+    // route referensi Icon
+    Route::prefix('/referensi')->group(function() {
+        Route::get('/icon', [ReferensiIconController::class, 'index'])->name('admin.referensi.icon');
+        Route::post('/icon', [ReferensiIconController::class, 'store'])->name('admin.referensi.icon.store');
+        Route::get('/icon/edit/{id}', [ReferensiIconController::class, 'edit'])->name('admin.referensi.icon.edit');
+        Route::delete('/icon/delete/{id}', [ReferensiIconController::class, 'destroy'])->name('admin.referensi.icon.delete');
+        Route::get('/icon/data', [ReferensiIconController::class, 'getData'])->name('admin.referensi.icon.data');
     });
 });

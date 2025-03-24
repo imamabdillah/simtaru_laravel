@@ -1,8 +1,10 @@
+@extends('layouts.wrapper')
 <style>
     .container-fluid {
         padding: 0px 0px 10px 0px;
     }
 </style>
+@section('contents')
 <!-- Main Container -->
 <main id="main-container">
     <div class="content">
@@ -38,6 +40,7 @@
 <!-- END Main Container -->
 <!-- Pop In Modal -->
 <form id="form_icon" enctype="multipart/form-data">
+    @csrf
     <div class="modal fade" id="modal-icon" tabindex="-1" role="dialog" aria-labelledby="modal-popin" aria-hidden="true">
         <div class="modal-dialog modal-dialog-popin" role="document">
             <div class="modal-content">
@@ -52,7 +55,6 @@
                     </div>
                     <div class="block-content">
                         <!-- content -->
-                        <input type="hidden" name="<?= $this->security->get_csrf_token_name(); ?>" value="<?= $this->security->get_csrf_hash(); ?>" style="display: none">
                         <input type="hidden" name="id_icon">
                         <div class="form-group row">
                             <label class="col-12" for="nama_icon">Nama Ikon Peta</label>
@@ -67,13 +69,11 @@
                             <label class="col-12" for="nama_icon">OPD</label>
                             <div class="col-md-12">
                                 <select name="id_opd" id="id_opd" class="form-control">
-                                    <?php foreach ($data_opd as $k => $v): ?>
-                                        <?php if ($v['id_opd'] == $this->session->userdata('id_opd')): ?>
-                                            <option value="<?= $v['id_opd'] ?>" selected><?= $v['nama_opd'] ?></option>
-                                        <?php else: ?>
-                                            <option value="<?= $v['id_opd'] ?>"><?= $v['nama_opd'] ?></option>
-                                        <?php endif; ?>
-                                    <?php endforeach; ?>
+                                    @foreach ($data_opd as $opd)
+                                        <option value="{{ $opd->id_opd }}" {{ $opd->id_opd == session('id_opd') ? 'selected' : '' }}>
+                                            {{ $opd->nama_opd }}
+                                        </option>
+                                    @endforeach
                                 </select>
                             </div>
                         </div>
@@ -101,3 +101,40 @@
     </div>
 </form>
 <!-- END Pop In Modal -->
+@endsection
+
+
+<!-- jQuery harus di-load lebih awal -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    $(document).ready(function () {
+        daftar_icon();   // Panggil daftar ikon saat halaman siap
+
+        // 
+    });
+
+    // fungsi menampilkan datatable icon
+    function daftar_icon() {
+        // Jika DataTable sudah ada, destroy dulu
+        if ($.fn.DataTable.isDataTable('#mydata')) {
+            $('#mydata').DataTable().destroy();
+        }
+
+        // Inisialisasi DataTables dengan Ajax
+        $('#mydata').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: "{{ route('admin.referensi.icon.data') }}",
+            columns: [
+                { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
+                { data: 'icon', name: 'icon', orderable: false, searchable: false },
+                { data: 'nama_icon', name: 'nama_icon' },
+                { data: 'aksi', name: 'aksi', orderable: false, searchable: false }
+            ]
+        });
+    }
+</script>
