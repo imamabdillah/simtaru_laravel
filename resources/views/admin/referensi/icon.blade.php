@@ -114,7 +114,44 @@
     $(document).ready(function () {
         daftar_icon();   // Panggil daftar ikon saat halaman siap
 
-        // 
+        // form store referensi icon
+        $('#form_icon').submit(function (e) {
+            e.preventDefault();
+            $.ajax({
+                url: "{{ route('admin.referensi.icon.store') }}",
+                type: "POST",
+                data: new FormData(this),
+                processData: false,
+                contentType: false,
+                cache: false,
+                async: false,
+                success: function(response){
+                    Swal.fire({
+                        title: 'Sukses!',
+                        text: 'Data icon berhasil disimpan!',
+                        type: 'success',
+                        timer: 1500
+                    });
+                    $('#modal-icon').modal('hide');
+                    $('#form_icon').trigger('reset');
+                    $('#mydata').DataTable().ajax.reload(null, false);
+
+                },
+                error: function(xhr, status, error){
+                    console.log('AJAX error : ', xhr.responseText);
+                    Swal.fire({
+                        title: 'Gagal!',
+                        text: 'Data icon gagal disimpan!',
+                        type: 'error',
+                        timer: 1500
+                    })
+                }
+            });
+
+        });
+    // end store referensi icon
+
+
     });
 
     // fungsi menampilkan datatable icon

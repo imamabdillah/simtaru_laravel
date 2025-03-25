@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use App\Models\ReferensiIcon;
 use App\Models\ReferensiOpd;
 use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
 
 class ReferensiIconController extends Controller
 {
@@ -55,8 +57,65 @@ class ReferensiIconController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        try {
+            // Validasi input
+            $validator = Validator::make($request->all(), [
+                'nama_icon' => 'required|regex:/^[a-z0-9_]+$/|unique:tabel_referensi_icon,nama_icon,' . $request->id_icon . ',id_icon',
+                'id_opd' => 'required|exists:tabel_referensi_opd,id_opd',
+                'file_icon' => 'required|file|mimes:png|max:2048', // Hanya file PNG dengan max 2MB
+            ]);
+    
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => $validator->errors()
+                ], 422);
+            }
+    
+
+            $userId = Auth::user()->id_user;
+            $iconPath = null;
+
+            // Cek apakah ini update atau insert baru
+            $icon = ReferensiIcon::find($request->id_icon);
+            $oldFilePath = $icon ? public_path($icon->file_icon) : null;
+    
+            if ($request->hasFile('file_icon')) {
+                $file = $request->file('file_icon');
+                // Gunakan nama icon sebagai nama file (nama_icon.png)
+                $filename = $request->nama_icon . '.png';
+                $iconPath = 'assets/uploads/marker_icon/' . $filename;
+                // Hapus file lama jika ada (saat update)
+                if ($icon && file_exists($oldFilePath)) {
+                    unlink($oldFilePath);
+                }
+    
+                // Simpan file ke direktori
+                $file->move(public_path('assets/uploads/marker_icon'), $filename);
+            }
+    
+            // Cek apakah ini update atau insert baru
+            $icon = ReferensiIcon::updateOrCreate(
+                ['id_icon' => $request->id_icon],
+                [
+                    'nama_icon' => $request->nama_icon,
+                    'id_opd' => $request->id_opd,
+                    'file_icon' => $iconPath,
+                    'add_by' => $userId,
+                    'edit_by' => $userId,
+                    'is_active' => '1'
+                ]
+            );
+    
+            return redirect()->route('admin.referensi.icon')->with('success', 'Ikon berhasil disimpan!')->with('icon', $icon);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $th->getMessage()
+            ], 500);
+        }
     }
+    
 
     /**
      * Display the specified resource.
