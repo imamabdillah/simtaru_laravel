@@ -130,8 +130,8 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     Route::prefix('/referensi')->group(function() {
         Route::get('/icon', [ReferensiIconController::class, 'index'])->name('admin.referensi.icon');
         Route::post('/icon', [ReferensiIconController::class, 'store'])->name('admin.referensi.icon.store');
-        Route::get('/icon/edit/{id}', [ReferensiIconController::class, 'edit'])->name('admin.referensi.icon.edit');
-        Route::delete('/icon/delete/{id}', [ReferensiIconController::class, 'destroy'])->name('admin.referensi.icon.delete');
+        Route::get('/icon/edit/{id_icon}', [ReferensiIconController::class, 'edit'])->name('admin.referensi.icon.edit');
+        Route::delete('/icon/delete/{id_icon}', [ReferensiIconController::class, 'destroy'])->name('admin.referensi.icon.delete');
         Route::get('/icon/data', [ReferensiIconController::class, 'getData'])->name('admin.referensi.icon.data');
     });
 });

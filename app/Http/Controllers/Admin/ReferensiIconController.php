@@ -9,6 +9,9 @@ use App\Models\ReferensiOpd;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Log; // Ensure the Log facade is imported
+
 
 class ReferensiIconController extends Controller
 {
@@ -60,9 +63,17 @@ class ReferensiIconController extends Controller
         try {
             // Validasi input
             $validator = Validator::make($request->all(), [
-                'nama_icon' => 'required|regex:/^[a-z0-9_]+$/|unique:tabel_referensi_icon,nama_icon,' . $request->id_icon . ',id_icon',
+                'nama_icon' => [
+                    'required',
+                    'regex:/^[a-z0-9_]+$/',
+                    Rule::unique('tabel_referensi_icon', 'nama_icon')
+                        ->where(function ($query) use ($request) {
+                            return $query->where('id_opd', $request->id_opd);
+                        })
+                        ->ignore($request->id_icon, 'id_icon'), // Abaikan data yang sedang diedit
+                ],
                 'id_opd' => 'required|exists:tabel_referensi_opd,id_opd',
-                'file_icon' => 'required|file|mimes:png|max:2048', // Hanya file PNG dengan max 2MB
+                'file_icon' => 'file|mimes:png|max:2048', // Hanya file PNG dengan max 2MB
             ]);
     
             if ($validator->fails()) {
@@ -78,13 +89,15 @@ class ReferensiIconController extends Controller
 
             // Cek apakah ini update atau insert baru
             $icon = ReferensiIcon::find($request->id_icon);
-            $oldFilePath = $icon ? public_path($icon->file_icon) : null;
+            $oldFilePath = $icon ? public_path('assets/uploads/marker_icon/' . $icon->nama_icon . '.png') : null;
+            $oldNamaIcon = $icon ? $icon->nama_icon : null;
     
             if ($request->hasFile('file_icon')) {
                 $file = $request->file('file_icon');
                 // Gunakan nama icon sebagai nama file (nama_icon.png)
                 $filename = $request->nama_icon . '.png';
                 $iconPath = 'assets/uploads/marker_icon/' . $filename;
+
                 // Hapus file lama jika ada (saat update)
                 if ($icon && file_exists($oldFilePath)) {
                     unlink($oldFilePath);
@@ -92,6 +105,17 @@ class ReferensiIconController extends Controller
     
                 // Simpan file ke direktori
                 $file->move(public_path('assets/uploads/marker_icon'), $filename);
+            } else {
+                // Jika hanya mengganti nama tanpa mengganti file
+                if ($icon && $oldNamaIcon !== $request->nama_icon) {
+                    $newFilePath = public_path('assets/uploads/marker_icon/' . $request->nama_icon . '.png');
+            
+                    // Pastikan file lama ada sebelum rename
+                    if ($oldFilePath && file_exists($oldFilePath)) {
+                        copy($oldFilePath, $newFilePath);
+                        unlink($oldFilePath);
+                    }
+                }
             }
     
             // Cek apakah ini update atau insert baru
@@ -107,7 +131,12 @@ class ReferensiIconController extends Controller
                 ]
             );
     
-            return redirect()->route('admin.referensi.icon')->with('success', 'Ikon berhasil disimpan!')->with('icon', $icon);
+            // return redirect()->route('admin.referensi.icon')->with('success', 'Ikon berhasil disimpan!')->with('icon', $icon);
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Ikon berhasil disimpan!',
+                'icon' => $icon
+            ]);
         } catch (\Throwable $th) {
             return response()->json([
                 'status' => 'error',
@@ -115,22 +144,14 @@ class ReferensiIconController extends Controller
             ], 500);
         }
     }
-    
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit($id_icon)
     {
-        //
+        $icon = ReferensiIcon::find($id_icon);
+        return response()->json($icon);
     }
 
     /**

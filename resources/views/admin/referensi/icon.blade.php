@@ -55,7 +55,7 @@
                     </div>
                     <div class="block-content">
                         <!-- content -->
-                        <input type="hidden" name="id_icon">
+                        <input type="hidden" name="id_icon" id="id_icon">
                         <div class="form-group row">
                             <label class="col-12" for="nama_icon">Nama Ikon Peta</label>
                             <div class="col-md-12">
@@ -80,7 +80,8 @@
                         <div class="form-group row">
                             <label class="col-12" for="file_icon">File Ikon</label>
                             <div class="col-md-12">
-                                <input required type="file" class="form-control" id="file_icon" name="file_icon">
+                                <input type="file" class="form-control" id="file_icon" name="file_icon">
+                                <img id="preview_icon" src="" alt="Pratinjau Icon" style="max-height: 50px; margin-top: 10px; display: none;">
                             </div>
                             <div style="font-size: smaller; margin-left: 20px;">
                                 * Hanya file .png yang diperbolehkan.
@@ -113,6 +114,14 @@
 <script>
     $(document).ready(function () {
         daftar_icon();   // Panggil daftar ikon saat halaman siap
+
+        // RESET FORM SAAT MODAL DITUTUP
+        $('#modal-icon').on('hidden.bs.modal', function () {
+            $('#form_icon').trigger('reset'); // Reset semua input
+            $('#id_icon').val(''); // Hapus ID agar form kembali dalam mode tambah
+            $('#preview_icon').attr('src', '').hide(); // Sembunyikan pratinjau ikon lama
+            $('#file_icon').removeAttr('required'); // Hapus required pada input file saat edit
+        });
 
         // form store referensi icon
         $('#form_icon').submit(function (e) {
@@ -147,10 +156,89 @@
                     })
                 }
             });
-
         });
-    // end store referensi icon
+        // end store referensi icon
 
+        // Form Edit Referensi Bidang Icon
+        $(document).on('click', '.item_edit', function(e) {
+            e.preventDefault();
+            var id_icon = $(this).data('id-icon');
+            $('#modal-icon').modal('show');
+            $.ajax({
+                url: "{{ url('admin/referensi/icon/edit') }}/" + id_icon,
+                type: "GET",
+                data: {id_icon:id_icon},
+                success: function(response){
+                    $('#id_icon').val(response.id_icon);
+                    $('#nama_icon').val(response.nama_icon);
+                    $('#id_opd').val(response.id_opd).trigger('change'); // Set OPD
+
+                    // Tampilkan preview gambar lama jika ada
+                    if (response.nama_icon) {
+                        $('#preview_icon').attr('src', "{{ asset('assets/uploads/marker_icon') }}/" + response.nama_icon + ".png").show();
+                    } else {
+                        $('#preview_icon').hide();
+                    }
+
+                    $('#file_icon').removeAttr('required'); // File tidak wajib diupdate
+                },
+                error: function (xhr, error, status){
+                    console.log('AJAX error : ', xhr.responseText);
+                    Swal.fire({
+                        title: 'Gagal!',
+                        text: 'Data Icon gagal diambil!',
+                        type: 'error',
+                        timer: 1500
+                    })
+                }
+            })
+        });
+        // end edit referensi icon
+
+        // Hapus Referensi Bidang OPD
+        $(document).on('click', '.item_hapus', function(e) {
+            e.preventDefault();
+            var id_opd = $(this).data('id-opd');
+            Swal.fire({
+                title: 'Anda yakin?',
+                text: 'Data OPD akan dihapus!',
+                type: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                confirmButtonText: 'Hapus sekarang!',
+                cancelButtonColor: '#d33',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.value) {
+                $.ajax({
+                    url: "{{ url('admin/referensi/opd/delete') }}/" + id_opd,
+                    type: "POST",
+                    data: {
+                        _method: 'DELETE', 
+                        _token: '{{ csrf_token() }}'
+                    },
+                    success: function(response){
+                        Swal.fire({
+                            title: 'Sukses!',
+                            text: 'Data OPD berhasil dihapus!',
+                            type: 'success',
+                            timer: 1500
+                        });
+                        $('#mydata').DataTable().ajax.reload(null, false);
+                    },
+                    error: function(xhr, error, status){
+                        console.log('AJAX error : ', xhr.responseText);
+                        Swal.fire({
+                            title: 'Gagal!',
+                            text: 'Data OPD gagal dihapus!',
+                            type: 'error',
+                            timer: 1500
+                        })
+                    }
+                });
+                }
+            });
+        });
 
     });
 
