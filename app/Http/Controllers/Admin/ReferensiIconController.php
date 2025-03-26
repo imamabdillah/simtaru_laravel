@@ -165,8 +165,36 @@ class ReferensiIconController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy($id_icon)
     {
-        //
+        try {
+            $data = ReferensiIcon::find($id_icon);
+            if(!$data) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Data tidak ditemukan!'
+                ], 404);
+            }
+
+            // Path file berdasarkan nama_icon
+            $filePath = public_path('assets/uploads/marker_icon/' . $data->nama_icon . '.png');
+    
+            // Hapus file jika ada
+            if (file_exists($filePath)) {
+                unlink($filePath);
+            }
+            // hapus data
+            $data->delete();
+            
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Data berhasil dihapus!'
+                ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $th->getMessage()
+            ]);
+        }
     }
 }

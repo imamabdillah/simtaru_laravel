@@ -195,13 +195,13 @@
         });
         // end edit referensi icon
 
-        // Hapus Referensi Bidang OPD
+        // Hapus Referensi Icon
         $(document).on('click', '.item_hapus', function(e) {
             e.preventDefault();
-            var id_opd = $(this).data('id-opd');
+            var id_icon = $(this).data('id-icon');
             Swal.fire({
                 title: 'Anda yakin?',
-                text: 'Data OPD akan dihapus!',
+                text: 'Data Icon akan dihapus!',
                 type: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#3085d6',
@@ -211,7 +211,7 @@
             }).then((result) => {
                 if (result.value) {
                 $.ajax({
-                    url: "{{ url('admin/referensi/opd/delete') }}/" + id_opd,
+                    url: "{{ url('admin/referensi/icon/delete') }}/" + id_icon,
                     type: "POST",
                     data: {
                         _method: 'DELETE', 
@@ -220,7 +220,7 @@
                     success: function(response){
                         Swal.fire({
                             title: 'Sukses!',
-                            text: 'Data OPD berhasil dihapus!',
+                            text: 'Data Icon berhasil dihapus!',
                             type: 'success',
                             timer: 1500
                         });
@@ -230,7 +230,7 @@
                         console.log('AJAX error : ', xhr.responseText);
                         Swal.fire({
                             title: 'Gagal!',
-                            text: 'Data OPD gagal dihapus!',
+                            text: 'Data Icon gagal dihapus!',
                             type: 'error',
                             timer: 1500
                         })
