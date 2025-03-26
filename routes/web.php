@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\PetaController;
 use App\Http\Controllers\Admin\BerandaController;
 use App\Http\Controllers\Admin\ReferensiBidangController;
 use App\Http\Controllers\Admin\ReferensiIconController;
+use App\Http\Controllers\Admin\ReferensiKoordinatController;
 
 Route::name('auth.')->group(base_path('routes/public/auth.php'));
 
@@ -124,14 +125,19 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
         Route::get('/opd/edit/{id_opd}', [ReferensiBidangController::class, 'edit'])->name('admin.referensi.bidang.edit');
         Route::delete('/opd/delete/{id_opd}', [ReferensiBidangController::class, 'destroy'])->name('admin.referensi.bidang.delete');
         Route::get('/opd/data', [ReferensiBidangController::class, 'getData'])->name('admin.referensi.bidang.data');
-    });
 
-    // route referensi Icon
-    Route::prefix('/referensi')->group(function() {
+        // route referensi Icon
         Route::get('/icon', [ReferensiIconController::class, 'index'])->name('admin.referensi.icon');
         Route::post('/icon', [ReferensiIconController::class, 'store'])->name('admin.referensi.icon.store');
         Route::get('/icon/edit/{id_icon}', [ReferensiIconController::class, 'edit'])->name('admin.referensi.icon.edit');
         Route::delete('/icon/delete/{id_icon}', [ReferensiIconController::class, 'destroy'])->name('admin.referensi.icon.delete');
         Route::get('/icon/data', [ReferensiIconController::class, 'getData'])->name('admin.referensi.icon.data');
+
+        // route referensi Koordinat
+        Route::get('/koordinat', [ReferensiKoordinatController::class, 'index'])->name('admin.referensi.koordinat');
+        Route::post('/koordinat', [ReferensiKoordinatController::class, 'store'])->name('admin.referensi.koordinat.store');
+        Route::get('/koordinat/edit/{id_koordinat}', [ReferensiKoordinatController::class, 'edit'])->name('admin.referensi.koordinat.edit');
+        Route::delete('/koordinat/delete/{id_koordinat}', [ReferensiKoordinatController::class, 'destroy'])->name('admin.referensi.koordinat.delete');
+        Route::get('/koordinat/data', [ReferensiKoordinatController::class, 'getData'])->name('admin.referensi.koordinat.data');
     });
 });

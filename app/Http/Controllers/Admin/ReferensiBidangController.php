@@ -60,7 +60,7 @@ class ReferensiBidangController extends Controller
                 'is_active' => '1'
             ]);
     
-            return redirect()->route('admin.referensi.bidang')->with('success', 'Jenis Peta berhasil ditambahkan!')->with('opd', $opd);
+            return redirect()->route('admin.referensi.bidang')->with('success', 'Bidang OPD berhasil ditambahkan!')->with('opd', $opd);
 
         } catch (\Throwable $th) {
             throw $th;

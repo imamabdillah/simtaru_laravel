@@ -98,6 +98,12 @@ $(document).ready(function () {
         ]
     });
 
+        // RESET FORM SAAT MODAL DITUTUP
+        $('#modal-opd').on('hidden.bs.modal', function () {
+            $('#form_opd').trigger('reset'); // Reset semua input
+            $('#id_opd').val(''); // Hapus ID agar form kembali dalam mode tambah
+        });
+
     // Form Store Referensi Bidang OPD
     $('#form_opd').submit(function (e) {
         e.preventDefault();
@@ -207,15 +213,5 @@ $(document).ready(function () {
 
 
 });
-
-
-    
-
-    
-
-    
-
-    
-
     
 </script>
