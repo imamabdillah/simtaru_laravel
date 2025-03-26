@@ -136,7 +136,7 @@ $(document).ready(function () {
     // end store referensi bidang
 
     // Form Edit Referensi Bidang OPD
-    $('.item_edit').on('click', function(e){
+    $(document).on('click', '.item_edit', function(e) {
         e.preventDefault();
         var id_opd = $(this).data('id-opd');
         $('#modal-opd').modal('show');
