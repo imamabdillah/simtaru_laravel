@@ -493,6 +493,38 @@ class PetaController extends Controller
         return view('admin.peta.tambah_data_polygon', compact('layer', 'koordinat', 'atribut', 'tipe_layer', 'id_layer'));
     }
 
+    // public function getKoordinat(Request $request)
+    // {
+    //     $query = ReferensiKoordinat::query();
+
+    //     // Jika ada parameter pencarian (search), lakukan filter berdasarkan nama atau atribut lain
+    //     if ($request->has('search')) {
+    //         $query->where('nama_koordinat', 'like', '%' . $request->search . '%');
+    //     }
+
+    //     // Filter berdasarkan tipe jika dikirimkan
+    //     if ($request->has('type')) {
+    //         $query->where('tipe_koordinat', $request->type);
+    //     }
+
+    //     // Ambil data
+    //     $data = $query->limit(10)->get();
+
+    //     // Format data sesuai kebutuhan Select2
+    //     $formatted_data = $data->map(function ($item) {
+    //         return [
+    //             'id' => $item->id_koordinat,
+    //             'text' => $item->nama_koordinat,
+    //             'data' => [
+    //                 'tipe_koordinat' => $item->tipe_koordinat,
+    //                 'koordinat' => $item->koordinat
+    //             ]
+    //         ];
+    //     });
+
+    //     return response()->json($formatted_data);
+    // }
+
     public function getKoordinat(Request $request)
     {
         $query = ReferensiKoordinat::query();
@@ -517,12 +549,13 @@ class PetaController extends Controller
                 'text' => $item->nama_koordinat,
                 'data' => [
                     'tipe_koordinat' => $item->tipe_koordinat,
+                    // 'koordinat' => json_decode($item->koordinat, true) 
                     'koordinat' => $item->koordinat
                 ]
             ];
         });
-
-        return response()->json($formatted_data);
+        
+        return response()->json($formatted_data);        
     }
 
     public function editDataPetaGeojson($id)

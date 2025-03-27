@@ -298,28 +298,139 @@ function init_map()
         coords = coordinates;
     }
 
-    $('#pilih_koordinat').change(function(){
-        let val = $(this).val();
-        if(val) {
-            $.ajax({
-                url: '{{ url('admin/peta/get_koordinat') }}',
-                type: 'GET',
-                dataType: 'JSON',
-                data: {id: val, type: 'Point'}
-            })
-            .then(res => {
-                let x = [{
-                    "type": res.data.tipe_koordinat,
-                    "coordinates": JSON.parse(res.data.koordinat)
-                }];
-                let koordinat = L.geoJSON(x);
-                let koord = koordinat.getLayers()[0];
-                koord.addTo(el);
-                map.flyToBounds(koord.getBounds());
-                coords = res.data.koordinat;
-            });
+    // $('#pilih_koordinat').change(function(){
+    //     let val = $(this).val();
+    //     if(val) {
+    //         $.ajax({
+    //             url: '{{ url('admin/peta/get_koordinat') }}',
+    //             type: 'GET',
+    //             dataType: 'JSON',
+    //             data: {id: val, type: 'Point'}
+    //         })
+    //         .then(res => {
+    //             let x = [{
+    //                 "type": res.data.tipe_koordinat,
+    //                 "coordinates": JSON.parse(res.data.koordinat)
+    //             }];
+    //             let koordinat = L.geoJSON(x);
+    //             let koord = koordinat.getLayers()[0];
+    //             koord.addTo(el);
+    //             map.flyToBounds(koord.getBounds());
+    //             coords = res.data.koordinat;
+    //         });
+    //     }
+    // });
+
+    // $('#pilih_koordinat').on('change', function() {
+    //     let selected = $(this).select2('data')[0]; // Ambil data yang dipilih
+
+    //     if (selected) {
+    //         let koordinatData = JSON.parse(selected.koordinat); // Pastikan data bisa di-parse
+    //         let geoJSONData = {
+    //             "type": selected.tipe_koordinat,
+    //             "coordinates": koordinatData
+    //         };
+
+    //         let layer = L.geoJSON(geoJSONData);
+    //         let koord = layer.getLayers()[0];
+    //         koord.addTo(map); // Pastikan 'map' sudah didefinisikan
+    //         map.flyToBounds(koord.getBounds());
+    //     }
+    // });
+
+    // var pilih_koordinat = '';
+    // $('#pilih_koordinat').change(function(){
+    //     let val = $(this).val();
+    //     if(val>0)
+    //     {
+    //         $.ajax({
+    //             url: '{{ url('admin/peta/get_koordinat') }}',
+    //             type: 'GET',
+    //             dataType: 'JSON',
+    //             data: {id: val, type: 'Point'}
+    //         })
+    //         .then(res=>{
+    //             let x = [{
+    //                 "type": res.data.tipe_koordinat,
+    //                 "coordinates": JSON.parse(res.data.koordinat)
+    //             }]
+    //             pilih_koordinat = x;
+    //             if(pilih_koordinat != '')
+    //             {
+    //                 let el_first = el._layers[Object.keys(el._layers)[0]];
+
+    //                 if(typeof el_first != 'undefined')
+    //                 {
+    //                     el_first.remove(map);
+    //                     el.removeLayer(el_first);
+    //                 }
+                    
+    //                 let koordinat = L.geoJSON(pilih_koordinat);
+    //                 let koord = koordinat._layers[[Object.keys(koordinat._layers)[0]]];
+    //                 // koord.addTo(map);
+    //                 koord.addTo(el);
+    //                 map.flyToBounds(koord.getBounds());
+    //                 draw_control.remove(map);
+    //                 draw_control_edit.addTo(map);
+    //                 coords = res.data.koordinat;
+    //             }
+    //             else
+    //             {
+    //                 coords = '';
+    //             }
+    //         })
+    //     }
+    //     else
+    //     {
+    //         let el_first = el._layers[Object.keys(el._layers)[0]];
+
+    //         if(typeof el_first != 'undefined')
+    //         {
+    //             el_first.remove(map);
+    //             el.removeLayer(el_first);
+    //             draw_control_edit.remove(map);
+    //             draw_control.addTo(map);
+    //         }
+    //     }
+        
+    // })
+
+    let currentLayer = null; // Simpan layer yang ditampilkan sebelumnya
+
+    $('#pilih_koordinat').on('change', function () {
+        let selected = $(this).select2('data')[0]; // Ambil data yang dipilih
+
+        if (selected) {
+            let koordinatData = JSON.parse(selected.koordinat); // Pastikan data bisa di-parse
+            let geoJSONData = {
+                "type": selected.tipe_koordinat,
+                "coordinates": koordinatData
+            };
+
+            // Hapus layer lama jika ada
+            if (currentLayer) {
+                map.removeLayer(currentLayer);
+            }
+
+            let layer = L.geoJSON(geoJSONData);
+            let koord = layer.getLayers()[0];
+
+            if (koord) {
+                koord.addTo(map);
+                currentLayer = koord; // Simpan layer yang baru ditambahkan
+
+                // Pastikan layer memiliki `getBounds()` sebelum memanggilnya
+                if (koord.getBounds) {
+                    map.flyToBounds(koord.getBounds());
+                } else if (koord.getLatLng) {
+                    // Jika data adalah titik (Point), gunakan getLatLng
+                    map.flyTo(koord.getLatLng(), 15); // Zoom ke level 15
+                }
+            }
         }
     });
+
+
 }
 </script>
 <script>
@@ -331,20 +442,39 @@ function init_map()
             templateSelection: formatState
         });
         // $('#pilih_koordinat').select2();
+        // $('#pilih_koordinat').select2({
+        //     ajax: {
+        //         url: '{{ route("admin.peta.ref_koordinat") }}',
+        //         dataType: 'JSON',
+        //         data: function(d){
+        //             let q = {
+        //                 search: d.term,
+        //                 type: '{{ request()->segment(5) }}'
+        //             }
+        //             return q;
+        //         },
+        //         delay: 500
+        //     }
+        // });
         $('#pilih_koordinat').select2({
             ajax: {
-                url: '{{ route("admin.peta.ref_koordinat") }}',
-                dataType: 'JSON',
-                data: function(d){
-                    let q = {
-                        search: d.term,
-                        type: '{{ request()->segment(5) }}'
-                    }
-                    return q;
+                url: '{{ url('admin/peta/get_koordinat') }}',
+                dataType: 'json',
+                delay: 250,
+                processResults: function (data) {
+                    return {
+                        results: data.map(item => ({
+                            id: item.id,
+                            text: item.text,
+                            tipe_koordinat: item.data.tipe_koordinat,
+                            koordinat: item.data.koordinat
+                        }))
+                    };
                 },
-                delay: 500
+                cache: true
             }
         });
+
 
         $('#tambah_data_peta').on('submit', function(e){
             e.preventDefault();
