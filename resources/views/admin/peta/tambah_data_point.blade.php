@@ -338,97 +338,49 @@ function init_map()
     //     }
     // });
 
-    // var pilih_koordinat = '';
-    // $('#pilih_koordinat').change(function(){
-    //     let val = $(this).val();
-    //     if(val>0)
-    //     {
-    //         $.ajax({
-    //             url: '{{ url('admin/peta/get_koordinat') }}',
-    //             type: 'GET',
-    //             dataType: 'JSON',
-    //             data: {id: val, type: 'Point'}
-    //         })
-    //         .then(res=>{
-    //             let x = [{
-    //                 "type": res.data.tipe_koordinat,
-    //                 "coordinates": JSON.parse(res.data.koordinat)
-    //             }]
-    //             pilih_koordinat = x;
-    //             if(pilih_koordinat != '')
-    //             {
-    //                 let el_first = el._layers[Object.keys(el._layers)[0]];
+    $(document).ready(function(){
+        let currentLayer = null; // Simpan layer sebelumnya
 
-    //                 if(typeof el_first != 'undefined')
-    //                 {
-    //                     el_first.remove(map);
-    //                     el.removeLayer(el_first);
-    //                 }
-                    
-    //                 let koordinat = L.geoJSON(pilih_koordinat);
-    //                 let koord = koordinat._layers[[Object.keys(koordinat._layers)[0]]];
-    //                 // koord.addTo(map);
-    //                 koord.addTo(el);
-    //                 map.flyToBounds(koord.getBounds());
-    //                 draw_control.remove(map);
-    //                 draw_control_edit.addTo(map);
-    //                 coords = res.data.koordinat;
-    //             }
-    //             else
-    //             {
-    //                 coords = '';
-    //             }
-    //         })
-    //     }
-    //     else
-    //     {
-    //         let el_first = el._layers[Object.keys(el._layers)[0]];
+        $('#pilih_koordinat').on('change', function (e) {
+            e.preventDefault();
+            let selected = $(this).select2('data')[0]; // Ambil data yang dipilih
 
-    //         if(typeof el_first != 'undefined')
-    //         {
-    //             el_first.remove(map);
-    //             el.removeLayer(el_first);
-    //             draw_control_edit.remove(map);
-    //             draw_control.addTo(map);
-    //         }
-    //     }
-        
-    // })
+            if (selected) {
+                try {
+                    let koordinatData = JSON.parse(selected.koordinat); // Parse koordinat JSON
+                    coords = JSON.stringify(koordinatData); // Simpan koordinat dalam variabel global
 
-    let currentLayer = null; // Simpan layer yang ditampilkan sebelumnya
+                    let geoJSONData = {
+                        "type": selected.tipe_koordinat,
+                        "coordinates": koordinatData
+                    };
 
-    $('#pilih_koordinat').on('change', function () {
-        let selected = $(this).select2('data')[0]; // Ambil data yang dipilih
+                    // Hapus layer lama jika ada
+                    if (currentLayer) {
+                        map.removeLayer(currentLayer);
+                    }
 
-        if (selected) {
-            let koordinatData = JSON.parse(selected.koordinat); // Pastikan data bisa di-parse
-            let geoJSONData = {
-                "type": selected.tipe_koordinat,
-                "coordinates": koordinatData
-            };
+                    let layer = L.geoJSON(geoJSONData);
+                    let koord = layer.getLayers()[0];
 
-            // Hapus layer lama jika ada
-            if (currentLayer) {
-                map.removeLayer(currentLayer);
-            }
+                    if (koord) {
+                        koord.addTo(map);
+                        currentLayer = layer; // Simpan layer baru ke variabel global
 
-            let layer = L.geoJSON(geoJSONData);
-            let koord = layer.getLayers()[0];
-
-            if (koord) {
-                koord.addTo(map);
-                currentLayer = koord; // Simpan layer yang baru ditambahkan
-
-                // Pastikan layer memiliki `getBounds()` sebelum memanggilnya
-                if (koord.getBounds) {
-                    map.flyToBounds(koord.getBounds());
-                } else if (koord.getLatLng) {
-                    // Jika data adalah titik (Point), gunakan getLatLng
-                    map.flyTo(koord.getLatLng(), 15); // Zoom ke level 15
+                        if (koord.getBounds) {
+                            map.flyToBounds(koord.getBounds());
+                        } else if (koord.getLatLng) {
+                            map.flyTo(koord.getLatLng(), 15); // Jika titik, zoom ke koordinat
+                        }
+                    }
+                } catch (error) {
+                    console.error("Error parsing koordinat:", error);
+                    coords = ''; // Reset coords jika ada kesalahan parsing
                 }
             }
-        }
+        });
     });
+
 
 
 }
@@ -484,7 +436,7 @@ function init_map()
                 Swal.fire({
                     title : 'Gagal!',
                     text : 'Koordinat lokasi tidak terdeteksi',
-                    icon: 'error'
+                    type: 'error'
                 });
             }
             else
@@ -503,7 +455,7 @@ function init_map()
                         Swal.fire({
                             title : 'Sukses!',
                             text : 'Data berhasil disimpan!',
-                            icon: 'success',
+                            type: 'success',
                             timer: 1500
                         });
                         window.location.replace("{{ url('admin/peta/kelola/'.request()->segment(4)) }}");
