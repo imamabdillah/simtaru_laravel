@@ -266,7 +266,7 @@
 <script>
     // Data Per Layer
     $.ajax({
-            url: '/admin/beranda/data_per_layer', // Added forward slash
+            url: '/admin/beranda/data-per-layer', // Added forward slash
             type: 'GET',
             dataType: 'JSON'
         })
@@ -301,7 +301,7 @@
 
     // Layer Per OPD
     $.ajax({
-            url: '/admin/beranda/layer_per_opd', // Added forward slash
+            url: '/admin/beranda/layer-per-opd', // Added forward slash
             type: 'GET',
             dataType: 'JSON'
         })
@@ -381,7 +381,7 @@
 
     // Data Per OPD
     $.ajax({
-            url: '/admin/beranda/data_per_opd', // Added forward slash
+            url: '/admin/beranda/data-per-opd', // Added forward slash
             type: 'GET',
             dataType: 'JSON'
         })
@@ -453,7 +453,7 @@
 
     // Layer Per Grup Layer
     $.ajax({
-            url: '/admin/beranda/layer_per_grup_layer', // Added forward slash
+            url: '/admin/beranda/layer-per-grup-layer', // Added forward slash
             type: 'GET',
             dataType: 'JSON'
         })
@@ -531,7 +531,7 @@
 
     // Data Per Grup Layer
     $.ajax({
-            url: '/admin/beranda/data_per_grup_layer', // Added forward slash
+            url: '/admin/beranda/data-per-grup-layer', // Added forward slash
             type: 'GET',
             dataType: 'JSON'
         })
@@ -604,7 +604,7 @@
 
     // Layer Per Jenis Peta
     $.ajax({
-            url: '/admin/beranda/layer_per_jenis_peta', // Added forward slash
+            url: '/admin/beranda/layer-per-jenis-peta', // Added forward slash
             type: 'GET',
             dataType: 'JSON'
         })
@@ -652,7 +652,7 @@
 
     // Data Per Jenis Peta
     $.ajax({
-            url: '/admin/beranda/data_per_jenis_peta', // Added forward slash
+            url: '/admin/beranda/data-per-jenis-peta', // Added forward slash
             type: 'GET',
             dataType: 'JSON'
         })
@@ -700,7 +700,7 @@
 
     // Data Per Status
     $.ajax({
-            url: '/admin/beranda/data_per_status', // Added forward slash
+            url: '/admin/beranda/data-per-status', // Added forward slash
             type: 'GET',
             dataType: 'JSON'
         })
@@ -748,7 +748,7 @@
 
     // Data Per Halaman Detail
     $.ajax({
-            url: '/admin/beranda/data_per_halaman_detail', // Added forward slash
+            url: '/admin/beranda/data-per-halaman-detail', // Added forward slash
             type: 'GET',
             dataType: 'JSON'
         })
