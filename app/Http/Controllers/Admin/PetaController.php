@@ -52,9 +52,7 @@ class PetaController extends Controller
         }
     
         if ($request->filter_opd) {
-            $data->whereHas('opd', function ($query) use ($request) {
-                $query->where('nama_opd', 'like', '%' . $request->filter_opd . '%');
-            });
+            $data->where('id_opd', $request->filter_opd);
         }
     
         if ($request->filter_sumber) {
