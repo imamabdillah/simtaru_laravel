@@ -105,7 +105,7 @@
 						</tr>
 					</thead>
 					<tbody>
-						@foreach ($layers as $index => $layer)
+						{{-- @foreach ($layers as $index => $layer)
 						<tr>
 							<td>{{ $index + 1 }}</td>
 							<td>{{ $layer->nama_layer }}</td>
@@ -153,7 +153,7 @@
 								<button data-id="{{ $layer->id_layer }}" class="btn btn-danger btn-sm btn_hapus" title="Hapus Layer {{ $layer->nama_layer }}"><i class="fa fa-trash"></i></button>
 							</td>
 						</tr>
-						@endforeach
+						@endforeach --}}
 					</tbody>
 				</table>
 			</div>
@@ -384,6 +384,53 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    $(document).ready(function () {
+
+        let table = $('#mydata').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: {
+                url: '{{ route("admin.peta.ajax_layer") }}',
+                type: 'POST',
+                data: function (d) {
+                    d._token = '{{ csrf_token() }}';
+                    d.filter_nama = $('#filter_nama').val();
+                    d.filter_opd = $('#filter_opd').val();
+                    d.filter_sumber = $('#filter_sumber').val();
+                    d.filter_status = $('#filter_status').val();
+                }
+            },
+            searching: false,
+            responsive: true,
+            autoWidth: false,
+            columnDefs: [
+                { orderable: false, targets: [5, 6] }
+            ],
+            columns: [
+                { data: 'DT_RowIndex', name: '', orderable: false, searchable: false }, 
+                { data: 'nama_layer', name: 'nama_layer' },
+                { data: 'nama_opd', name: 'opd.nama_opd' },
+                { data: 'sumber_text', name: 'sumber' },
+                { data: 'status_text', name: 'status' },
+                { data: 'perbaikan', name: 'is_perbaikan', orderable: false, searchable: false },
+                { data: 'aksi', name: 'aksi', orderable: false, searchable: false }
+            ]
+        });
+
+
+        $('.btn-filter').on('click', function () {
+            table.ajax.reload();
+        });
+
+        $('.btn-reset').on('click', function () {
+            $('#form-filter')[0].reset();
+            table.ajax.reload();
+        });
+
+    });
+</script>
+
 <script>
 
     // script section filter

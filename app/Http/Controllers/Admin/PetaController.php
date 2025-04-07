@@ -43,6 +43,68 @@ class PetaController extends Controller
         return view('admin.peta.index', compact('daftar_opd', 'layers', 'grup_layers', 'jenis_peta', 'petas'));
     }
 
+    public function ajaxLayer(Request $request)
+    {
+        $data = Layer::with('opd');
+    
+        if ($request->filter_nama) {
+            $data->where('nama_layer', 'like', '%' . $request->filter_nama . '%');
+        }
+    
+        if ($request->filter_opd) {
+            $data->whereHas('opd', function ($query) use ($request) {
+                $query->where('nama_opd', 'like', '%' . $request->filter_opd . '%');
+            });
+        }
+    
+        if ($request->filter_sumber) {
+            $data->where('sumber', $request->filter_sumber);
+        }
+    
+        if ($request->filter_status) {
+            $data->where('status', $request->filter_status);
+        }
+    
+        return DataTables::of($data)
+            ->addIndexColumn()
+            ->addColumn('nama_opd', function($row) {
+                return $row->opd ? $row->opd->nama_opd : '-';
+            })
+            ->addColumn('sumber_text', function ($row) {
+                return match($row->sumber) {
+                    2 => 'API',
+                    3 => 'File JSON',
+                    default => 'Database',
+                };
+            })
+            ->addColumn('status_text', function ($row) {
+                return $row->status == 2 ? 'Sembunyikan' : 'Tampilkan';
+            })
+            ->addColumn('perbaikan', function ($row) {
+                return '<label class="css-control css-control-primary css-switch">
+                            <input type="checkbox" class="css-control-input switch_perbaikan" '.($row->is_perbaikan ? 'checked' : '').' data-id="'.$row->id_layer.'">
+                            <span class="css-control-indicator"></span>
+                        </label>';
+            })
+            ->addColumn('aksi', function ($row) {
+                $kelola = route('admin.peta.kelola_data_layer', $row->id_layer);
+                $edit = route('admin.peta.edit_layer', $row->id_layer);
+                $group = route('admin.peta.grup_atribut', $row->id_layer);
+                return '
+                    <div class="btn-group btn-group-sm">
+                        <button data-id="'.$row->id_layer.'" class="btn btn-default btn_download"><i class="fa fa-download"></i></button>
+                        <a href="'.$kelola.'" class="btn btn-primary"><i class="fa fa-database"></i></a>
+                        <a href="'.$edit.'" class="btn btn-success"><i class="fa fa-edit"></i></a>
+                        <button onclick="window.location.href=\''.$group.'\'" class="btn btn-warning"><i class="fa fa-clone"></i></button>
+                    </div>
+                    <button data-id="'.$row->id_layer.'" class="btn btn-danger btn-sm btn_clear"><i class="fa fa-times-rectangle"></i></button>
+                    <button data-id="'.$row->id_layer.'" class="btn btn-danger btn-sm btn_hapus"><i class="fa fa-trash"></i></button>
+                ';
+            })
+            ->rawColumns(['perbaikan', 'aksi']) // penting agar HTML tidak di-escape
+            ->make(true);
+    }
+
     public function daftarLayer(Request $request)
     {
         $layers = Layer::all(); // Ambil semua data layer

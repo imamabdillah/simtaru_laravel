@@ -45,6 +45,8 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
         Route::post('/import-data-peta', [PetaController::class, 'importDataPeta'])->name('peta.import');
         Route::get('/download_geojson/{id}/{name}', [PetaController::class, 'downloadGeojson']);
         Route::get('/get_geojson/{prefix}/{id}', [PetaController::class, 'getGeojson']);
+        Route::post('/ajax-layer', [PetaController::class, 'ajaxLayer'])->name('admin.peta.ajax_layer');
+
 
 
 
