@@ -149,8 +149,9 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     Route::get('/user', [ManajemenUserController::class, 'index'])->name('admin.user');
     Route::get('/user/daftar_user', [ManajemenUserController::class, 'daftar_user'])->name('admin.user.daftar_user');
     Route::post('/user', [ManajemenUserController::class, 'store'])->name('admin.user.store');
-    Route::put('/user/update/', [ManajemenUserController::class, 'update'])->name('admin.user.update');
-    Route::put('/user/ganti_password/', [ManajemenUserController::class, 'ganti_password'])->name('admin.user.ganti_password');
-    Route::put('/user/pencarian_user/', [ManajemenUserController::class, 'pencarian_user'])->name('admin.user.pencarian_user');
-    Route::delete('/user/hapus/', [ManajemenUserController::class, 'hapus'])->name('admin.user.hapus');
+    Route::post('/user/update/', [ManajemenUserController::class, 'update'])->name('admin.user.update');
+    Route::post('/user/ganti_password/', [ManajemenUserController::class, 'ganti_password'])->name('admin.user.ganti_password');
+    Route::post('/user/pencarian_user/', [ManajemenUserController::class, 'pencarianUser'])->name('admin.user.pencarian_user');
+    Route::post('/user/pencarian_user_login/', [ManajemenUserController::class, 'pencarianUserLogin'])->name('admin.user.pencarian_user_login');
+    Route::post('/user/hapus/', [ManajemenUserController::class, 'hapus'])->name('admin.user.hapus');
 });

@@ -112,7 +112,7 @@
                                 <div class="form-group row">
                                     <label class="col-12" for="nama_layer">Password</label>
                                     <div class="col-md-12">
-                                        <input required type="password" class="form-control" id="tambah_password" name="tambah_password">
+                                        <input required type="password" class="form-control" id="tambah_password" name="tambah_password" autocomplete="off">
                                     </div>
                                 </div>
                                 <div class="form-group row">
@@ -146,7 +146,7 @@
     <div class="modal-dialog modal-dialog-popin" role="document">
         <div class="modal-content">
             <form id="form_edit" method="POST">
-
+            @csrf
                 <div class="block block-themed block-transparent mb-0">
                     <div class="block-header bg-primary-dark">
                         <h3 class="block-title">Edit User</h3>
@@ -217,7 +217,7 @@
 
                 <div class="modal-footer">
                     <button type="button" class="btn btn-alt-secondary" data-dismiss="modal">Tutup</button>
-                    {{-- <button type="submit" class="btn btn-alt-success btn-simpan" id="tombol_simpan"> --}}
+                    <button type="submit" class="btn btn-alt-success btn-simpan" id="tombol_simpan">
                         
                         <i class="fa fa-check"></i> Simpan
                     </button>
@@ -232,8 +232,8 @@
 <div class="modal fade" id="modal-ganti_password" tabindex="-1" role="dialog" aria-labelledby="modal-popin" aria-hidden="true">
     <div class="modal-dialog modal-dialog-popin" role="document">
         <div class="modal-content">
-            <form id="form_ganti_password">
-
+            <form id="form_ganti_password" method="post">
+            @csrf
                 <div class="block block-themed block-transparent mb-0">
                     <div class="block-header bg-primary-dark">
                         <h3 class="block-title">Reset Password</h3>
@@ -269,7 +269,7 @@
                                 <div class="form-group row">
                                     <label class="col-12" for="nama_layer">Password</label>
                                     <div class="col-md-12">
-                                        <input required type="password" class="form-control" id="ganti_password" name="ganti_password">
+                                        <input required type="password" class="form-control" id="ganti_password" name="ganti_password" autocomplete="off">
                                     </div>
                                 </div>
                                 <div class="form-group row">
@@ -374,55 +374,86 @@
             return false;
         });
 
-    });
+        // script edit manajemen user
+        $('#form_edit').submit(function(e) {
+            e.preventDefault();
+            console.log("Form disubmit...");
+            $.ajax({
+                url: '{{ route('admin.user.update') }}',
+                type: "post",
+                data: new FormData(this),
+                processData: false,
+                contentType: false,
+                cache: false,
+                dataType: 'JSON',
+                success: function(res) {
+                    if (res.status === true) {
+                        Swal.fire({
+                            title: 'Sukses!',
+                            text: res.message,
+                            type: 'success',
+                            timer: 1500
+                        });
+                        $('#modal-edit').modal('hide');
+                        location.reload();
+                    } else {
+                        Swal.fire({
+                            title: 'Gagal!',
+                            text: res.message,
+                            type: 'error',
+                            timer: 1500
+                        });
+                        $('#modal-edit').modal('hide');
 
-    $('#form_edit').submit(function(e) {
-        e.preventDefault();
-        $.ajax({
-            url: '{{ route('admin.user.update') }}',
-            type: "post",
-            data: new FormData(this),
-            processData: false,
-            contentType: false,
-            cache: false,
-            dataType: 'JSON',
-            success: function(res) {
-                Swal.fire({
-                    title: 'Sukses!',
-                    text: 'Data Berhasil Disimpan',
-                    type: 'success',
-                    timer: 1500
-                });
-                $('#modal-form_edit').modal('hide');
-                location.reload();
+                        // Tampilkan error detail jika ada
+                        if (res.error) {
+                            console.error("Detail error:", res.error);
+                            alert("Terjadi kesalahan: " + res.error);
+                        }
+                    }
 
-            }
+                }
+            });
+            return false;
         });
-        return false;
-    });
 
-    $('#form_ganti_password').submit(function(e) {
-        e.preventDefault();
-        $.ajax({
-            url: '{{ route('admin.user.ganti_password') }}',
-            type: "post",
-            data: new FormData(this),
-            processData: false,
-            contentType: false,
-            cache: false,
-            dataType: 'JSON',
-            success: function(res) {
-                Swal.fire({
-                    title: 'Sukses!',
-                    text: 'Data Berhasil Disimpan',
-                    type: 'success',
-                    timer: 1500
-                });
-                $('#modal-form_ganti_password').modal('hide');
-                location.reload();
+        $('#form_ganti_password').submit(function (e) {
+            e.preventDefault();
+
+            // Validasi sederhana password cocok
+            const password1 = $('#ganti_password').val();
+            const password2 = $('#ganti_password_2').val();
+
+            if (password1 !== password2) {
+                Swal.fire('Gagal!', 'Password tidak cocok.', 'error');
+                return;
             }
+
+            $.ajax({
+                url: '{{ route('admin.user.ganti_password') }}',
+                type: "POST",
+                data: new FormData(this),
+                processData: false,
+                contentType: false,
+                cache: false,
+                dataType: 'JSON',
+                success: function (res) {
+                    Swal.fire({
+                        title: 'Sukses!',
+                        text: 'Password berhasil diganti.',
+                        type: 'success',
+                        timer: 1500
+                    });
+                    $('#modal-ganti_password').modal('hide');
+                    location.reload();
+                },
+                error: function () {
+                    Swal.fire('Gagal!', 'Terjadi kesalahan saat menyimpan data.', 'error');
+                }
+            });
         });
-        return false;
+
+
     });
 
     function change_role(role) {
@@ -476,7 +507,7 @@
             },
             success: function(data) {
                 // $('#kelompok_opd_edit').hide();
-
+                console.log(data);
                 $('#edit_id_user').val(data.id_user);
                 $('#edit_id_user_detail').val(data.id_user_detail);
                 $('#edit_nama').val(data.nama);
@@ -495,15 +526,16 @@
     function show_modal_ganti_password(id_user_detail, id_user) {
         $.ajax({
             type: 'POST',
-            url: '{{ route('admin.user.pencarian_user') }}',
+            url: '{{ route('admin.user.pencarian_user_login') }}',
             async: false,
             dataType: 'json',
             data: {
-                id_user_detail: id_user_detail
+                id_user: id_user
             },
             success: function(data) {
                 // $('#kelompok_opd_edit').hide();
-
+                
+                console.log(data);
                 $('#ganti_id_user').val(data.id_user);
                 $('#ganti_id_user_detail').val(data.id_user_detail);
                 $('#ganti_username').val(data.user_name);
@@ -575,19 +607,22 @@
                         status = 'Non Aktif';
                     }
 
+                    var detail = data[i].detail ?? {};
+
                     html += '<tr>' +
                         '<td>' + (i + 1) + '</td>' +
-                        '<td>' + data[i].detail?.nama + '</td>' +
-                        '<td>' + role + '</td>' +
-                        '<td>' + data[i].user_name + '</td>' +
+                        '<td>' + (detail.nama ?? '-') + '</td>' +
+                        '<td>' + (role ?? '-') + '</td>' +
+                        '<td>' + (data[i].user_name ?? '-') + '</td>' +
                         '<td style="text-align:center;">' +
-                        '<button data="' + data[i].detail?.id_user_detail + '" type="button" class="btn btn-warning btn-sm" onclick="show_modal_ganti_password(' + data[i].detail?.id_user_detail + ', ' + data[i].id_user + ')"><i class="fa fa-key"></i></button>' +
+                        '<button ' + (detail.id_user_detail ? 'data="' + detail.id_user_detail + '" onclick="show_modal_ganti_password(' + detail.id_user_detail + ', ' + data[i].id_user + ')"' : 'disabled') + ' type="button" class="btn btn-warning btn-sm"><i class="fa fa-key"></i></button>' +
                         '&nbsp;' +
-                        '<button data="' + data[i].detail?.id_user_detail + '" type="button" class="btn btn-info btn-sm" onclick="show_modal_edit(' + data[i].detail?.id_user_detail + ', ' + data[i].id_user + ')"><i class="fa fa-edit"></i></button>' +
+                        '<button ' + (detail.id_user_detail ? 'data="' + detail.id_user_detail + '" onclick="show_modal_edit(' + detail.id_user_detail + ', ' + data[i].id_user + ')"' : 'disabled') + ' type="button" class="btn btn-info btn-sm"><i class="fa fa-edit"></i></button>' +
                         '&nbsp;' +
-                        '<button data="' + data[i].detail?.id_user_detail + '" type="button" class="btn btn-danger btn-sm" onclick="show_modal_hapus(' + data[i].detail?.id_user_detail + ', ' + data[i].id_user + ')"><i class="fa fa-trash"></i></button>' +
+                        '<button ' + (detail.id_user_detail ? 'data="' + detail.id_user_detail + '" onclick="show_modal_hapus(' + detail.id_user_detail + ', ' + data[i].id_user + ')"' : 'disabled') + ' type="button" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i></button>' +
                         '</td>' +
                         '</tr>';
+
                 }
 
                 $('#show_data').html(html);

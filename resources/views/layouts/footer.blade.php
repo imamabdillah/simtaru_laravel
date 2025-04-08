@@ -43,6 +43,14 @@
     });
 </script>
 
+<script>
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+    });
+</script>
+
 @if(isset($extra_js)) {!! $extra_js !!} @endif
 </body>
 </html>

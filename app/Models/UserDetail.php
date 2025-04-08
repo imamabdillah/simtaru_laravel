@@ -11,7 +11,7 @@ class UserDetail extends Model
 
     protected $table = 'user_detail';
     protected $primaryKey = 'id_user_detail';
-    public $timestamps = false; // Aktifkan timestamps
+    public $timestamps = false; 
 
     protected $fillable = [
         'id_user',
