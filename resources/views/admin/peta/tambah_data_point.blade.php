@@ -199,10 +199,11 @@
     
                                 @endif
     
+                                <input type="hidden" name="page_detail" value="0">
                                 <div class="form-group row">
                                     <div class="col-lg-12">
                                         <label class="css-control css-control-success css-checkbox">
-                                            <input type="checkbox" name="page_detail" class="css-control-input">
+                                            <input type="checkbox" name="page_detail" class="css-control-input" value="1">
                                             <span class="css-control-indicator"></span> Aktifkan Fitur Halaman Detail
                                         </label>
                                     </div>
@@ -428,22 +429,22 @@ function init_map()
         });
 
 
-        $('#tambah_data_peta').on('submit', function(e){
+        $('#tambah_data_peta').on('submit', function(e) {
             e.preventDefault();
-            console.log('tombol submit ditekan');
-            if(typeof coords === 'undefined' || coords == '')
-            {
+            console.log('Tombol submit ditekan');
+
+            if (typeof coords === 'undefined' || coords == '') {
                 Swal.fire({
-                    title : 'Gagal!',
-                    text : 'Koordinat lokasi tidak terdeteksi',
-                    type: 'error'
+                    title: 'Gagal!',
+                    text: 'Koordinat lokasi tidak terdeteksi',
+                    icon: 'error'
                 });
-            }
-            else
-            {
+                console.error('Error: Koordinat tidak terdeteksi.');
+            } else {
                 var coord = coords;
                 var form_data = new FormData(this);
                 form_data.append('coordinates', coord);
+
                 $.ajax({
                     url: '{{ route("admin.peta.simpan_data_peta_point") }}',
                     type: "post",
@@ -451,19 +452,31 @@ function init_map()
                     processData: false,
                     contentType: false,
                     cache: false,
-                    success: function(response){
+                    success: function(response) {
+                        console.log('Response sukses:', response);
                         Swal.fire({
-                            title : 'Sukses!',
-                            text : 'Data berhasil disimpan!',
+                            title: 'Sukses!',
+                            text: 'Data berhasil disimpan!',
                             type: 'success',
                             timer: 1500
                         });
                         window.location.replace("{{ url('admin/peta/kelola/'.request()->segment(4)) }}");
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('AJAX Error:', status, error);
+                        console.error('Response Text:', xhr.responseText);
+                        Swal.fire({
+                            title: 'Gagal!',
+                            text: 'Terjadi kesalahan saat menyimpan data.',
+                            type: 'error'
+                        });
                     }
                 });
+
                 return false;
             }
         });
+
 
     })
 

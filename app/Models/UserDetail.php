@@ -11,24 +11,31 @@ class UserDetail extends Model
 
     protected $table = 'user_detail';
     protected $primaryKey = 'id_user_detail';
-    public $timestamps = true; // Aktifkan timestamps
+    public $timestamps = false; // Aktifkan timestamps
 
     protected $fillable = [
-    'id_user',
-    'nama',
-    'role',
-    'id_opd',
-    'is_active',
-    'no_ktp',
-    'no_hp',
-    'email',
-    'alamat',
-    'kecamatan',
-    'desa',
-    'is_delete',
-    'ditambahkan_oleh', // Tambahkan ini
-    'diupdate_oleh',    // Tambahkan ini jika diperlukan
-];
+        'id_user',
+        'nama',
+        'role',
+        'id_opd',
+        'is_active',
+        'no_ktp',
+        'no_hp',
+        'email',
+        'alamat',
+        'kecamatan',
+        'desa',
+        'is_delete',
+        'ditambahkan_oleh', // Tambahkan ini
+        'diupdate_oleh',    // Tambahkan ini jika diperlukan
+    ];
+
+    // di UserDetail.php
+    public function opd()
+    {
+        return $this->belongsTo(ReferensiOpd::class, 'id_opd', 'id_opd');
+    }
+
 
 
 }

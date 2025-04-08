@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\BerandaController;
 use App\Http\Controllers\Admin\ReferensiBidangController;
 use App\Http\Controllers\Admin\ReferensiIconController;
 use App\Http\Controllers\Admin\ReferensiKoordinatController;
+use App\Http\Controllers\admin\ManajemenUserController;
 
 Route::name('auth.')->group(base_path('routes/public/auth.php'));
 
@@ -120,8 +121,9 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
 
     });
 
-    // route referensi Bidang
+    // route referensi Bidang, Icon, dan Koordinat
     Route::prefix('/referensi')->group(function() {
+        // route referensi Bidang
         Route::get('/opd', [ReferensiBidangController::class, 'index'])->name('admin.referensi.bidang');
         Route::post('/opd', [ReferensiBidangController::class, 'store'])->name('admin.referensi.bidang.store');
         Route::get('/opd/edit/{id_opd}', [ReferensiBidangController::class, 'edit'])->name('admin.referensi.bidang.edit');
@@ -142,4 +144,13 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
         Route::delete('/koordinat/delete/{id_koordinat}', [ReferensiKoordinatController::class, 'destroy'])->name('admin.referensi.koordinat.delete');
         Route::get('/koordinat/data', [ReferensiKoordinatController::class, 'getData'])->name('admin.referensi.koordinat.data');
     });
+
+    // route manajemen user
+    Route::get('/user', [ManajemenUserController::class, 'index'])->name('admin.user');
+    Route::get('/user/daftar_user', [ManajemenUserController::class, 'daftar_user'])->name('admin.user.daftar_user');
+    Route::post('/user', [ManajemenUserController::class, 'store'])->name('admin.user.store');
+    Route::put('/user/update/', [ManajemenUserController::class, 'update'])->name('admin.user.update');
+    Route::put('/user/ganti_password/', [ManajemenUserController::class, 'ganti_password'])->name('admin.user.ganti_password');
+    Route::put('/user/pencarian_user/', [ManajemenUserController::class, 'pencarian_user'])->name('admin.user.pencarian_user');
+    Route::delete('/user/hapus/', [ManajemenUserController::class, 'hapus'])->name('admin.user.hapus');
 });

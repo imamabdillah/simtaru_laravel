@@ -17,7 +17,8 @@ return new class extends Migration
             $table->enum('role', ['1', '2', '3'])->default('3')->comment('1: admin, 2: opd, 3: pemohon');
             $table->unsignedBigInteger('id_opd')->nullable();
             $table->enum('is_active', ['1', '2', '3'])->default('1')->comment('1: aktif, 2: non-aktif, 3: bermasalah');
-            $table->timestamps();
+            $table->timestamp('ditambahkan')->nullable();
+            $table->timestamp('diupdate')->nullable();     
             $table->timestamp('is_delete')->nullable();
             $table->string('no_ktp')->nullable();
             $table->string('no_hp', 15)->nullable();

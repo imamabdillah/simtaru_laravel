@@ -199,10 +199,11 @@
     
                                 @endif
     
+                                <input type="hidden" name="page_detail" value="0">
                                 <div class="form-group row">
                                     <div class="col-lg-12">
                                         <label class="css-control css-control-success css-checkbox">
-                                            <input type="checkbox" name="page_detail" class="css-control-input">
+                                            <input type="checkbox" name="page_detail" class="css-control-input" value="1">
                                             <span class="css-control-indicator"></span> Aktifkan Fitur Halaman Detail
                                         </label>
                                     </div>
@@ -372,71 +373,88 @@
             }
         });
 
-    
-        var pilih_koordinat = '';
-        $('#pilih_koordinat').change(function(){
-        let val = $(this).val();
-        if(val > 0)
-        {
-            $.ajax({
-                url: '{{ url('admin/peta/get_koordinat') }}',
-                type: 'GET',
-                dataType: 'JSON',
-                data: {id: val, type: 'LineString'}
-            })
-            .then(res=>{
-                if (!res.data || !res.data.koordinat) {
-                    console.error("Data koordinat tidak ditemukan");
-                    return;
-                }
-
-                let x = [{
-                    "type": res.data.tipe_koordinat,
-                    "coordinates": JSON.parse(res.data.koordinat)
-                }];
-                pilih_koordinat = x;
-
-                if(pilih_koordinat.length > 0)
-                {
-                    let el_first = Object.keys(el._layers).length > 0 ? el._layers[Object.keys(el._layers)[0]] : undefined;
-
-                    if(el_first)
-                    {
-                        el_first.remove(map);
-                        el.removeLayer(el_first);
-                    }
-                    
-                    let koordinat = L.geoJSON(pilih_koordinat);
-                    let koord = Object.keys(koordinat._layers).length > 0 ? koordinat._layers[Object.keys(koordinat._layers)[0]] : undefined;
-
-                    if(koord){
-                        koord.addTo(el);
-                        map.flyToBounds(koord.getBounds());
-                        draw_control.remove(map);
-                        draw_control_edit.addTo(map);
-                        coords = res.data.koordinat;
-                    }
-                }
-                else
-                {
-                    coords = '';
-                }
-            }).fail(function(err){
-                console.error("Error fetching coordinates:", err);
-            });
-        }
-        else
-        {
-            let el_first = Object.keys(el._layers).length > 0 ? el._layers[Object.keys(el._layers)[0]] : undefined;
-            if(el_first)
+        $(document).ready(function(){
+            var pilih_koordinat = '';
+            $('#pilih_koordinat').change(function(e){
+            e.preventDefault();
+            let val = $(this).val();
+            console.log("ID Terpilih:", val); // Pastikan ini berubah
+            if(val > 0)
             {
-                el_first.remove(map);
-                el.removeLayer(el_first);
-                draw_control_edit.remove(map);
-                draw_control.addTo(map);
+                $.ajax({
+                    url: '{{ url('admin/peta/get_koordinat') }}',
+                    type: 'GET',
+                    dataType: 'JSON',
+                    data: {id: val, type: 'LineString'}
+                })
+                .then(res => {
+                    console.log("Response dari server:", res);
+
+                    if (!res[0] || !res[0].data || !res[0].data.koordinat) {
+                        console.error("Data koordinat tidak ditemukan");
+                        return;
+                    }
+
+                    let koordinatString = res[0].data.koordinat;
+                    let koordinatParsed;
+
+                    try {
+                        koordinatParsed = JSON.parse(koordinatString);
+                    } catch (error) {
+                        console.error("Error parsing JSON koordinat:", error, koordinatString);
+                        return;
+                    }
+
+                    let x = [{
+                        "type": res[0].data.tipe_koordinat,
+                        "coordinates": koordinatParsed
+                    }];
+
+                    console.log("Data koordinat yang diterima:", x);
+
+                    pilih_koordinat = x;
+
+                    if (pilih_koordinat.length > 0) {
+                        let el_first = Object.keys(el._layers).length > 0 ? el._layers[Object.keys(el._layers)[0]] : undefined;
+
+                        if (el_first) {
+                            el_first.remove(map);
+                            el.removeLayer(el_first);
+                        }
+
+                        let koordinat = L.geoJSON(pilih_koordinat);
+                        let koord = Object.keys(koordinat._layers).length > 0 ? koordinat._layers[Object.keys(koordinat._layers)[0]] : undefined;
+
+                        if (koord) {
+                            koord.addTo(el);
+                            map.flyToBounds(koord.getBounds());
+                            draw_control.remove(map);
+                            draw_control_edit.addTo(map);
+                            coords = koordinatParsed;
+                        }
+                    } else {
+                        coords = '';
+                    }
+                })
+                .fail(function(err) {
+                    console.error("Error fetching coordinates:", err);
+                });
+
             }
-        }
+            else
+            {
+                let el_first = Object.keys(el._layers).length > 0 ? el._layers[Object.keys(el._layers)[0]] : undefined;
+                if(el_first)
+                {
+                    el_first.remove(map);
+                    el.removeLayer(el_first);
+                    draw_control_edit.remove(map);
+                    draw_control.addTo(map);
+                }
+            }
+        });
     });
+
 
     
     function to_geojson_coordinates(l){
@@ -461,18 +479,37 @@
             templateSelection: formatState
         });
         // $('#pilih_koordinat').select2();
+        // $('#pilih_koordinat').select2({
+        //     ajax: {
+        //         url: '{{ route("admin.peta.ref_koordinat") }}',
+        //         dataType: 'JSON',
+        //         data: function(d){
+        //             let q = {
+        //                 search: d.term,
+        //                 type: '{{ request()->segment(5) }}'
+        //             }
+        //             return q;
+        //         },
+        //         delay: 500
+        //     }
+        // });
+
         $('#pilih_koordinat').select2({
             ajax: {
-                url: '{{ route("admin.peta.ref_koordinat") }}',
-                dataType: 'JSON',
-                data: function(d){
-                    let q = {
-                        search: d.term,
-                        type: '{{ request()->segment(5) }}'
-                    }
-                    return q;
+                url: '{{ url('admin/peta/get_koordinat') }}',
+                dataType: 'json',
+                delay: 250,
+                processResults: function (data) {
+                    return {
+                        results: data.map(item => ({
+                            id: item.id,
+                            text: item.text,
+                            tipe_koordinat: item.data.tipe_koordinat,
+                            koordinat: item.data.koordinat
+                        }))
+                    };
                 },
-                delay: 500
+                cache: false
             }
         });
 
@@ -494,7 +531,6 @@
                 form_data.append('coordinates', coords);
 
                 $.ajax({
-                    url: '{{ route("admin.peta.simpan_data_peta_line") }}',
                     type: "POST",
                     data: form_data,
                     processData: false,

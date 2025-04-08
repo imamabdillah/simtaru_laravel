@@ -204,10 +204,15 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="{{ asset('assets\js\plugins\highlightjs\highlight.pack.min.js') }}"></script>
 
 <script>
     $(document).ready(function () {
         daftar_koordinat();   // Panggil daftar ikon saat halaman siap
+    $('#contoh_koordinat').slimScroll({
+        color: '#b00404',
+        height: '430px'
+    });
 
         // RESET FORM SAAT MODAL DITUTUP
         $('#modal-koordinat').on('hidden.bs.modal', function () {
