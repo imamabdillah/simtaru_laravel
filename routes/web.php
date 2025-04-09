@@ -8,12 +8,28 @@ use App\Http\Controllers\Admin\ReferensiBidangController;
 use App\Http\Controllers\Admin\ReferensiIconController;
 use App\Http\Controllers\Admin\ReferensiKoordinatController;
 use App\Http\Controllers\admin\ManajemenUserController;
+use App\Http\Controllers\Admin\ManajemenAPIController;
+use App\Http\Controllers\ApiController;
 
 Route::name('auth.')->group(base_path('routes/public/auth.php'));
 
 // Public
 Route::name('public.')->group(base_path('routes/public/index.php'));
 // Route::name('admin.')->group(base_path('routes/admin.php'));
+
+// route api
+// Route::get('api/get/{token}/{format?}', [ApiController::class, 'getData'])->name('api.get');
+Route::get('/api', [ApiController::class, 'index']);
+Route::get('/api/get/{token}/{mode?}', [ApiController::class, 'get']);
+// Route::get('/api/geojson/{token}/{id}/{mode?}', [ApiController::class, 'geojson']);
+Route::get('api/geojson/{token}/{id_layer}/d/{nama_layer}', [ApiController::class, 'geojson']);
+Route::get('/api/extend_layers', [ApiController::class, 'extendLayers']);
+Route::get('/api/layer_api/{prefix}/{id}', [ApiController::class, 'layerApi']);
+Route::get('/menuapi/{id}', [ApiController::class, 'menuApi']);
+Route::get('/example/{id}', [ApiController::class, 'example']);
+Route::post('/list-layer', [ApiController::class, 'listLayer']);
+Route::post('/list-koordinat', [ApiController::class, 'listKoordinat']);
+Route::post('/get-koordinat', [ApiController::class, 'getKoordinat']);
 
 Route::middleware(['auth'])->prefix('admin')->group(function () {
     Route::get('/beranda', [BerandaController::class, 'index'])->name('admin.dashboard');
@@ -154,4 +170,12 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     Route::post('/user/pencarian_user/', [ManajemenUserController::class, 'pencarianUser'])->name('admin.user.pencarian_user');
     Route::post('/user/pencarian_user_login/', [ManajemenUserController::class, 'pencarianUserLogin'])->name('admin.user.pencarian_user_login');
     Route::post('/user/hapus/', [ManajemenUserController::class, 'hapus'])->name('admin.user.hapus');
+
+    // route manajemen API
+    Route::prefix('api')->group(function () {
+        Route::get('/', [ManajemenAPIController::class, 'index'])->name('api.index');
+        Route::post('/tambah', [ManajemenAPIController::class, 'store'])->name('api.store');
+        Route::get('/list', [ManajemenAPIController::class, 'getList'])->name('api.list');
+        Route::post('/hapus', [ManajemenAPIController::class, 'destroy'])->name('api.destroy');
+    });
 });
